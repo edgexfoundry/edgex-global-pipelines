@@ -3,9 +3,9 @@ def call(branchName = env.GIT_BRANCH, body) {
     def releaseStreams = [/.*master/, /.*california/, /.*delhi/, /.*edinburgh/] //, /.*git-semver/
 
     if(branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true)) {
-        println "[edgeXReleaseStage] Current branch [${branchName}] IS valid release branch. Running code..."
+        println "[edgeXMergeStage] Current branch [${branchName}] IS valid release branch. Running code..."
         body()
     } else {
-        println "[edgeXReleaseStage] Current branch [${branchName}] IS NOT a valid release branch, skipping code..."
+        println "[edgeXMergeStage] Current branch [${branchName}] IS NOT a valid release branch, skipping code..."
     }
 }
