@@ -1,0 +1,3 @@
+[submodule "global-jjb"]
+	path = global-jjb
+	url = https://github.com/lfit/releng-global-jjb.git
