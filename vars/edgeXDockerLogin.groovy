@@ -30,25 +30,15 @@ def call(body) {
         throw new Exception('Docker registry (dockerRegistry) is required when docker registry ports are set (dockerRegistryPorts).')
     }
 
-    if(_dockerRegistry) {
-        env.setProperty('DOCKER_REGISTRY', _dockerRegistry)
-    }
+    def overrideVars = []
+    if(_dockerRegistry) { overrideVars << "DOCKER_REGISTRY=${_dockerRegistry}" }
+    if(_dockerRegistryPorts) { overrideVars << "REGISTRY_PORTS=${_dockerRegistryPorts}" }
+    if(_dockerHubRegistry) { overrideVars << "DOCKERHUB_REGISTRY=${_dockerHubRegistry}" }
+    if(_dockerHubEmail) {overrideVars << "DOCKERHUB_EMAIL=${_dockerHubEmail}" }
 
-    if(_dockerRegistryPorts) {
-        env.setProperty('REGISTRY_PORTS', _dockerRegistryPorts)
+    withEnv(overrideVars){
+        configFileProvider([configFile(fileId: _settingsFile, variable: 'SETTINGS_FILE')]) {
+        sh(script: libraryResource('global-jjb-shell/docker-login.sh'))
+        }
     }
-
-    if(_dockerHubRegistry) {
-        env.setProperty('DOCKERHUB_REGISTRY', _dockerHubRegistry)
-    }
-
-    if(_dockerHubEmail) {
-        env.setProperty('DOCKERHUB_EMAIL', _dockerHubEmail)
-    }
-
-    configFileProvider([configFile(fileId: _settingsFile, variable: 'SETTINGS_FILE')]) {
-        def loginScript = libraryResource('global-jjb-shell/docker-login.sh')
-        sh loginScript
-    }
-
 }
