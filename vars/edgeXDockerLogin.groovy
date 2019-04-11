@@ -14,16 +14,7 @@
 // limitations under the License.
 //
 
-def call(body) {
-    // evaluate the body block, and collect configuration into the object
-    def config = [:]
-    
-    if(body) {
-        body.resolveStrategy = Closure.DELEGATE_FIRST
-        body.delegate = config
-        body()
-    }
-
+def call(Map config = [:]) {
     // The LF Global JJB Docker Login script looks for information in the following variables: 
     // $SETTINGS_FILE, $DOCKER_REGISTRY, $REGISTRY_PORTS, $DOCKERHUB_REGISTRY, $DOCKERHUB_EMAIL
     // Please refer to the shell script in global-jjb/shell for the usage.
@@ -54,7 +45,7 @@ def call(body) {
 
     withEnv(overrideVars){
         configFileProvider([configFile(fileId: _settingsFile, variable: 'SETTINGS_FILE')]) {
-        sh(script: libraryResource('global-jjb-shell/docker-login.sh'))
+            sh(script: libraryResource('global-jjb-shell/docker-login.sh'))
         }
     }
 }
