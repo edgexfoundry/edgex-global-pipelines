@@ -41,7 +41,7 @@ def call(body) {
             // Set build description with build logs and PR info if applicable
             if(!currentBuild.description) {currentBuild.description = ''}
             if(env.ghprbPullId) {
-                currentBuild.description += "<a title=\"${env.ghprbPullTitle}\" href=\"${env.ghprbPullLink}\"> PR #${env.ghprbPullId}</a>: ${env.ghprbPullTitle}<br>"
+                currentBuild.description += "<br>"
             }
             currentBuild.description += "Build logs: <a href=\"$LOGS_SERVER/$SILO/$JENKINS_HOSTNAME/$JOB_NAME/$BUILD_NUMBER\">$LOGS_SERVER/$SILO/$JENKINS_HOSTNAME/$JOB_NAME/$BUILD_NUMBER</a>"
 
