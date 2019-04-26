@@ -15,10 +15,10 @@
 //
 
 def call(command = null, credentials = 'edgex-jenkins-ssh', debug = true) {
-    def arch          = env.ARCH ?: 'x86_64'
-    def gitSemverVersion = '0.0.1-pre.5'
+    def arch = env.ARCH ?: 'x86_64'
+    def gitSemverVersion = 'latest'
 
-    def semverImage   = "ernestoojeda/git-semver:${gitSemverVersion}-${arch}"
+    def semverImage   = "nexus3.edgexfoundry.org:10004/edgexfoundry/git-semver:${gitSemverVersion}-${arch}"
     def envVars       = [ 'SSH_KNOWN_HOSTS=/etc/ssh/ssh_known_hosts' ]
     def semverCommand = [
        'git',
@@ -42,7 +42,6 @@ def call(command = null, credentials = 'edgex-jenkins-ssh', debug = true) {
                     sh semverCommand.join(' ')
                 }
             }
-
             semverVersion = sh(script: 'git semver', returnStdout: true).trim()
         }
     }
