@@ -20,3 +20,24 @@ def isReleaseStream(branchName = env.GIT_BRANCH) {
 
     (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
+
+
+def dirsChanged(String directory) {
+    // If there was no previous successful build (as in building for first time) will return true.
+    def diffCount = "0"
+    if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT != null) {
+        diffCount = sh(returnStdout: true, script: "git diff --name-only ${env.GIT_COMMIT} ${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT} | grep ${directory} | wc -l").trim()
+        // Will return true for manual build
+        if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT == env.GIT_COMMIT) {
+            diffCount = "1"
+        }
+    } else {
+        diffCount = "1"
+    }
+
+    if (diffCount != "0") {
+        return true
+    } else {
+        return false
+    }
+}
