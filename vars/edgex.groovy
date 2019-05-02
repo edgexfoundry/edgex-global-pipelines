@@ -20,3 +20,26 @@ def isReleaseStream(branchName = env.GIT_BRANCH) {
 
     (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
+
+def didChange(expression, previous=env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) {
+    // If there was no previous successful build (as in building for first time) will return true.
+    def diffCount = 0
+
+    // if there is previous commit, then lets calculate the git diff
+    if (previous != null) {
+        diffCount = sh (
+          returnStdout: true,
+          script: "git diff --name-only ${env.GIT_COMMIT} ${previous} | grep \"${expression}\" | wc -l"
+        ).trim().toInteger()
+
+        // If the build is triggered manually
+        if (previous == env.GIT_COMMIT) {
+            diffCount = 1
+        }
+    } else {
+        // if no previous commit, then this is probably the first build
+        diffCount = 1
+    }
+
+    return diffCount > 0
+}
