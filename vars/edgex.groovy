@@ -32,7 +32,7 @@ def didChange(expression, previous='origin/master') {
         println "[didChange-DEBUG] we have a previous commit: [${previous}]"
         println "[didChange-DEBUG] Files changed since the previous commit:"
 
-        sh "git diff --name-only ${env.GIT_COMMIT} ${previous} | grep \"${expression}\""
+        sh "git diff --name-only ${env.GIT_COMMIT} ${previous} | grep \"${expression}\" | true"
 
         diffCount = sh (
           returnStdout: true,
