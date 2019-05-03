@@ -25,8 +25,15 @@ def didChange(expression, previous=env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) {
     // If there was no previous successful build (as in building for first time) will return true.
     def diffCount = 0
 
+    println "[didChange-DEBUG] checking to see what changed in this build...looking for expression: [${expression}]"
+
     // if there is previous commit, then lets calculate the git diff
     if (previous != null) {
+        println "[didChange-DEBUG] we have a previous commit: [${previous}]"
+        println "[didChange-DEBUG] Files changed since the previous commit:"
+
+        sh "git diff --name-only ${env.GIT_COMMIT} ${previous} | grep \"${expression}\""
+
         diffCount = sh (
           returnStdout: true,
           script: "git diff --name-only ${env.GIT_COMMIT} ${previous} | grep \"${expression}\" | wc -l"
@@ -34,9 +41,11 @@ def didChange(expression, previous=env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) {
 
         // If the build is triggered manually
         if (previous == env.GIT_COMMIT) {
+            println "[didChange-DEBUG] The build has been triggered manually. [${previous}] == [${env.GIT_COMMIT}]"
             diffCount = 1
         }
     } else {
+        println "[didChange-DEBUG] NO previous commit. Probably the first build"
         // if no previous commit, then this is probably the first build
         diffCount = 1
     }
