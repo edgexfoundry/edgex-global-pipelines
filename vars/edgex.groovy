@@ -21,7 +21,7 @@ def isReleaseStream(branchName = env.GIT_BRANCH) {
     (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
 
-def didChange(expression, previous=env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) {
+def didChange(expression, previous='origin/master') {
     // If there was no previous successful build (as in building for first time) will return true.
     def diffCount = 0
 
