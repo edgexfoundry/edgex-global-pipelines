@@ -27,8 +27,17 @@ def didChange(expression, previous='origin/master') {
 
     println "[didChange-DEBUG] checking to see what changed in this build...looking for expression: [${expression}]"
 
-    // if there is previous commit, then lets calculate the git diff
-    if (previous != null) {
+    // if no previous commit, then this is probably the first build
+    if (previous == null) {
+        println "[didChange-DEBUG] NO previous commit. Probably the first build"
+        diffCount = 1
+    } else{
+        // If we are merging into master then both previous and the current will be the same
+        // so we need to calculate the previous commit has
+        if(previous =~ /.*master/ && env.GIT_BRANCH =~ /.*master/) {
+            previous = sh (script: "git show --pretty=%H ${env.GIT_COMMIT}^1 | xargs", returnStdout: true).trim()
+        }
+
         println "[didChange-DEBUG] we have a previous commit: [${previous}]"
         println "[didChange-DEBUG] Files changed since the previous commit:"
 
@@ -44,10 +53,6 @@ def didChange(expression, previous='origin/master') {
             println "[didChange-DEBUG] The build has been triggered manually. [${previous}] == [${env.GIT_COMMIT}]"
             diffCount = 1
         }
-    } else {
-        println "[didChange-DEBUG] NO previous commit. Probably the first build"
-        // if no previous commit, then this is probably the first build
-        diffCount = 1
     }
 
     return diffCount > 0
