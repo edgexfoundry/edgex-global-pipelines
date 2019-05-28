@@ -22,6 +22,9 @@ def call(Map config = [:]) {
         def _sigulPassword = config.sigulPassword ?: 'sigul-password'
         def _sigulPKI = config.sigulPKI ?: 'sigul-pki'
 
+        // Expose lftools image version for override
+        def _lftoolsImageVersion = config.lftoolsImageVersion ?: '0.23.1-centos7'
+
         def _command = config.command ?: ''
         def _directory = config.directory ?: ''
         def _mode = config.mode ?: 'parallel'
@@ -56,9 +59,9 @@ def call(Map config = [:]) {
         if(!_command) {
             throw new Exception("Invalid command (command: ${_command}) provided for the edgeXInfraLFToolsSign function. (Valid values: dir, git-tag)")
         } else {
-            def lftoolsImage = docker.build('lftools-image', '-f ./docker/Dockerfile.lftools .')
+            def lftoolsImage = "nexus3.edgexfoundry.org:10004/edgex-lftools:${_lftoolsImageVersion}"
             
-            lftoolsImage.inside('-u 0:0') {
+            docker.image(lftoolsImage).inside('-u 0:0') {
                 configFileProvider([configFile(fileId: _sigulConfig, variable: 'SIGUL_CONFIG'),
                                 configFile(fileId: _sigulPassword, variable: 'SIGUL_PASSWORD'),
                                 configFile(fileId: _sigulPKI, variable: 'SIGUL_PKI')]) {
