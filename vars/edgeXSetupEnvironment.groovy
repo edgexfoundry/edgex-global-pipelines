@@ -43,4 +43,7 @@ def call(vars) {
         def vmArch = sh(script: 'uname -m', returnStdout: true).trim()
         env.setProperty('ARCH', vmArch)
     }
+
+    // set default semver suffix mode to development
+    env.setProperty('SEMVER_PRE_PREFIX', 'dev')
 }
