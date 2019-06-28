@@ -19,7 +19,6 @@ def call(tokenFile = null) {
         tokenFile = "${env.PROJECT}-codecov-token"
     }
     configFileProvider([configFile(fileId: tokenFile, variable: "CODECOV_TOKEN")]) {
-        sh '''TOKEN=$(cat ${CODECOV_TOKEN})
-            curl <(https://codecov.io/bash) -t $TOKEN'''
+        sh "curl -s https://codecov.io/bash | bash -s - -t @${CODECOV_TOKEN}"
     }
 }
