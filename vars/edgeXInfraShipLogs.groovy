@@ -29,24 +29,24 @@ def call(body) {
         throw new Exception('Log settings file id (logSettingsFile) is required for LF log deploy script.')
     }
 
-    withEnv(["SERVER_ID=logs"]){
-        configFileProvider([configFile(fileId: _logSettingsFile, variable: 'SETTINGS_FILE')]) {
-            echo 'Running global-jjb/create-netrc.sh'
-            sh(script: libraryResource('global-jjb-shell/create-netrc.sh'))
-            echo 'Running global-jjb/python-tools-install.sh'
-            sh(script: libraryResource('global-jjb-shell/python-tools-install.sh'))
-            echo 'Running global-jjb/logs-deploy.sh'
-            sh(script: libraryResource('global-jjb-shell/logs-deploy.sh'))
-            
-            // Set build description with build logs and PR info if applicable
-            if(!currentBuild.description) {currentBuild.description = ''}
-            if(env.ghprbPullId) {
-                currentBuild.description += "<br>"
+    // running this inside the lftools container to avoid the 1-3 minute install of lftools
+    docker.image("${env.DOCKER_REGISTRY}:10003/edgex-lftools:latest").inside('-u 0:0') {
+        withEnv(["SERVER_ID=logs"]){
+            configFileProvider([configFile(fileId: _logSettingsFile, variable: 'SETTINGS_FILE')]) {
+                echo 'Running global-jjb/create-netrc.sh'
+                sh(script: libraryResource('global-jjb-shell/create-netrc.sh'))
+                echo 'Running global-jjb/logs-deploy.sh'
+                sh(script: libraryResource('global-jjb-shell/logs-deploy.sh'))
+                echo 'Running global-jjb/logs-clear-credentials.sh'
+                sh(script: libraryResource('global-jjb-shell/logs-clear-credentials.sh'))
             }
-            currentBuild.description += "Build logs: <a href=\"$LOGS_SERVER/$SILO/$JENKINS_HOSTNAME/$JOB_NAME/$BUILD_NUMBER\">$LOGS_SERVER/$SILO/$JENKINS_HOSTNAME/$JOB_NAME/$BUILD_NUMBER</a>"
-
-            echo 'Running global-jjb/logs-clear-credentials.sh'
-            sh(script: libraryResource('global-jjb-shell/logs-clear-credentials.sh'))
         }
     }
+
+    // Set build description with build logs and PR info if applicable
+    if(!currentBuild.description) {currentBuild.description = ''}
+    if(env.ghprbPullId) {
+        currentBuild.description += "<br>"
+    }
+    currentBuild.description += "Build logs: <a href=\"$LOGS_SERVER/$SILO/$JENKINS_HOSTNAME/$JOB_NAME/$BUILD_NUMBER\">$LOGS_SERVER/$SILO/$JENKINS_HOSTNAME/$JOB_NAME/$BUILD_NUMBER</a>"
 }
