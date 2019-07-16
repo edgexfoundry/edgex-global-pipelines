@@ -19,7 +19,7 @@
    JSON Output: edgeXClair('dockerImage:tag', [outputFormat: 'json'])
 */
 def call(image, Map options = [:]) {
-    def klarImage = options.klarImage ?: 'nexus3.edgexfoundry.org:10004/edgex-klar:latest'
+    def klarImage = options.klarImage ?: "${env.DOCKER_REGISTRY}:10003/edgex-klar:latest"
     def server    = options.server    ?: 'edgex.clair.adsdcsp.com'
     
     if(!image) {
