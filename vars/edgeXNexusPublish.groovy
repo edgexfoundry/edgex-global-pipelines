@@ -29,8 +29,9 @@ def call(Map config = [:]) {
     def nexusRepo     = config.nexusRepo
     def nexusPath     = config.nexusPath ?: "${env.SILO}/${env.JENKINS_HOSTNAME}/${env.JOB_NAME}/${env.BUILD_NUMBER}"
     def zipFilePath   = config.zipFilePath
-    
-    def lftoolsImage   = "${env.DOCKER_REGISTRY}:10003/edgex-lftools-log-publisher:alpine"
+
+    def vmArch        = sh(script: 'uname -m', returnStdout: true).trim() ?: 'x86_64'
+    def lftoolsImage  = "${env.DOCKER_REGISTRY}:10003/edgex-lftools-log-publisher:${vmArch}"
 
     if(!serverId) {
         error("[edgeXNexusPublish] serverId is required to publish to nexus. Example: 'logs'")
