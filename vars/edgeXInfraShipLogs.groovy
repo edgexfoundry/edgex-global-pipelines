@@ -30,7 +30,7 @@ def call(body) {
     }
 
     // running this inside the lftools container to avoid the 1-3 minute install of lftools
-    docker.image("${env.DOCKER_REGISTRY}:10003/edgex-lftools-log-publisher:alpine").inside('-u 0:0') {
+    docker.image("${env.DOCKER_REGISTRY}:10003/edgex-lftools-log-publisher:alpine").inside('-u 0:0 -v /var/log/sa:/var/log/sa') {
         withEnv(["SERVER_ID=logs"]){
             configFileProvider([configFile(fileId: _logSettingsFile, variable: 'SETTINGS_FILE')]) {
                 echo 'Running global-jjb/create-netrc.sh'
