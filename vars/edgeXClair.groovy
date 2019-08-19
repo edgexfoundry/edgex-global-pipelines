@@ -20,7 +20,7 @@
 */
 def call(image, Map options = [:]) {
     def klarImage = options.klarImage ?: "${env.DOCKER_REGISTRY}:10003/edgex-klar:latest"
-    def server    = options.server    ?: 'edgex.clair.adsdcsp.com'
+    def server    = options.server    ?: 'clair-alb-414217221.us-west-2.elb.amazonaws.com:6060'
     
     if(!image) {
         throw new Exception("edgeXClair scanner requires docker image to scan: [edgeXClair('dockerImage:tag')]")
