@@ -18,7 +18,7 @@ def call(dockerImage, dockerFile) {
     def snykImage = 'nexus3.edgexfoundry.org:10003/edgex-snyk-go:1.217.3'
     def snykTokenFile = ''
     // Run snyk test by default
-    def command = ['snyk', 'test']
+    def command = ['snyk', 'monitor']
     //println "[SNYK-DEBUG] dockerImage=${dockerImage}, dockerFile=${dockerFile}"
     // If docker specified alter test command
     if(dockerImage != null && dockerFile != null) {
