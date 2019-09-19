@@ -14,18 +14,21 @@
 // limitations under the License.
 //
 
-def call(dockerImage, dockerFile) {
+def call(dockerImage = null, dockerFile = null) {
     def snykImage = 'nexus3.edgexfoundry.org:10003/edgex-snyk-go:1.217.3'
-    def snykTokenFile = ''
-    // Run snyk test by default
+
+    // Run snyk monitor by default
     def command = ['snyk', 'monitor']
-    //println "[SNYK-DEBUG] dockerImage=${dockerImage}, dockerFile=${dockerFile}"
+
+    println "[edgeXSnyk] dockerImage=${dockerImage}, dockerFile=${dockerFile}"
+    
     // If docker specified alter test command
     if(dockerImage != null && dockerFile != null) {
-        command << "--docker ${dockerImage} --file=./${dockerFile}"
+        command << "--docker ${dockerImage}"
+        command << "--file=./${dockerFile}"
     }
 
-    //println "[SNYK-DEBUG] command: ${command}"
+    println "[edgeXSnyk] command to run: ${command.join(' ')}"
 
     withCredentials([string(credentialsId: 'snyk-cli-token', variable: 'SNYK_TOKEN')]) {
         docker.image(snykImage).inside("-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock -v ${env.WORKSPACE}:/ws -w /ws --entrypoint=''") {
