@@ -17,14 +17,14 @@
 def call(command = null, credentials = 'edgex-jenkins-ssh', debug = true) {
     def arch = env.ARCH ?: 'x86_64'
     def gitSemverVersion = 'latest'
-
-    def semverImage   = "nexus3.edgexfoundry.org:10004/edgexfoundry/git-semver:${gitSemverVersion}-${arch}"
-    def envVars       = [ 'SSH_KNOWN_HOSTS=/etc/ssh/ssh_known_hosts' ]
+    def semverImage = "nexus3.edgexfoundry.org:10004/edgexfoundry/git-semver:${gitSemverVersion}-${arch}"
+    def envVars = [
+        'SSH_KNOWN_HOSTS=/etc/ssh/ssh_known_hosts'
+    ]
     def semverCommand = [
        'git',
        'semver'
     ]
-
     def semverVersion
 
     if(!command) {
@@ -33,17 +33,55 @@ def call(command = null, credentials = 'edgex-jenkins-ssh', debug = true) {
         }
     }
     else {
-        if(debug) { envVars << 'SEMVER_DEBUG=on' }
-        if(command) { semverCommand << command }
-
+        if(debug) {
+            envVars << 'SEMVER_DEBUG=on'
+        }
+        semverCommand << command
         docker.image(semverImage).inside('-v /etc/ssh:/etc/ssh') {
             withEnv(envVars) {
-                sshagent (credentials: [credentials]) {
-                    sh semverCommand.join(' ')
+                if((env.GITSEMVER_HEAD_TAG) && (command != 'init')) {
+                    println "Ignoring command ${command} because GITSEMVER_HEAD_TAG is already set to '${env.GITSEMVER_HEAD_TAG}'"
+                }
+                else {
+                    if(command == 'init') {
+                        setHeadTagEnv(credentials)
+                    }
+                    executeSSH(credentials, semverCommand.join(' '))
                 }
             }
             semverVersion = sh(script: 'git semver', returnStdout: true).trim()
         }
     }
     semverVersion
+}
+
+def executeSSH(credentials, command) {
+    // execute command via ssh with provided credentials considering noop mode
+    sshagent (credentials: [credentials]) {
+        sh command
+    }
+}
+
+def setHeadTagEnv(credentials) {
+    // set environment variable GITSEMVER_HEAD_TAG to value of tag at HEAD
+    if(env.GITSEMVER_HEAD_TAG) {
+        println "envvar GITSEMVER_HEAD_TAG is already set to '${env.GITSEMVER_HEAD_TAG}'"
+        return
+    }
+    try {
+        sshagent (credentials: [credentials]) {
+            def tag = sh(script: 'git describe --exact-match --tags HEAD', returnStdout: true).trim()
+            println "Setting envvar GITSEMVER_HEAD_TAG value to \'${tag}\'"
+            env.setProperty('GITSEMVER_HEAD_TAG', tag)
+        }
+    }
+    catch(error) {
+        println "[WARNING]: exception occurred checking if HEAD is tagged: ${error}\nThis usually means this commit has not been tagged."
+    }
+}
+
+def isHeadTagEnv(credentials='edgex-jenkins-ssh') {
+    // return true if HEAD is tagged false otherwise
+    setHeadTagEnv(credentials)
+    return env.GITSEMVER_HEAD_TAG ? true : false
 }
