@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-def call(Map config = [:]) {
+def call(config = [:]) {
     // The LF Global JJB Docker Login script looks for information in the following variables: 
     // $SETTINGS_FILE, $DOCKER_REGISTRY, $REGISTRY_PORTS, $DOCKERHUB_REGISTRY, $DOCKERHUB_EMAIL
     // Please refer to the shell script in global-jjb/shell for the usage.
@@ -26,24 +26,24 @@ def call(Map config = [:]) {
 
     def _settingsFile = config.settingsFile
     if(!_settingsFile) {
-        throw new Exception('Project Settings File id (settingsFile) is required for the docker login script.')
+        error('Project Settings File id (settingsFile) is required for the docker login script.')
     }
 
     if(_dockerRegistry && !_dockerRegistryPorts) {
-        throw new Exception('Docker registry ports (dockerRegistryPorts) are required when docker registry is set (dockerRegistry).')
+        error('Docker registry ports (dockerRegistryPorts) are required when docker registry is set (dockerRegistry).')
     }
 
     if(_dockerRegistryPorts && !_dockerRegistry) {
-        throw new Exception('Docker registry (dockerRegistry) is required when docker registry ports are set (dockerRegistryPorts).')
+        error('Docker registry (dockerRegistry) is required when docker registry ports are set (dockerRegistryPorts).')
     }
 
-    def overrideVars = []
-    if(_dockerRegistry) { overrideVars << "DOCKER_REGISTRY=${_dockerRegistry}" }
-    if(_dockerRegistryPorts) { overrideVars << "REGISTRY_PORTS=${_dockerRegistryPorts}" }
-    if(_dockerHubRegistry) { overrideVars << "DOCKERHUB_REGISTRY=${_dockerHubRegistry}" }
-    if(_dockerHubEmail) {overrideVars << "DOCKERHUB_EMAIL=${_dockerHubEmail}" }
+    def envVars = []
+    if(_dockerRegistry)      { envVars << "DOCKER_REGISTRY=${_dockerRegistry}" }
+    if(_dockerRegistryPorts) { envVars << "REGISTRY_PORTS=${_dockerRegistryPorts}" }
+    if(_dockerHubRegistry)   { envVars << "DOCKERHUB_REGISTRY=${_dockerHubRegistry}" }
+    if(_dockerHubEmail)      { envVars << "DOCKERHUB_EMAIL=${_dockerHubEmail}" }
 
-    withEnv(overrideVars){
+    withEnv(envVars){
         configFileProvider([configFile(fileId: _settingsFile, variable: 'SETTINGS_FILE')]) {
             sh(script: libraryResource('global-jjb-shell/docker-login.sh'))
         }

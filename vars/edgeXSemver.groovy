@@ -52,6 +52,16 @@ def call(command = null, credentials = 'edgex-jenkins-ssh', debug = true) {
             semverVersion = sh(script: 'git semver', returnStdout: true).trim()
         }
     }
+
+    env.setProperty('VERSION', semverVersion)
+
+    if(command == 'init') {
+        writeFile file: 'VERSION', text: semverVersion
+        stash name: 'semver', includes: '.semver/**,VERSION', useDefaultExcludes: false
+
+        sh 'docker run --rm ernestoojeda/artii -f slant Building version: v${VERSION}' // for fun
+    }
+
     semverVersion
 }
 
