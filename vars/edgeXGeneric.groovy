@@ -219,9 +219,7 @@ def toEnvironment(config) {
     ]
 
     if(config.env) {
-        config.env.each { k,v ->
-            envMap << "${k}=${v}"
-        }
+        envMap << config.env
     }
 
     edgex.bannerMessage "[edgeXGeneric] Pipeline Parameters:"
