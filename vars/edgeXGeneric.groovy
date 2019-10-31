@@ -18,7 +18,7 @@ def call(config) {
             GOROOT: '/opt/go-custom/go'
         ],
         path: [
-            '$GOROOT/bin',
+            '/opt/go-custom/go/bin',
             '/some/other/path'
         ],
         branches: [
@@ -55,8 +55,6 @@ def call(config) {
             stage('Prepare') {
                 steps {
                     edgeXSetupEnvironment(_envVarMap)
-                    sh 'env | sort'
-                    setupPath()
 
                     dir('.ci-management') {
                         git url: 'https://github.com/edgexfoundry/ci-management.git'
@@ -86,13 +84,18 @@ def call(config) {
                                 steps {
                                     edgexDockerLogin(env.MAVEN_SETTINGS)
                                     unstash 'ci-management'
-
-                                    // setup custom path?
                                 }
                             }
                             stage('Pre Build') {
                                 steps {
-                                    sh 'echo $ARCH prebuild'
+                                    script {
+                                        sh 'env | sort'
+                                        echo '========================================='
+                                        withEnv(["PATH=${setupPath(config)}"]) {
+                                            sh 'echo $ARCH prebuild'
+                                            sh 'env | sort'
+                                        }
+                                    }
                                 }
                             }
                             stage('Build') {
@@ -118,12 +121,18 @@ def call(config) {
                                 steps {
                                     edgexDockerLogin(env.MAVEN_SETTINGS)
                                     unstash 'ci-management'
-                                    // setup custom path?
                                 }
                             }
                             stage('Pre Build') {
                                 steps {
-                                    sh 'echo $ARCH prebuild'
+                                    script {
+                                        sh 'env | sort'
+                                        echo '========================================='
+                                        withEnv(["PATH=${setupPath(config)}"]) {
+                                            sh 'echo $ARCH prebuild'
+                                            sh 'env | sort'
+                                        }
+                                    }
                                 }
                             }
                             stage('Build') {
@@ -231,17 +240,7 @@ def toEnvironment(config) {
     envMap
 }
 
-def setupPath() {
-    def engine = new groovy.text.SimpleTemplateEngine()
-
-    def finalPath = []
-    config.path.each {
-        def s = it
-        if(it.contains('$')) {        
-            s = engine.createTemplate(it).make(env).toString()
-        }
-        finalPath << s
-    }
-
-    println "[DEBUG] edgeXGeneric.setupPath() ${PATH}:${finalPath.join(':')}"
+def setupPath(config) {
+    println "[DEBUG] edgeXGeneric.setupPath() ${PATH}:${config.path.join(':')}"
+    "${PATH}:${config.path.join(':')"
 }
