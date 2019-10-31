@@ -15,8 +15,7 @@ def call(config) {
         semver: false,
         mavenSettings: ['edgex-go-settings:SETTINGS_FILE', 'edgex-go-codecov-token:CODECOV_TOKEN'],
         env: [
-            GOROOT: '/opt/go-custom/go',
-            GOPATH: "$HOME/$BUILD_ID/gopath"
+            GOROOT: '/opt/go-custom/go'
         ],
         path: [
             "${GOROOT}/bin",
