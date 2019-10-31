@@ -82,7 +82,7 @@ def call(config) {
                         stages {
                             stage('Prep VM') {
                                 steps {
-                                    edgexDockerLogin(env.MAVEN_SETTINGS)
+                                    edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                     unstash 'ci-management'
                                 }
                             }
@@ -119,7 +119,7 @@ def call(config) {
                         stages {
                             stage('Prep VM') {
                                 steps {
-                                    edgexDockerLogin(env.MAVEN_SETTINGS)
+                                    edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                     unstash 'ci-management'
                                 }
                             }
