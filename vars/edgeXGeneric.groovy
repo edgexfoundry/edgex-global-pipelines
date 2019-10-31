@@ -242,5 +242,5 @@ def toEnvironment(config) {
 
 def setupPath(config) {
     println "[DEBUG] edgeXGeneric.setupPath() ${PATH}:${config.path.join(':')}"
-    "${PATH}:${config.path.join(':')"
+    "${PATH}:${config.path.join(':')}"
 }
