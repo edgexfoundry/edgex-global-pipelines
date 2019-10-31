@@ -193,11 +193,16 @@ def toEnvironment(config) {
     def _mavenSettings
     def _extraSettings = []
 
+    echo "[debug] Default settings ${_defaultSettings}"
+
     _defaultSettings.each { setting ->
         def settingName = setting.split(':')[0]
         def settingEnvVar = setting.split(':')[1]
 
-        if(settingName == _projectSettings) {
+        echo "[debug] settingName: ${settingName}"
+        echo "[debug] settingEnvVar: ${settingEnvVar}"
+
+        if(setting == _projectSettings) {
             if(env.SILO == 'sandbox') {
                 _mavenSettings = 'sandbox-settings'
             } else {
