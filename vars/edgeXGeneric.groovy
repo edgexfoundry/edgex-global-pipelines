@@ -18,8 +18,8 @@ def call(config) {
             GOROOT: '/opt/go-custom/go'
         ],
         path: [
-            '${GOROOT}/bin',
-            "/some/other/path"
+            '$GOROOT/bin',
+            '/some/other/path'
         ],
         branches: [
             '*': [
@@ -55,6 +55,8 @@ def call(config) {
             stage('Prepare') {
                 steps {
                     edgeXSetupEnvironment(_envVarMap)
+                    sh 'env | sort'
+                    setupPath()
 
                     dir('.ci-management') {
                         git url: 'https://github.com/edgexfoundry/ci-management.git'
@@ -82,6 +84,7 @@ def call(config) {
                         stages {
                             stage('Prep VM') {
                                 steps {
+                                    edgexDockerLogin(env.MAVEN_SETTINGS)
                                     unstash 'ci-management'
 
                                     // setup custom path?
@@ -113,8 +116,8 @@ def call(config) {
                         stages {
                             stage('Prep VM') {
                                 steps {
+                                    edgexDockerLogin(env.MAVEN_SETTINGS)
                                     unstash 'ci-management'
-
                                     // setup custom path?
                                 }
                             }
@@ -179,7 +182,7 @@ def call(config) {
 
 def validate(config) {
     if(!config.project) {
-        error('[edgeXBuildGoApp] The parameter "project" is required. This is typically the project name.')
+        error('[edgeXGeneric] The parameter "project" is required. This is typically the project name.')
     }
 }
 
@@ -193,14 +196,9 @@ def toEnvironment(config) {
     def _mavenSettings
     def _extraSettings = []
 
-    echo "[debug] Default settings ${_defaultSettings}"
-
     _defaultSettings.each { setting ->
         def settingName = setting.split(':')[0]
         def settingEnvVar = setting.split(':')[1]
-
-        echo "[debug] settingName: ${settingName}"
-        echo "[debug] settingEnvVar: ${settingEnvVar}"
 
         if(setting == _projectSettings) {
             if(env.SILO == 'sandbox') {
@@ -231,4 +229,19 @@ def toEnvironment(config) {
     edgex.printMap envMap
 
     envMap
+}
+
+def setupPath() {
+    def engine = new groovy.text.SimpleTemplateEngine()
+
+    def finalPath = []
+    config.path.each {
+        def s = it
+        if(it.contains('$')) {        
+            s = engine.createTemplate(it).make(env).toString()
+        }
+        finalPath << s
+    }
+
+    println "[DEBUG] edgeXGeneric.setupPath() ${PATH}:${finalPath.join(':')}"
 }
