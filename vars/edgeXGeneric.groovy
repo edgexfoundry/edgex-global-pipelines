@@ -18,7 +18,7 @@ def call(config) {
             GOROOT: '/opt/go-custom/go'
         ],
         path: [
-            "${GOROOT}/bin",
+            '${GOROOT}/bin',
             "/some/other/path"
         ],
         branches: [
