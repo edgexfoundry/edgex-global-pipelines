@@ -99,8 +99,8 @@ def call(config) {
                                     script {
                                         configFileProvider(cfgAmd64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
-                                                def allScripts = config.branches['*']
-                                                def branchScripts
+                                                // def allScripts = config.branches['*']
+                                                // def branchScripts
                                                 sh 'echo $ARCH prebuild'
                                             }
                                         }
@@ -180,6 +180,31 @@ def call(config) {
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
+
+            stage('Semver') {
+                when {
+                    allOf {
+                        environment name: 'USE_SEMVER', value: 'true'
+                        expression { edgex.isReleaseStream() }
+                    }
+                }
+                stages {
+                    stage('Tag') {
+                        steps {
+                            unstash 'semver'
+
+                            edgeXSemver 'tag'
+                            edgeXInfraLFToolsSign(command: 'git-tag', version: 'v${VERSION}')
+                        }
+                    }
+                    stage('Bump Pre-Release Version') {
+                        steps {
+                            edgeXSemver 'bump pre'
+                            edgeXSemver 'push'
                         }
                     }
                 }
