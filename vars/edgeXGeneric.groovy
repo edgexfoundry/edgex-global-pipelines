@@ -16,7 +16,7 @@ def call(config) {
         project: 'edgex-go',
         arch: ['amd64', 'arm64'],
         semver: false,
-        mavenSettings: ['edgex-go-settings:SETTINGS_FILE', 'edgex-go-codecov-token:CODECOV_TOKEN'],
+        mavenSettings: ['edgex-go-settings:SETTINGS_FILE'], //, 'edgex-go-codecov-token:CODECOV_TOKEN'
         env: [
             GOROOT: '/opt/go-custom/go'
         ],
@@ -287,6 +287,6 @@ def getConfigFilesFromEnv() {
 }
 
 def setupPath(config) {
-    println "[DEBUG] edgeXGeneric.setupPath() ${PATH}:${config.path.join(':')}"
+    edgex.bannerMessage '[edgeXGeneric] edgeXGeneric.setupPath()'
     config.path ? "${PATH}:${config.path.join(':')}" : "${PATH}"
 }
