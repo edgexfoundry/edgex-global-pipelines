@@ -20,10 +20,10 @@ def call(config) {
         env: [
             GOROOT: '/opt/go-custom/go'
         ],
-        path: [
-            '/opt/go-custom/go/bin',
-            '/some/other/path'
-        ],
+        // path: [
+        //     '/opt/go-custom/go/bin',
+        //     '/some/other/path'
+        // ],
         branches: [
             '*': [
                 pre_build: ['shell/install_custom_golang.sh'],
@@ -99,6 +99,8 @@ def call(config) {
                                     script {
                                         configFileProvider(cfgAmd64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
+                                                def allScripts = config.branches['*']
+                                                def branchScripts
                                                 sh 'echo $ARCH prebuild'
                                             }
                                         }
