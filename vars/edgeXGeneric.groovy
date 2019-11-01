@@ -8,6 +8,9 @@
     env: [ GO_ROOT: '/opt/go-custom/go' ]
 ])*/
 
+def cfgAmd64
+def cfgArm64
+
 def call(config) {
     config = [
         project: 'edgex-go',
@@ -49,6 +52,8 @@ def call(config) {
             timestamps()
             preserveStashes()
             quietPeriod(5) // wait a few seconds before starting to aggregate builds...??
+            durabilityHint 'PERFORMANCE_OPTIMIZED'
+            timeout(360)
         }
 
         stages {
@@ -75,7 +80,7 @@ def call(config) {
                 parallel {
                     stage('amd64') {
                         when { expression { edgex.nodeExists(config, 'amd64') } }
-                        agent { label edgex.getNode(config, 'amd64') } // agent gets evaluated before when
+                        agent { label edgex.getNode(config, 'amd64') }
                         environment {
                             ARCH = 'x86_64'
                         }
@@ -84,28 +89,42 @@ def call(config) {
                                 steps {
                                     edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                     unstash 'ci-management'
+                                    script {
+                                        cfgAmd64 = getConfigFilesFromEnv()
+                                    }
                                 }
                             }
                             stage('Pre Build') {
                                 steps {
                                     script {
-                                        sh 'env | sort'
-                                        echo '========================================='
-                                        withEnv(["PATH=${setupPath(config)}"]) {
-                                            sh 'echo $ARCH prebuild'
-                                            sh 'env | sort'
+                                        configFileProvider(cfgAmd64) {
+                                            withEnv(["PATH=${setupPath(config)}"]) {
+                                                sh 'echo $ARCH prebuild'
+                                            }
                                         }
                                     }
                                 }
                             }
                             stage('Build') {
                                 steps {
-                                    sh 'echo $ARCH build'
+                                    script {
+                                        configFileProvider(cfgAmd64) {
+                                            withEnv(["PATH=${setupPath(config)}"]) {
+                                                sh 'echo $ARCH build'
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             stage('Post Build') {
                                 steps {
-                                    sh 'echo $ARCH post build'
+                                    script {
+                                        configFileProvider(cfgAmd64) {
+                                            withEnv(["PATH=${setupPath(config)}"]) {
+                                                sh 'echo $ARCH post build'
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -121,28 +140,42 @@ def call(config) {
                                 steps {
                                     edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                     unstash 'ci-management'
+                                    script {
+                                        cfgArm64 = getConfigFilesFromEnv()
+                                    }
                                 }
                             }
                             stage('Pre Build') {
                                 steps {
                                     script {
-                                        sh 'env | sort'
-                                        echo '========================================='
-                                        withEnv(["PATH=${setupPath(config)}"]) {
-                                            sh 'echo $ARCH prebuild'
-                                            sh 'env | sort'
+                                        configFileProvider(cfgArm64) {
+                                            withEnv(["PATH=${setupPath(config)}"]) {
+                                                sh 'echo $ARCH prebuild'
+                                            }
                                         }
                                     }
                                 }
                             }
                             stage('Build') {
                                 steps {
-                                    sh 'echo $ARCH build'
+                                    script {
+                                        configFileProvider(cfgArm64) {
+                                            withEnv(["PATH=${setupPath(config)}"]) {
+                                                sh 'echo $ARCH build'
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             stage('Post Build') {
                                 steps {
-                                    sh 'echo $ARCH post build'
+                                    script {
+                                        configFileProvider(cfgArm64) {
+                                            withEnv(["PATH=${setupPath(config)}"]) {
+                                                sh 'echo $ARCH post build'
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -240,7 +273,18 @@ def toEnvironment(config) {
     envMap
 }
 
+def getConfigFilesFromEnv() {
+    def configFiles = []
+    if(env.EXTRA_SETTINGS) {
+        configFiles = env.EXTRA_SETTINGS.split(',').collect { file ->
+            configFile(fileId: file.split(':')[0], variable: file.split(':')[1])
+        }
+    }
+
+    configFiles
+}
+
 def setupPath(config) {
     println "[DEBUG] edgeXGeneric.setupPath() ${PATH}:${config.path.join(':')}"
-    "${PATH}:${config.path.join(':')}"
+    config.path ? "${PATH}:${config.path.join(':')}" : "${PATH}"
 }
