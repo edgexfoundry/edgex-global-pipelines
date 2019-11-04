@@ -314,7 +314,8 @@ def toEnvironment(config) {
 @NonCPS
 def getScripts(config, scriptType, branch) {
     def scripts = []
-    def branches = config.branches.findAll { k,v ->  (k == branch) }
+    def cleanBranch = branch.replaceAll(/origin|upstream/, '').replaceAll('/', '')
+    def branches = config.branches.findAll { k,v ->  (k == cleanBranch) }
 
     branches.each { b,v ->
         if(v && v[scriptType]) {
