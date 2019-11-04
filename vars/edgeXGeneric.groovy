@@ -16,14 +16,13 @@ def call(config) {
         project: 'edgex-go',
         arch: ['amd64', 'arm64'],
         semver: false,
-        mavenSettings: ['edgex-go-settings:SETTINGS_FILE'], //, 'edgex-go-codecov-token:CODECOV_TOKEN'
+        mavenSettings: ['edgex-go-settings:SETTINGS_FILE', 'edgex-go-codecov-token:CODECOV_TOKEN'],
         env: [
             GOROOT: '/opt/go-custom/go'
         ],
-        // path: [
-        //     '/opt/go-custom/go/bin',
-        //     '/some/other/path'
-        // ],
+        path: [
+            '/opt/go-custom/go/bin'
+        ],
         branches: [
             '*': [
                 pre_build: ['shell/install_custom_golang.sh'],
@@ -35,7 +34,7 @@ def call(config) {
             'master': [
                 post_build: [ 'shell/edgexfoundry-go-docker-push.sh' ]
             ]
-        ] 
+        ]
     ]
 
     edgex.bannerMessage "[edgeXGeneric] RAW Config: ${config}"
@@ -95,35 +94,39 @@ def call(config) {
                                 }
                             }
                             stage('Pre Build') {
+                                when { expression { anyScript(config, 'pre_build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
                                         configFileProvider(cfgAmd64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
-                                                // def allScripts = config.branches['*']
-                                                // def branchScripts
-                                                sh 'echo $ARCH prebuild'
+                                                def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
+                                                sh 'echo $ARCH pre_build: ${scripts}'
                                             }
                                         }
                                     }
                                 }
                             }
                             stage('Build') {
+                                when { expression { anyScript(config, 'build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
                                         configFileProvider(cfgAmd64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
-                                                sh 'echo $ARCH build'
+                                                def scripts = allScripts(config, 'build', env.GIT_BRANCH)
+                                                sh 'echo $ARCH build: ${scripts}'
                                             }
                                         }
                                     }
                                 }
                             }
                             stage('Post Build') {
+                                when { expression { anyScript(config, 'post_build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
                                         configFileProvider(cfgAmd64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
-                                                sh 'echo $ARCH post build'
+                                                def scripts = allScripts(config, 'post_build', env.GIT_BRANCH)
+                                                sh 'echo $ARCH post_build: ${scripts}'
                                             }
                                         }
                                     }
@@ -148,33 +151,39 @@ def call(config) {
                                 }
                             }
                             stage('Pre Build') {
+                                when { expression { anyScript(config, 'pre_build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
                                         configFileProvider(cfgArm64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
-                                                sh 'echo $ARCH prebuild'
+                                                def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
+                                                sh 'echo $ARCH pre_build: ${scripts}'
                                             }
                                         }
                                     }
                                 }
                             }
                             stage('Build') {
+                                when { expression { anyScript(config, 'build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
                                         configFileProvider(cfgArm64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
-                                                sh 'echo $ARCH build'
+                                                def scripts = allScripts(config, 'build', env.GIT_BRANCH)
+                                                sh 'echo $ARCH build: ${scripts}'
                                             }
                                         }
                                     }
                                 }
                             }
                             stage('Post Build') {
+                                when { expression { anyScript(config, 'post_build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
                                         configFileProvider(cfgArm64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
-                                                sh 'echo $ARCH post build'
+                                                def scripts = allScripts(config, 'post_build', env.GIT_BRANCH)
+                                                sh 'echo $ARCH post_build: ${scripts}'
                                             }
                                         }
                                     }
@@ -300,6 +309,37 @@ def toEnvironment(config) {
     envMap
 }
 
+@NonCPS
+def getScripts(config, scriptType, branch) {
+    def scripts = []
+    def branches = config.branches.findAll { k,v ->  (k == branch) }
+
+    branches.each { b,v ->
+        if(v && v[scriptType]) {
+            scripts.addAll(v[scriptType])
+        }
+    }
+
+    scripts
+}
+
+@NonCPS
+def anyScript(config, scriptType, branch) {
+    allScripts(config, scriptType, branch) ? true : false
+}
+
+@NonCPS
+def allScripts(config, scriptType, branch) {
+    def s = getScripts(config, scriptType, '*') ?: []
+
+    if(branch) {
+        s.addAll(getScripts(config, scriptType, branch))
+    }
+
+    s
+}
+
+@NonCPS
 def getConfigFilesFromEnv() {
     def configFiles = []
     if(env.EXTRA_SETTINGS) {
@@ -311,6 +351,7 @@ def getConfigFilesFromEnv() {
     configFiles
 }
 
+@NonCPS
 def setupPath(config) {
     edgex.bannerMessage '[edgeXGeneric] edgeXGeneric.setupPath()'
     config.path ? "${PATH}:${config.path.join(':')}" : "${PATH}"
