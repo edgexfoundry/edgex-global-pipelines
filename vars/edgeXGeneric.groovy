@@ -100,7 +100,7 @@ def call(config) {
                                         configFileProvider(cfgAmd64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
-                                                sh 'echo $ARCH pre_build: ${scripts}'
+                                                println "$ARCH pre_build: ${scripts}"
                                             }
                                         }
                                     }
@@ -113,7 +113,7 @@ def call(config) {
                                         configFileProvider(cfgAmd64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'build', env.GIT_BRANCH)
-                                                sh 'echo $ARCH build: ${scripts}'
+                                                println "$ARCH build: ${scripts}"
                                             }
                                         }
                                     }
@@ -126,7 +126,7 @@ def call(config) {
                                         configFileProvider(cfgAmd64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'post_build', env.GIT_BRANCH)
-                                                sh 'echo $ARCH post_build: ${scripts}'
+                                                println "$ARCH post_build: ${scripts}"
                                             }
                                         }
                                     }
@@ -157,7 +157,7 @@ def call(config) {
                                         configFileProvider(cfgArm64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
-                                                sh 'echo $ARCH pre_build: ${scripts}'
+                                                println "$ARCH pre_build: ${scripts}"
                                             }
                                         }
                                     }
@@ -170,7 +170,7 @@ def call(config) {
                                         configFileProvider(cfgArm64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'build', env.GIT_BRANCH)
-                                                sh 'echo $ARCH build: ${scripts}'
+                                                println "$ARCH build: ${scripts}"
                                             }
                                         }
                                     }
@@ -183,7 +183,7 @@ def call(config) {
                                         configFileProvider(cfgArm64) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'post_build', env.GIT_BRANCH)
-                                                sh 'echo $ARCH post_build: ${scripts}'
+                                                println "$ARCH post_build: ${scripts}"
                                             }
                                         }
                                     }
