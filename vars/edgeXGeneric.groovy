@@ -353,6 +353,5 @@ def getConfigFilesFromEnv() {
 
 @NonCPS
 def setupPath(config) {
-    edgex.bannerMessage '[edgeXGeneric] edgeXGeneric.setupPath()'
     config.path ? "${PATH}:${config.path.join(':')}" : "${PATH}"
 }
