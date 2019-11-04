@@ -102,6 +102,7 @@ def call(config) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
                                                 println "$ARCH pre_build: ${scripts}"
+                                                sh 'ls -al .ci-management'
                                             }
                                         }
                                     }
@@ -160,6 +161,7 @@ def call(config) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
                                                 println "$ARCH pre_build: ${scripts}"
+                                                sh 'ls -al .ci-management'
                                             }
                                         }
                                     }
@@ -222,40 +224,7 @@ def call(config) {
             }
         }
     }
-    // datadog {
-      // Add tags from file in workspace
-      // Add tags from list of properties	
-      // Discard old builds 30 days
-    // }
 
-    // timestamps()
-    // timeout(360) { //fail
-    // sshagent(edgex-jenkins) //not needed
-    // mkdir -p $WORKSPACE/target/classes $WORKSPACE/jacoco/classes
-    // global-settings GLOBAL_SETTINGS_FILE ??
-    // edgex-go-settings SETTINGS_FILE // config.settingsFile 
-
-    // environment {
-    //   GOROOT=/opt/go-custom/go
-    //   PATH=$PATH:$GOROOT/bin
-    //   GOPATH=$HOME/$BUILD_ID/gopath
-    // }
-
-    // install_custom_golang.sh
-
-    // build_script config.buildScript
-    // make test raml_verify && make build docker
-
-    // codecov
-    // edgeXCodeCov(APP-token)
-    
-    ////// Post Build ... already done
-    // sysstat.sh
-    // package-listing.sh
-    // edgex-infra-ship-logs.sh
-    // build description: ^Build logs: .*
-    
-    // delete workspace when done .. nope
     // email notification: EdgeX-Jenkins-Alerts+int+444+7674852109629482390@lists.edgexfoundry.org Jenkins Mailer PLugin
     // Send e-mail for every unstable build
 }
