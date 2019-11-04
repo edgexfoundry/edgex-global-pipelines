@@ -88,7 +88,6 @@ def call(config) {
                                 steps {
                                     edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                     unstash 'ci-management'
-                                    sh 'env | sort'
                                     script {
                                         cfgAmd64 = getConfigFilesFromEnv()
                                     }
@@ -147,7 +146,6 @@ def call(config) {
                                 steps {
                                     edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                     unstash 'ci-management'
-                                    sh 'env | sort'
                                     script {
                                         cfgArm64 = getConfigFilesFromEnv()
                                     }
