@@ -70,6 +70,7 @@ def call(config) {
                         agent { label edgex.getNode(config, 'amd64') }
                         environment {
                             ARCH = 'x86_64'
+                            GOARCH = 'amd64'
                         }
                         stages {
                             stage('Prep VM') {
@@ -148,6 +149,7 @@ def call(config) {
                         agent { label edgex.getNode(config, 'arm64') }
                         environment {
                             ARCH = 'arm64'
+                            GOARCH = 'arm64'
                         }
                         stages {
                             stage('Prep VM') {
