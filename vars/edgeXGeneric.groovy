@@ -1,42 +1,30 @@
 /*edgeXGeneric([
     project: 'edgex-go',
-    arch: ['amd64', 'arm64'],
-    semver: true,
-    pre_build_script: 'shell/install_custom_golang.sh',
-    build_script: 'make test && make build docker',
-    post_build_script: 'ls -al',
-    env: [ GO_ROOT: '/opt/go-custom/go' ]
+    mavenSettings: ['edgex-go-codecov-token:CODECOV_TOKEN'],
+    env: [
+        GOPATH: '/opt/go-custom/go'
+    ],
+    path: [
+        '/opt/go-custom/go/bin'
+    ],
+    branches: [
+        '*': [
+            pre_build: ['shell/install_custom_golang.sh'],
+            build: [
+                'make test raml_verify && make build docker',
+                'shell/codecov-uploader.sh'
+            ]
+        ],
+        'master': [
+            post_build: [ 'shell/edgexfoundry-go-docker-push.sh' ]
+        ]
+    ]
 ])*/
 
 def cfgAmd64
 def cfgArm64
 
 def call(config) {
-    config = [
-        project: 'edgex-go',
-        arch: ['amd64', 'arm64'],
-        semver: false,
-        mavenSettings: ['edgex-go-settings:SETTINGS_FILE', 'edgex-go-codecov-token:CODECOV_TOKEN'],
-        env: [
-            GOROOT: '/opt/go-custom/go'
-        ],
-        path: [
-            '/opt/go-custom/go/bin'
-        ],
-        branches: [
-            '*': [
-                pre_build: ['shell/install_custom_golang.sh'],
-                build: [
-                    'make test raml_verify && make build docker',
-                    'shell/codecov-uploader.sh'
-                ]
-            ],
-            'master': [
-                post_build: [ 'shell/edgexfoundry-go-docker-push.sh' ]
-            ]
-        ]
-    ]
-
     edgex.bannerMessage "[edgeXGeneric] RAW Config: ${config}"
 
     validate(config)
@@ -101,7 +89,13 @@ def call(config) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
                                                 println "$ARCH pre_build: ${scripts}"
-                                                sh 'ls -al .ci-management'
+                                                scripts.each { userScript ->
+                                                    if(userScript.indexOf('shell/') ==0) {
+                                                        sh "./ci-management/${userScript}"
+                                                    } else {
+                                                        sh userScript
+                                                    }
+                                                }
                                             }
                                         }
                                     }
