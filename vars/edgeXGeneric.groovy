@@ -90,8 +90,8 @@ def call(config) {
                                                 def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
                                                 println "$ARCH pre_build: ${scripts}"
                                                 scripts.each { userScript ->
-                                                    if(userScript.indexOf('shell/') ==0) {
-                                                        sh "./ci-management/${userScript}"
+                                                    if(userScript.indexOf('shell/') == 0) {
+                                                        sh "sh .ci-management/${userScript}"
                                                     } else {
                                                         sh userScript
                                                     }
