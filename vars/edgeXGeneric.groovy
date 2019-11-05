@@ -50,6 +50,7 @@ def call(config) {
 
                     dir('.ci-management') {
                         git url: 'https://github.com/edgexfoundry/ci-management.git'
+                        sh 'chmod +x shell/*'
                     }
 
                     stash name: 'ci-management', includes: '.ci-management/**', useDefaultExcludes: false
@@ -92,7 +93,7 @@ def call(config) {
                                                 println "$ARCH pre_build: ${scripts}"
                                                 scripts.each { userScript ->
                                                     if(userScript.indexOf('shell/') == 0) {
-                                                        sh "sh .ci-management/${userScript}"
+                                                        sh "./.ci-management/${userScript}"
                                                     } else {
                                                         sh userScript
                                                     }
@@ -112,7 +113,7 @@ def call(config) {
                                                 println "$ARCH build: ${scripts}"
                                                 scripts.each { userScript ->
                                                     if(userScript.indexOf('shell/') == 0) {
-                                                        sh "sh .ci-management/${userScript}"
+                                                        sh "./.ci-management/${userScript}"
                                                     } else {
                                                         sh userScript
                                                     }
@@ -132,7 +133,7 @@ def call(config) {
                                                 println "$ARCH post_build: ${scripts}"
                                                 scripts.each { userScript ->
                                                     if(userScript.indexOf('shell/') == 0) {
-                                                        sh "sh .ci-management/${userScript}"
+                                                        sh "./.ci-management/${userScript}"
                                                     } else {
                                                         sh userScript
                                                     }
@@ -171,7 +172,7 @@ def call(config) {
                                                 println "$ARCH pre_build: ${scripts}"
                                                 scripts.each { userScript ->
                                                     if(userScript.indexOf('shell/') == 0) {
-                                                        sh "sh .ci-management/${userScript}"
+                                                        sh "./.ci-management/${userScript}"
                                                     } else {
                                                         sh userScript
                                                     }
@@ -191,7 +192,7 @@ def call(config) {
                                                 println "$ARCH build: ${scripts}"
                                                 scripts.each { userScript ->
                                                     if(userScript.indexOf('shell/') == 0) {
-                                                        sh "sh .ci-management/${userScript}"
+                                                        sh "./.ci-management/${userScript}"
                                                     } else {
                                                         sh userScript
                                                     }
@@ -211,7 +212,7 @@ def call(config) {
                                                 println "$ARCH post_build: ${scripts}"
                                                 scripts.each { userScript ->
                                                     if(userScript.indexOf('shell/') == 0) {
-                                                        sh "sh .ci-management/${userScript}"
+                                                        sh "./.ci-management/${userScript}"
                                                     } else {
                                                         sh userScript
                                                     }
