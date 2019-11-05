@@ -109,6 +109,13 @@ def call(config) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'build', env.GIT_BRANCH)
                                                 println "$ARCH build: ${scripts}"
+                                                scripts.each { userScript ->
+                                                    if(userScript.indexOf('shell/') == 0) {
+                                                        sh "sh .ci-management/${userScript}"
+                                                    } else {
+                                                        sh userScript
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -122,6 +129,13 @@ def call(config) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'post_build', env.GIT_BRANCH)
                                                 println "$ARCH post_build: ${scripts}"
+                                                scripts.each { userScript ->
+                                                    if(userScript.indexOf('shell/') == 0) {
+                                                        sh "sh .ci-management/${userScript}"
+                                                    } else {
+                                                        sh userScript
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -153,7 +167,13 @@ def call(config) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
                                                 println "$ARCH pre_build: ${scripts}"
-                                                sh 'ls -al .ci-management'
+                                                scripts.each { userScript ->
+                                                    if(userScript.indexOf('shell/') == 0) {
+                                                        sh "sh .ci-management/${userScript}"
+                                                    } else {
+                                                        sh userScript
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -167,6 +187,13 @@ def call(config) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'build', env.GIT_BRANCH)
                                                 println "$ARCH build: ${scripts}"
+                                                scripts.each { userScript ->
+                                                    if(userScript.indexOf('shell/') == 0) {
+                                                        sh "sh .ci-management/${userScript}"
+                                                    } else {
+                                                        sh userScript
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -180,6 +207,13 @@ def call(config) {
                                             withEnv(["PATH=${setupPath(config)}"]) {
                                                 def scripts = allScripts(config, 'post_build', env.GIT_BRANCH)
                                                 println "$ARCH post_build: ${scripts}"
+                                                scripts.each { userScript ->
+                                                    if(userScript.indexOf('shell/') == 0) {
+                                                        sh "sh .ci-management/${userScript}"
+                                                    } else {
+                                                        sh userScript
+                                                    }
+                                                }
                                             }
                                         }
                                     }
