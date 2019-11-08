@@ -16,7 +16,7 @@
 
 def isReleaseStream(branchName = env.GIT_BRANCH) {
     // what defines a main release branch
-    def releaseStreams = [/.*master/, /.*california/, /.*delhi/, /.*edinburgh/]
+    def releaseStreams = [/.*master/, /.*california/, /.*delhi/, /.*edinburgh/, /.*fuji/]
 
     (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
