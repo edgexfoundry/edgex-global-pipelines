@@ -31,6 +31,8 @@ def call(config) {
             timestamps()
             preserveStashes()
             quietPeriod(5) // wait a few seconds before starting to aggregate builds...??
+            durabilityHint 'PERFORMANCE_OPTIMIZED'
+            timeout(360)
         }
 
         stages {
