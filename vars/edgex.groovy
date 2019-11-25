@@ -57,3 +57,86 @@ def didChange(expression, previous='origin/master') {
 
     return diffCount > 0
 }
+
+def mainNode(config) {
+    def defaultNode = config.nodes.find { it.isDefault == true }
+    defaultNode ? defaultNode.label : 'centos7-docker-4c-2g'
+}
+
+def nodeExists(config, arch) {
+    config.nodes.collect { it.arch == arch }.contains(true)
+}
+
+def getNode(config, arch) {
+    def node = config.nodes.find { it.arch == arch }
+    node ? node.label : mainNode(config)
+}
+
+def setupNodes(config) {
+    def defaultNodes = [
+        [label: 'centos7-docker-4c-2g', arch: 'amd64', isDefault: true],
+        [label: 'ubuntu18.04-docker-arm64-4c-2g', arch: 'arm64', isDefault: false]
+    ]
+
+    def _arch = config.arch ?: ['amd64', 'arm64']
+
+    println "Setting up nodes based on requested architectures [${_arch}]"
+
+    def _nodes = []
+
+    _arch.each { architecture ->
+        def node = defaultNodes.find { it.arch == architecture }
+        if(node) {
+            _nodes << node
+        }
+    }
+
+    // in case no nodes are found, just use out defaults
+    if(!_nodes) {
+        _nodes = defaultNodes
+    }
+
+    println "Nodes requested: [${_nodes.collect { it.label }}]"
+    config.nodes = _nodes
+}
+
+def getVmArch() {
+    def vmArch = sh(script: 'uname -m', returnStdout: true).trim()
+    if(vmArch == 'aarch64') {
+        vmArch = 'arm64'
+    }
+    vmArch
+}
+
+def bannerMessage(msg) {
+    echo """=========================================================
+ ${msg}
+========================================================="""
+}
+
+def printMap(map) {
+    def longestKey
+    def longest = 0
+
+    map.each { k,v ->
+        if(k.length() > longest) {
+            longest = k.length()
+            longestKey = k
+        }
+    }
+
+    def msg = []
+    map.each { k,v ->
+        msg << "${k.padLeft(longestKey.length())}: ${v}"
+    }
+
+    echo msg.join("\n")
+}
+
+def defaultTrue(value) {
+    (value == true || value == null) ? true : false
+}
+
+def defaultFalse(value) {
+    (value == false || value == null) ? false : true
+}

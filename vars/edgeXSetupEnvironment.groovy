@@ -14,13 +14,15 @@
 // limitations under the License.
 //
 
+// TODO: Simplify this
 def call(vars) {
-    if (vars == null) {
-        def gitEnvVars = ['GIT_BRANCH', 'GIT_COMMIT']
+    if(!vars) {
         vars = [:]
-        gitEnvVars.each { var ->
-            vars[var] = env.getProperty(var)
-        }
+    }
+
+    def gitEnvVars = ['GIT_BRANCH', 'GIT_COMMIT']
+    gitEnvVars.each { var ->
+        vars[var] = env.getProperty(var)
     }
 
     if(vars != null) {
@@ -36,12 +38,6 @@ def call(vars) {
                 env.setProperty('SHORT_GIT_COMMIT', env.GIT_COMMIT.substring(0,7))
             }
         }
-    }
-
-    // attempty to set a default architecture
-    if(!env.ARCH) {
-        def vmArch = sh(script: 'uname -m', returnStdout: true).trim()
-        env.setProperty('ARCH', vmArch)
     }
 
     // set default semver suffix mode to development
