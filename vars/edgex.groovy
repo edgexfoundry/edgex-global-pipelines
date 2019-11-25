@@ -85,9 +85,9 @@ def setupNodes(config) {
     def _nodes = []
 
     _arch.each { architecture ->
-        def n = defaultNodes.find { it.arch == architecture }
-        if(n) {
-            _nodes << n
+        def node = defaultNodes.find { it.arch == architecture }
+        if(node) {
+            _nodes << node
         }
     }
 
