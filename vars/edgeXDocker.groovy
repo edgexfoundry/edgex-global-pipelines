@@ -65,6 +65,10 @@ def push(dockerImageName, latest = true) {
         allTags << "${GIT_COMMIT}-${VERSION}"
     }
 
+    if(env.SEMVER_BRANCH) {
+        allTags << env.SEMVER_BRANCH
+    }
+
     def customTags = env.DOCKER_CUSTOM_TAGS
     if(customTags) {
         customTags.split(' ').each {
