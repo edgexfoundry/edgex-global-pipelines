@@ -95,7 +95,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin()
-                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}")
+                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -157,7 +157,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin()
-                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}")
+                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -303,6 +303,7 @@ def toEnvironment(config) {
     def _dockerBuildContext  = config.dockerBuildContext ?: '.'
     def _dockerNamespace     = config.dockerNamespace ?: '' //default for edgex is empty string
     def _dockerImageName     = config.dockerImageName ?: "docker-${_projectName}"
+    def _dockerNexusRepo     = config.dockerNexusRepo ?: 'staging'
 
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
@@ -316,7 +317,8 @@ def toEnvironment(config) {
         DOCKER_BUILD_FILE_PATH: _dockerBuildFilePath,
         DOCKER_BUILD_CONTEXT: _dockerBuildContext,
         DOCKER_IMAGE_NAME: _dockerImageName,
-        DOCKER_REGISTRY_NAMESPACE: _dockerNamespace
+        DOCKER_REGISTRY_NAMESPACE: _dockerNamespace,
+        DOCKER_NEXUS_REPO: _dockerNexusRepo
     ]
 
     edgex.bannerMessage "[edgeXBuildGoApp] Pipeline Parameters:"
