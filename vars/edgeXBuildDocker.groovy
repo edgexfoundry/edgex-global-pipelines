@@ -91,7 +91,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin()
-                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}")
+                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -173,7 +173,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin()
-                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}")
+                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -284,6 +284,7 @@ def toEnvironment(config) {
     def _dockerNamespace     = config.dockerNamespace ?: ''
     def _dockerImageName     = config.dockerImageName ?: "docker-${_projectName}"
     def _dockerTags          = config.dockerTags ?: []
+    def _dockerNexusRepo     = config.dockerNexusRepo ?: 'staging'
     def _pushImage           = edgex.defaultTrue(config.pushImage)
     def _archiveImage        = edgex.defaultFalse(config.archiveImage)
     def _archiveName         = config.archiveName ?: "${_projectName}-archive.tar.gz"
@@ -296,6 +297,7 @@ def toEnvironment(config) {
         DOCKER_BUILD_CONTEXT: _dockerBuildContext,
         DOCKER_IMAGE_NAME: _dockerImageName,
         DOCKER_REGISTRY_NAMESPACE: _dockerNamespace,
+        DOCKER_NEXUS_REPO: _dockerNexusRepo,
         PUSH_DOCKER_IMAGE: _pushImage,
         ARCHIVE_IMAGE: _archiveImage,
         ARCHIVE_NAME: _archiveName

@@ -53,8 +53,17 @@ def build(dockerImageName, baseImage = null) {
     docker.build(finalImageName(dockerImageName), "-f ${DOCKER_FILE_PATH} ${buildArgString} ${labelString} ${DOCKER_BUILD_CONTEXT}")
 }
 
-def push(dockerImageName, latest = true) {
-    def allTags = [env.GIT_COMMIT]
+def push(dockerImageName, latest = true, nexusRepo = 'staging') {
+    def nexusPortMapping = [
+        snapshots: 10003,
+        snapshot: 10003,
+        staging: 10004,
+        release: 10002
+    ]
+
+    def nexusPort = nexusPortMapping[nexusRepo]
+
+    def allTags = ["${env.GIT_COMMIT}"]
 
     if(latest) {
         allTags << 'latest'
@@ -84,7 +93,7 @@ def push(dockerImageName, latest = true) {
 ${allTags.join('\n')}
 ====================================================="""
 
-    docker.withRegistry("https://${DOCKER_REGISTRY}") {
+    docker.withRegistry("https://${DOCKER_REGISTRY}:${nexusPort}") {
         allTags.each {
             image.push(it)
         }
