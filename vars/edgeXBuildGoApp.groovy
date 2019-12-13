@@ -90,7 +90,12 @@ def call(config) {
                             }
 
                             stage('Docker Push') {
-                                when { expression { edgex.isReleaseStream() } }
+                                when { 
+                                    allOf {
+                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                                        expression { edgex.isReleaseStream() }
+                                    }
+                                }
 
                                 steps {
                                     script {
@@ -102,7 +107,12 @@ def call(config) {
 
                             // When scanning the clair image, the FQDN is needed
                             stage('Clair Scan') {
-                                when { expression { edgex.isReleaseStream() } }
+                                when {
+                                    allOf {
+                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                                        expression { edgex.isReleaseStream() }
+                                    }
+                                }
                                 steps {
                                     script {
                                         def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
@@ -152,7 +162,12 @@ def call(config) {
                             }
 
                             stage('Docker Push') {
-                                when { expression { edgex.isReleaseStream() } }
+                                when { 
+                                    allOf {
+                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                                        expression { edgex.isReleaseStream() }
+                                    }
+                                }
 
                                 steps {
                                     script {
@@ -164,7 +179,12 @@ def call(config) {
 
                             // When scanning the clair image, the FQDN is needed
                             stage('Clair Scan') {
-                                when { expression { edgex.isReleaseStream() } }
+                                when {
+                                    allOf {
+                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                                        expression { edgex.isReleaseStream() }
+                                    }
+                                }
                                 steps {
                                     script {
                                         def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-${ARCH}")
@@ -304,6 +324,7 @@ def toEnvironment(config) {
     def _dockerNamespace     = config.dockerNamespace ?: '' //default for edgex is empty string
     def _dockerImageName     = config.dockerImageName ?: "docker-${_projectName}"
     def _dockerNexusRepo     = config.dockerNexusRepo ?: 'staging'
+    def _pushImage           = edgex.defaultTrue(config.pushImage)
 
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
@@ -318,7 +339,8 @@ def toEnvironment(config) {
         DOCKER_BUILD_CONTEXT: _dockerBuildContext,
         DOCKER_IMAGE_NAME: _dockerImageName,
         DOCKER_REGISTRY_NAMESPACE: _dockerNamespace,
-        DOCKER_NEXUS_REPO: _dockerNexusRepo
+        DOCKER_NEXUS_REPO: _dockerNexusRepo,
+        PUSH_DOCKER_IMAGE: _pushImage,
     ]
 
     edgex.bannerMessage "[edgeXBuildGoApp] Pipeline Parameters:"

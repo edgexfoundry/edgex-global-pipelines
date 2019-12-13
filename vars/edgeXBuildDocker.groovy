@@ -115,7 +115,12 @@ def call(config) {
 
                             // When scanning the clair image, the FQDN is needed
                             stage('Clair Scan') {
-                                when { expression { edgex.isReleaseStream() } }
+                                when {
+                                    allOf {
+                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                                        expression { edgex.isReleaseStream() }
+                                    }
+                                }
                                 steps {
                                     script {
                                         def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
@@ -196,7 +201,12 @@ def call(config) {
 
                             // When scanning the clair image, the FQDN is needed
                             stage('Clair Scan') {
-                                when { expression { edgex.isReleaseStream() } }
+                                when {
+                                    allOf {
+                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                                        expression { edgex.isReleaseStream() }
+                                    }
+                                }
                                 steps {
                                     script {
                                         def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-${ARCH}")
