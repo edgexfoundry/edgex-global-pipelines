@@ -39,10 +39,6 @@ def call(config) {
             stage('Prepare') {
                 steps {
                     edgeXSetupEnvironment(_envVarMap)
-                    // Not implemented yet
-                    // script {
-                    //     changeDetected = edgex.didChange(env.PROJECT)
-                    // }
                 }
             }
 
@@ -248,7 +244,7 @@ def call(config) {
                     }
                     stage('Bump Pre-Release Version') {
                         steps {
-                            edgeXSemver 'bump pre'
+                            edgeXSemver "bump ${env.SEMVER_BUMP_LEVEL}"
                             edgeXSemver 'push'
                         }
                     }
@@ -298,6 +294,7 @@ def toEnvironment(config) {
     def _pushImage           = edgex.defaultTrue(config.pushImage)
     def _archiveImage        = edgex.defaultFalse(config.archiveImage)
     def _archiveName         = config.archiveName ?: "${_projectName}-archive.tar.gz"
+    def _semverBump          = config.semverBump ?: 'pre'
 
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
@@ -310,7 +307,8 @@ def toEnvironment(config) {
         DOCKER_NEXUS_REPO: _dockerNexusRepo,
         PUSH_DOCKER_IMAGE: _pushImage,
         ARCHIVE_IMAGE: _archiveImage,
-        ARCHIVE_NAME: _archiveName
+        ARCHIVE_NAME: _archiveName,
+        SEMVER_BUMP_LEVEL: _semverBump
     ]
 
     if(_dockerTags) {

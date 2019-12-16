@@ -14,15 +14,14 @@
 // limitations under the License.
 //
 
-def call(config) {
+def call(config = [:]) {
     def goModDefaults = [
-        buildImage: false
-        pushImage: false
+        buildImage: false,
+        pushImage: false,
+        semverBump: 'patch'
     ]
 
-    if(config) {
-        config << goModDefaults
-    }
+    config << goModDefaults
 
     edgeXBuildGoApp(config)
 }
