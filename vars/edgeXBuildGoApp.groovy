@@ -335,7 +335,7 @@ def toEnvironment(config) {
     def _semverBump          = config.semverBump ?: 'pre'
 
     // no image to build, no image to push
-    if(!buildImage) {
+    if(!_buildImage) {
         _pushImage = false
     }
 
