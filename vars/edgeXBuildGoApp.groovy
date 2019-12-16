@@ -245,7 +245,7 @@ def call(config) {
                     }
                     stage('Bump Pre-Release Version') {
                         steps {
-                            edgeXSemver 'bump pre'
+                            edgeXSemver "bump ${env.SEMVER_BUMP_LEVEL}"
                             edgeXSemver 'push'
                         }
                     }
@@ -332,6 +332,7 @@ def toEnvironment(config) {
     def _dockerNexusRepo     = config.dockerNexusRepo ?: 'staging'
     def _buildImage           = edgex.defaultTrue(config.buildImage)
     def _pushImage           = edgex.defaultTrue(config.pushImage)
+    def _semverBump          = config.semverBump ?: 'pre'
 
     // no image to build, no image to push
     if(!buildImage) {
@@ -354,6 +355,7 @@ def toEnvironment(config) {
         DOCKER_NEXUS_REPO: _dockerNexusRepo,
         BUILD_DOCKER_IMAGE: _buildImage,
         PUSH_DOCKER_IMAGE: _pushImage,
+        SEMVER_BUMP_LEVEL: _semverBump
     ]
 
     edgex.bannerMessage "[edgeXBuildGoApp] Pipeline Parameters:"
