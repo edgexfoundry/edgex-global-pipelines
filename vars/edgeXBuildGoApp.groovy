@@ -82,6 +82,7 @@ def call(config) {
                             }
 
                             stage('Build') {
+                                when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
                                 steps {
                                     script {
                                         edgeXDocker.build("${DOCKER_IMAGE_NAME}", "ci-base-image-${ARCH}")
@@ -92,6 +93,7 @@ def call(config) {
                             stage('Docker Push') {
                                 when { 
                                     allOf {
+                                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
                                         expression { edgex.isReleaseStream() }
                                     }
@@ -109,6 +111,7 @@ def call(config) {
                             stage('Clair Scan') {
                                 when {
                                     allOf {
+                                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
                                         expression { edgex.isReleaseStream() }
                                     }
@@ -154,6 +157,7 @@ def call(config) {
                             }
 
                             stage('Build') {
+                                when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
                                 steps {
                                     script {
                                         edgeXDocker.build("${DOCKER_IMAGE_NAME}-${ARCH}", "ci-base-image-${ARCH}")
@@ -164,6 +168,7 @@ def call(config) {
                             stage('Docker Push') {
                                 when { 
                                     allOf {
+                                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
                                         expression { edgex.isReleaseStream() }
                                     }
@@ -181,6 +186,7 @@ def call(config) {
                             stage('Clair Scan') {
                                 when {
                                     allOf {
+                                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
                                         expression { edgex.isReleaseStream() }
                                     }
@@ -324,7 +330,13 @@ def toEnvironment(config) {
     def _dockerNamespace     = config.dockerNamespace ?: '' //default for edgex is empty string
     def _dockerImageName     = config.dockerImageName ?: "docker-${_projectName}"
     def _dockerNexusRepo     = config.dockerNexusRepo ?: 'staging'
+    def _buildImage           = edgex.defaultTrue(config.buildImage)
     def _pushImage           = edgex.defaultTrue(config.pushImage)
+
+    // no image to build, no image to push
+    if(!buildImage) {
+        _pushImage = false
+    }
 
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
@@ -340,6 +352,7 @@ def toEnvironment(config) {
         DOCKER_IMAGE_NAME: _dockerImageName,
         DOCKER_REGISTRY_NAMESPACE: _dockerNamespace,
         DOCKER_NEXUS_REPO: _dockerNexusRepo,
+        BUILD_DOCKER_IMAGE: _buildImage,
         PUSH_DOCKER_IMAGE: _pushImage,
     ]
 
