@@ -1,3 +1,4 @@
+import com.cloudbees.groovy.cps.NonCPS
 /*edgeXGeneric([
     project: 'edgex-go',
     mavenSettings: ['edgex-go-codecov-token:CODECOV_TOKEN'],

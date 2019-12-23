@@ -1,0 +1,11 @@
+<settings>
+  <proxies>
+    <proxy>
+      <id>internalproxy</id>
+      <active>true</active>
+      <protocol>http</protocol>
+      <host>${env.PROXY_HOST}</host>
+      <port>911</port>
+    </proxy>
+ </proxies>
+</settings>
