@@ -151,6 +151,7 @@ def call(config) {
                                         docker.image("ci-base-image-${ARCH}").inside('-u 0:0') {
                                             sh 'go version'
                                             sh "${TEST_SCRIPT}"
+                                            stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false
                                         }
                                     }
                                 }
@@ -210,6 +211,7 @@ def call(config) {
             stage('CodeCov') {
                 when { environment name: 'SILO', value: 'production' }
                 steps {
+                    unstash 'coverage-report'
                     edgeXCodecov "${PROJECT}-codecov-token"
                 }
             }
