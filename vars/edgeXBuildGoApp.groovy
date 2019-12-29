@@ -76,6 +76,7 @@ def call(config) {
                                         docker.image("ci-base-image-${ARCH}").inside('-u 0:0') {
                                             sh 'go version'
                                             sh "${TEST_SCRIPT}"
+                                            stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
                                         }
                                     }
                                 }
@@ -151,7 +152,7 @@ def call(config) {
                                         docker.image("ci-base-image-${ARCH}").inside('-u 0:0') {
                                             sh 'go version'
                                             sh "${TEST_SCRIPT}"
-                                            stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false
+                                            stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
                                         }
                                     }
                                 }
