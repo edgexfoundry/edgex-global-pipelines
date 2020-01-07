@@ -107,23 +107,6 @@ def call(config) {
                                     }
                                 }
                             }
-
-                            // When scanning the clair image, the FQDN is needed
-                            stage('Clair Scan') {
-                                when {
-                                    allOf {
-                                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
-                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                        expression { edgex.isReleaseStream() }
-                                    }
-                                }
-                                steps {
-                                    script {
-                                        def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
-                                        edgeXClair("${DOCKER_REGISTRY}/${image}:${GIT_COMMIT}")
-                                    }
-                                }
-                            }
                         }
                     }
 
@@ -183,23 +166,6 @@ def call(config) {
                                     }
                                 }
                             }
-
-                            // When scanning the clair image, the FQDN is needed
-                            stage('Clair Scan') {
-                                when {
-                                    allOf {
-                                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
-                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                        expression { edgex.isReleaseStream() }
-                                    }
-                                }
-                                steps {
-                                    script {
-                                        def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-${ARCH}")
-                                        edgeXClair("${DOCKER_REGISTRY}/${image}:${GIT_COMMIT}")
-                                    }
-                                }
-                            }
                         }
                     }
                 }
@@ -222,6 +188,26 @@ def call(config) {
                 when { expression { edgex.isReleaseStream() } }
                 steps {
                     edgeXSnyk()
+                }
+            }
+
+            // When scanning the clair image, the FQDN is needed
+            stage('Clair Scan') {
+                when {
+                    allOf {
+                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
+                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                        expression { edgex.isReleaseStream() }
+                    }
+                }
+                steps {
+                    script {
+                        def amd64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
+                        edgeXClair("${DOCKER_REGISTRY}/${amd64Image}:${GIT_COMMIT}")
+
+                        def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
+                        edgeXClair("${DOCKER_REGISTRY}/${arm64Image}:${GIT_COMMIT}")
+                    }
                 }
             }
 
