@@ -80,7 +80,7 @@ def call(config) {
                                 when {
                                     allOf {
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                        expression { edgex.isReleaseStream() }
+                                        expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
                                     }
                                 }
 
@@ -114,7 +114,7 @@ def call(config) {
                                 when {
                                     allOf {
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                        expression { edgex.isReleaseStream() }
+                                        expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
                                     }
                                 }
                                 steps {
@@ -127,7 +127,12 @@ def call(config) {
 
                             // // Snyk docker scan here?
                             // stage('Snyk Docker?') {
-                            //     when { expression { edgex.isReleaseStream() } }
+                            //     when {
+                            //         allOf {
+                            //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                            //             expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
+                            //         }
+                            //     }
                             //     steps {
                             //         script {
                             //             def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
@@ -167,7 +172,7 @@ def call(config) {
                                 when {
                                     allOf {
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                        expression { edgex.isReleaseStream() }
+                                        expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
                                     }
                                 }
 
@@ -195,12 +200,11 @@ def call(config) {
                                 }
                             }
 
-                            // When scanning the clair image, the FQDN is needed
                             stage('Clair Scan') {
                                 when {
                                     allOf {
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                        expression { edgex.isReleaseStream() }
+                                        expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
                                     }
                                 }
                                 steps {
@@ -213,7 +217,12 @@ def call(config) {
 
                             // // Snyk docker scan here?
                             // stage('Snyk Docker?') {
-                            //     when { expression { edgex.isReleaseStream() } }
+                            //     when {
+                            //         allOf {
+                            //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                            //             expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
+                            //         }
+                            //     }
                             //     steps {
                             //         script {
                             //             def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-${ARCH}")
@@ -230,7 +239,7 @@ def call(config) {
                 when {
                     allOf {
                         environment name: 'USE_SEMVER', value: 'true'
-                        expression { edgex.isReleaseStream() }
+                        expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
                     }
                 }
                 stages {
@@ -284,17 +293,18 @@ def toEnvironment(config) {
     def _useSemver     = edgex.defaultFalse(config.semver)
 
     // setup default values
-    def _dockerFilePath      = config.dockerFilePath ?: 'Dockerfile'
-    def _dockerBuildContext  = config.dockerBuildContext ?: '.'
-    def _dockerBuildArgs     = config.dockerBuildArgs ?: []
-    def _dockerNamespace     = config.dockerNamespace ?: ''
-    def _dockerImageName     = config.dockerImageName ?: "docker-${_projectName}"
-    def _dockerTags          = config.dockerTags ?: []
-    def _dockerNexusRepo     = config.dockerNexusRepo ?: 'staging'
-    def _pushImage           = edgex.defaultTrue(config.pushImage)
-    def _archiveImage        = edgex.defaultFalse(config.archiveImage)
-    def _archiveName         = config.archiveName ?: "${_projectName}-archive.tar.gz"
-    def _semverBump          = config.semverBump ?: 'pre'
+    def _dockerFilePath        = config.dockerFilePath ?: 'Dockerfile'
+    def _dockerBuildContext    = config.dockerBuildContext ?: '.'
+    def _dockerBuildArgs       = config.dockerBuildArgs ?: []
+    def _dockerNamespace       = config.dockerNamespace ?: ''
+    def _dockerImageName       = config.dockerImageName ?: "docker-${_projectName}"
+    def _dockerTags            = config.dockerTags ?: []
+    def _dockerNexusRepo       = config.dockerNexusRepo ?: 'staging'
+    def _pushImage             = edgex.defaultTrue(config.pushImage)
+    def _archiveImage          = edgex.defaultFalse(config.archiveImage)
+    def _archiveName           = config.archiveName ?: "${_projectName}-archive.tar.gz"
+    def _semverBump            = config.semverBump ?: 'pre'
+    def _releaseBranchOverride = config.releaseBranchOverride
 
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
@@ -310,6 +320,10 @@ def toEnvironment(config) {
         ARCHIVE_NAME: _archiveName,
         SEMVER_BUMP_LEVEL: _semverBump
     ]
+
+    if(_releaseBranchOverride) {
+        envMap << [ RELEASE_BRANCH_OVERRIDE: _releaseBranchOverride ]
+    }
 
     if(_dockerTags) {
         envMap << [ DOCKER_CUSTOM_TAGS: _dockerTags.join(' ') ]
