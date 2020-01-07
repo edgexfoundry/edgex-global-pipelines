@@ -5,7 +5,7 @@
       <active>true</active>
       <protocol>http</protocol>
       <host>${env.PROXY_HOST}</host>
-      <port>911</port>
+      <port>${env.PROXY_PORT}</port>
     </proxy>
  </proxies>
 </settings>

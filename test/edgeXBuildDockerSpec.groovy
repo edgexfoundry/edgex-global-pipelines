@@ -53,6 +53,10 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
                     dockerTags: ['MyTag1', 'MyTag2'],
                     dockerBuildArgs: ['MyArg1', 'MyArg2']
 
+                ], [
+                    project: 'MyProject',
+                    releaseBranchOverride: 'golang'
+
                 ]
             ]
             expectedResult << [
@@ -84,6 +88,20 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
                     DOCKER_CUSTOM_TAGS: 'MyTag1 MyTag2',
                     DOCKER_BUILD_ARGS: 'MyArg1,MyArg2',
                     SEMVER_BUMP_LEVEL: 'pre'
+                ], [
+                    MAVEN_SETTINGS: 'MyProject-settings',
+                    PROJECT: 'MyProject',
+                    USE_SEMVER: false,
+                    DOCKER_FILE_PATH: 'Dockerfile',
+                    DOCKER_BUILD_CONTEXT: '.',
+                    DOCKER_IMAGE_NAME: 'docker-MyProject',
+                    DOCKER_REGISTRY_NAMESPACE: '',
+                    DOCKER_NEXUS_REPO: 'staging',
+                    PUSH_DOCKER_IMAGE: true,
+                    ARCHIVE_IMAGE: false,
+                    ARCHIVE_NAME: 'MyProject-archive.tar.gz',
+                    SEMVER_BUMP_LEVEL: 'pre',
+                    RELEASE_BRANCH_OVERRIDE: 'golang'
                 ]
             ]
     }
