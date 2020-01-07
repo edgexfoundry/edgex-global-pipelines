@@ -108,38 +108,6 @@ def call(config) {
                                     
                                 }
                             }
-
-                            // When scanning the clair image, the FQDN is needed
-                            stage('Clair Scan') {
-                                when {
-                                    allOf {
-                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                        expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
-                                    }
-                                }
-                                steps {
-                                    script {
-                                        def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
-                                        edgeXClair("${DOCKER_REGISTRY}/${image}:${GIT_COMMIT}")
-                                    }
-                                }
-                            }
-
-                            // // Snyk docker scan here?
-                            // stage('Snyk Docker?') {
-                            //     when {
-                            //         allOf {
-                            //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                            //             expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
-                            //         }
-                            //     }
-                            //     steps {
-                            //         script {
-                            //             def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
-                            //             edgeXSnyk("${DOCKER_REGISTRY}/${image}:${GIT_COMMIT}", env.DOCKER_FILE_PATH)
-                            //         }
-                            //     }
-                            // }
                         }
                     }
 
@@ -199,41 +167,45 @@ def call(config) {
                                     }
                                 }
                             }
-
-                            stage('Clair Scan') {
-                                when {
-                                    allOf {
-                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                        expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
-                                    }
-                                }
-                                steps {
-                                    script {
-                                        def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-${ARCH}")
-                                        edgeXClair("${DOCKER_REGISTRY}/${image}:${GIT_COMMIT}")
-                                    }
-                                }
-                            }
-
-                            // // Snyk docker scan here?
-                            // stage('Snyk Docker?') {
-                            //     when {
-                            //         allOf {
-                            //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                            //             expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
-                            //         }
-                            //     }
-                            //     steps {
-                            //         script {
-                            //             def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-${ARCH}")
-                            //             edgeXSnyk("${DOCKER_REGISTRY}/${image}:${GIT_COMMIT}", env.DOCKER_FILE_PATH)
-                            //         }
-                            //     }
-                            // }
                         }
                     }
                 }
             }
+
+            // When scanning the clair image, the FQDN is needed
+            stage('Clair Scan') {
+                when {
+                    allOf {
+                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                        expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
+                    }
+                }
+                steps {
+                    script {
+                        def amd64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
+                        edgeXClair("${DOCKER_REGISTRY}/${amd64Image}:${GIT_COMMIT}")
+
+                        def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
+                        edgeXClair("${DOCKER_REGISTRY}/${arm64Image}:${GIT_COMMIT}")
+                    }
+                }
+            }
+
+            // // Snyk docker scan here? ARM images are not supported by snyk at this point
+            // stage('Snyk Docker?') {
+            //     when {
+            //         allOf {
+            //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+            //             expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
+            //         }
+            //     }
+            //     steps {
+            //         script {
+            //             def image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
+            //             edgeXSnyk("${DOCKER_REGISTRY}/${image}:${GIT_COMMIT}", env.DOCKER_FILE_PATH)
+            //         }
+            //     }
+            // }
 
             stage('Semver') {
                 when {
