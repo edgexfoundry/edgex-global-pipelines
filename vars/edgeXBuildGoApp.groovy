@@ -102,7 +102,7 @@ def call(config) {
 
                                 steps {
                                     script {
-                                        edgeXDockerLogin()
+                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                         edgeXDocker.push("${DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
@@ -178,7 +178,7 @@ def call(config) {
 
                                 steps {
                                     script {
-                                        edgeXDockerLogin()
+                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                         edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }

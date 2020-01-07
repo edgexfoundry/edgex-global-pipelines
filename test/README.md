@@ -8,6 +8,7 @@ If you are running behind a proxy, then you will need to bind mount the settings
 docker container run \
 --rm \
 --env PROXY_HOST="--specify-your-proxy-server-hostname-here--" \
+--env PROXY_PORT="--specify-your-proxy-server-port-here--" \
 -it \
 -v $(pwd):/edgex-global-pipelines \
 -v $(pwd)/test/settings.xml:/root/.m2/settings.xml \
