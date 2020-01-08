@@ -53,8 +53,10 @@ def call(config) {
                     stage('amd64') {
                         when { expression { edgex.nodeExists(config, 'amd64') } }
                         agent {
-                            label edgex.getNode(config, 'amd64')
-                            customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                            node {
+                                label edgex.getNode(config, 'amd64')
+                                customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                            }
                         }
                         environment {
                             ARCH = 'x86_64'
@@ -115,8 +117,10 @@ def call(config) {
                     stage('arm64') {
                         when { expression { edgex.nodeExists(config, 'arm64') } }
                         agent {
-                            label edgex.getNode(config, 'arm64')
-                            customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                            node {
+                                label edgex.getNode(config, 'arm64')
+                                customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                            }
                         }
                         environment {
                             ARCH = 'arm64'
