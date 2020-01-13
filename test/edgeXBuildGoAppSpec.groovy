@@ -81,11 +81,13 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             version << [
                 '1.11',
                 '1.12',
+                '1.13',
                 '1.01'
             ]
             expectedResult << [
-                'nexus3.edgexfoundry.org:10003/edgex-golang-base:1.11.9-alpine',
-                'nexus3.edgexfoundry.org:10003/edgex-golang-base:1.12.6-alpine',
+                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.11.13-alpine',
+                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
+                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine',
                 'golang:1.01-alpine'
             ]
     }
