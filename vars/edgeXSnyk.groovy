@@ -16,9 +16,10 @@
 
 def call(dockerImage = null, dockerFile = null) {
     def snykImage = 'nexus3.edgexfoundry.org:10003/edgex-snyk-go:1.217.3'
+    def org = env.SNYK_ORG ?: 'edgex-jenkins'
 
     // Run snyk monitor by default
-    def command = ['snyk', 'monitor']
+    def command = ['snyk', 'monitor', "--org=${org}"]
 
     println "[edgeXSnyk] dockerImage=${dockerImage}, dockerFile=${dockerFile}"
     
