@@ -16,8 +16,7 @@
 
 def isReleaseStream(branchName = env.GIT_BRANCH) {
     // what defines a main release branch
-    def releaseStreams = [/master/, /california/, /delhi/, /edinburgh/, /fuji/]
-
+    def releaseStreams = [/^master$/, /^california$/, /^delhi$/, /^edinburgh$/, /^fuji$/]
     env.SILO == 'production' && (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
 

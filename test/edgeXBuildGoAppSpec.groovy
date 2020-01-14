@@ -117,7 +117,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     TEST_SCRIPT: 'make test',
                     BUILD_SCRIPT: 'make build',
                     GO_VERSION: '1.12',
-                    DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-golang-base:1.12.6-alpine',
+                    DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
