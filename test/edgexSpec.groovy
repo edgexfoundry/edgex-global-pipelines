@@ -12,32 +12,37 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
         explicitlyMockPipelineVariable('out')
     }
 
-    def "Test isReleaseStream [Should] return expected [When] called with branchName" () {
-        expect:
-            edgeX.isReleaseStream(branchName: branchName) == expectedResult
+    def "Test isReleaseStream [Should] return expected [When] called in production" () {
+        setup:
+            edgeX.getBinding().setVariable('env', [SILO: 'production'])
 
-        where:
-            branchName << [
-                'master',
-                'origin/master',
-                'california',
-                'delhi',
-                'edinburgh',
-                'fuji',
-                'test'
-            ]
-            expectedResult << [
-                true,
-                true,
-                true,
-                true,
-                true,
-                true,
-                false
-            ]
+        expect:
+            edgeX.isReleaseStream('master') == true
+            edgeX.isReleaseStream('california') == true
+            edgeX.isReleaseStream('delhi') == true
+            edgeX.isReleaseStream('edinburgh') == true
+            edgeX.isReleaseStream('fuji') == true
+            edgeX.isReleaseStream('xyzmaster') == false
+            edgeX.isReleaseStream('masterxyz') == false
+            edgeX.isReleaseStream('xyzmasterxyz') == false
     }
 
-    def "Test isReleaseStream [Should] return expected [When] called without branchName" () {
+    def "Test isReleaseStream [Should] return expected [When] called in non-production" () {
+        setup:
+            edgeX.getBinding().setVariable('env', [SILO: 'sandbox'])
+
+        expect:
+            edgeX.isReleaseStream('master') == false
+            edgeX.isReleaseStream('california') == false
+            edgeX.isReleaseStream('delhi') == false
+            edgeX.isReleaseStream('edinburgh') == false
+            edgeX.isReleaseStream('fuji') == false
+            edgeX.isReleaseStream('xyzmaster') == false
+            edgeX.isReleaseStream('masterxyz') == false
+            edgeX.isReleaseStream('xyzmasterxyz') == false
+    }
+
+    def "Test isReleaseStream [Should] return expected [When] called without branchName in production" () {
         setup:
             edgeX.getBinding().setVariable('env', [GIT_BRANCH: 'us5375'])
 
