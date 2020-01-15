@@ -45,7 +45,10 @@ def call(body) {
 
     // Set build description with build logs and PR info if applicable
     if(!currentBuild.description) {currentBuild.description = ''}
-    if(env.ghprbPullId) {
+
+    // the old GHPRB plugin updated the description to contain the PR # with a link to the PR.
+    // If the build description contains a link to the PR then add a br
+    if(currentBuild.description.contains('PR #')) {
         currentBuild.description += "<br>"
     }
     currentBuild.description += "Build logs: <a href=\"$LOGS_SERVER/$SILO/$JENKINS_HOSTNAME/$JOB_NAME/$BUILD_NUMBER\">$LOGS_SERVER/$SILO/$JENKINS_HOSTNAME/$JOB_NAME/$BUILD_NUMBER</a>"
