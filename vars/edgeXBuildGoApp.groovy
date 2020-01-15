@@ -264,7 +264,7 @@ def prepBaseBuildImage() {
     def baseImage = env.DOCKER_BASE_IMAGE
 
     if(env.ARCH == 'arm64' && baseImage.contains(env.DOCKER_REGISTRY)) {
-        baseImage = "${DOCKER_BASE_IMAGE}-${ARCH}"
+        baseImage = "${DOCKER_BASE_IMAGE}".replace('edgex-golang-base', "edgex-golang-base-${ARCH}")
     }
 
     edgex.bannerMessage "[edgeXBuildGoApp] Building Code With image [${baseImage}]"

@@ -42,14 +42,14 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [
                 'ARCH': 'arm64',
-                'DOCKER_REGISTRY': 'MyDockerRegistry',
+                'DOCKER_REGISTRY': 'nexus3.edgexfoundry.org',
                 'http_proxy': 'MyHttpProxy',
-                'DOCKER_BASE_IMAGE': 'MyDockerRegistry/MyDockerBaseImage'
+                'DOCKER_BASE_IMAGE': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
             explicitlyMockPipelineVariable('docker')
             edgeXBuildGoApp.getBinding().setVariable('ARCH', 'arm64')
-            edgeXBuildGoApp.getBinding().setVariable('DOCKER_BASE_IMAGE', 'MyDockerRegistry/MyDockerBaseImage')
+            edgeXBuildGoApp.getBinding().setVariable('DOCKER_BASE_IMAGE', 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine')
             edgeXBuildGoApp.getBinding().setVariable('DOCKER_BUILD_FILE_PATH', 'MyDockerBuildFilePath')
             edgeXBuildGoApp.getBinding().setVariable('DOCKER_BUILD_CONTEXT', 'MyDockerBuildContext')
         when:
@@ -57,7 +57,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
         then:
             1 * getPipelineMock('docker.build').call([
                     'ci-base-image-arm64', 
-                    '-f MyDockerBuildFilePath  --build-arg BASE=MyDockerRegistry/MyDockerBaseImage-arm64 --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
+                    '-f MyDockerBuildFilePath  --build-arg BASE=nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base-arm64:1.12.14-alpine --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
     }
 
     def "Test validate [Should] raise error [When] config does not include a project parameter" () {

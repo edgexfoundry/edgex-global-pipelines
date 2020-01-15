@@ -21,7 +21,22 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
         when:
             edgeXSnyk()
         then:
-            1 * getPipelineMock('sh').call('snyk monitor')
+            1 * getPipelineMock('sh').call('snyk monitor --org=edgex-jenkins')
+    }
+
+    def "Test edgeXSnyk [Should] call snyk monitor without options [When] called with no arguments when SNYK_ORG" () {
+        setup:
+            def environmentVariables = [
+                'WORKSPACE': 'MyWorkspace',
+                'SNYK_ORG': 'MySnykOrg'
+            ]
+            edgeXSnyk.getBinding().setVariable('env', environmentVariables)
+            explicitlyMockPipelineVariable('docker')
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-snyk-go:1.217.3') >> explicitlyMockPipelineVariable('DockerImageMock')
+        when:
+            edgeXSnyk()
+        then:
+            1 * getPipelineMock('sh').call('snyk monitor --org=MySnykOrg')
     }
 
     def "Test edgeXSnyk [Should] call snyk monitor with docker options [When] called with dockerImage and dockerFile arguments" () {
@@ -35,7 +50,7 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
         when:
             edgeXSnyk('MyDockerImage', 'MyDockerFile')
         then:
-            1 * getPipelineMock('sh').call('snyk monitor --docker MyDockerImage --file=./MyDockerFile')
+            1 * getPipelineMock('sh').call('snyk monitor --org=edgex-jenkins --docker MyDockerImage --file=./MyDockerFile')
     }
 
     def "Test edgeXSnyk [Should] provide the expected arguments to the snyk docker image [When] called" () {
