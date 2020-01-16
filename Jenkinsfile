@@ -37,6 +37,19 @@ pipeline {
             }
         }
 
+        stage('Test') {
+            when { expression { !edgex.isReleaseStream() } }
+            agent {
+                docker {
+                    image "${env.DOCKER_REGISTRY}:10003/edgex-devops/egp-unit-test:latest"
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'mvn clean test'
+            }
+        }
+
         stage('Semver Tag') {
             when { expression { edgex.isReleaseStream() } }
             steps {
