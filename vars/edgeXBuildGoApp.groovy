@@ -28,7 +28,7 @@ def call(config) {
         agent {
             node {
                 label edgex.mainNode(config)
-                customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                customWorkspace "/w/workspace/${config.project}/${env.BUILD_ID}"
             }
         }
         options {
