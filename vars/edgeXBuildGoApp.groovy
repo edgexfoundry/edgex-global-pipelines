@@ -25,7 +25,12 @@ def call(config) {
     ///////////////////////////////////////////////////////////////////////////
 
     pipeline {
-        agent { label edgex.mainNode(config) }
+        agent {
+            node {
+                label edgex.mainNode(config)
+                customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+            }
+        }
         options {
             timestamps()
             preserveStashes()
@@ -51,13 +56,16 @@ def call(config) {
             stage('Build') {
                 parallel {
                     stage('amd64') {
-                        when { expression { edgex.nodeExists(config, 'amd64') } }
-                        agent {
+                        when {
+                            beforeAgent true
+                            expression { edgex.nodeExists(config, 'amd64') }
+                        }
+                        /*agent { // comment out to reuse mainNode
                             node {
                                 label edgex.getNode(config, 'amd64')
                                 customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
                             }
-                        }
+                        }*/
                         environment {
                             ARCH = 'x86_64'
                         }
@@ -115,7 +123,10 @@ def call(config) {
                     }
 
                     stage('arm64') {
-                        when { expression { edgex.nodeExists(config, 'arm64') } }
+                        when {
+                            beforeAgent true
+                            expression { edgex.nodeExists(config, 'arm64') }
+                        }
                         agent {
                             node {
                                 label edgex.getNode(config, 'arm64')

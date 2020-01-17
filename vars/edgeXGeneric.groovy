@@ -68,8 +68,11 @@ def call(config) {
             stage('Build') {
                 parallel {
                     stage('amd64') {
-                        when { expression { edgex.nodeExists(config, 'amd64') } }
-                        agent { label edgex.getNode(config, 'amd64') }
+                        when {
+                            beforeAgent true
+                            expression { edgex.nodeExists(config, 'amd64') }
+                        }
+                        // agent { label edgex.getNode(config, 'amd64') }
                         environment {
                             ARCH = 'x86_64'
                             GOARCH = 'amd64'
@@ -147,7 +150,10 @@ def call(config) {
                         }
                     }
                     stage('arm64') {
-                        when { expression { edgex.nodeExists(config, 'arm64') } }
+                        when {
+                            beforeAgent true
+                            expression { edgex.nodeExists(config, 'arm64') }
+                        }
                         agent { label edgex.getNode(config, 'arm64') }
                         environment {
                             ARCH = 'arm64'

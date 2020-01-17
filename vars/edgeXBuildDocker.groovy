@@ -52,8 +52,11 @@ def call(config) {
             stage('Build Docker Image') {
                 parallel {
                     stage('amd64') {
-                        when { expression { edgex.nodeExists(config, 'amd64') } }
-                        agent { label edgex.getNode(config, 'amd64') } // agent gets evaluated before when
+                        when {
+                            beforeAgent true
+                            expression { edgex.nodeExists(config, 'amd64') }
+                        }
+                        // agent { label edgex.getNode(config, 'amd64') } // comment out to reuse mainNode
                         environment {
                             ARCH = 'x86_64'
                         }
@@ -112,7 +115,10 @@ def call(config) {
                     }
 
                     stage('arm64') {
-                        when { expression { edgex.nodeExists(config, 'arm64') } }
+                        when {
+                            beforeAgent true
+                            expression { edgex.nodeExists(config, 'arm64') }
+                        }
                         agent { label edgex.getNode(config, 'arm64') }
                         environment {
                             ARCH = 'arm64'
