@@ -126,7 +126,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_NEXUS_REPO: 'staging',
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
-                    SEMVER_BUMP_LEVEL: 'pre'
+                    SEMVER_BUMP_LEVEL: 'pre',
+                    GOPROXY: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
                 ]
             ]
     }
@@ -151,7 +152,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     dockerNamespace: 'MyDockerNameSpace',
                     dockerImageName: 'MyDockerImageName',
                     dockerNexusRepo: 'MyNexusRepo',
-                    semverBump: 'patch'
+                    semverBump: 'patch',
+                    goProxy: 'https://www.example.com/repository/go-proxy/'
                 ]
             ]
             expectedResult << [
@@ -171,7 +173,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_NEXUS_REPO: 'MyNexusRepo',
                     BUILD_DOCKER_IMAGE: false,
                     PUSH_DOCKER_IMAGE: false,
-                    SEMVER_BUMP_LEVEL: 'patch'
+                    SEMVER_BUMP_LEVEL: 'patch',
+                    GOPROXY: 'https://www.example.com/repository/go-proxy/'
                 ]
             ]
     }
