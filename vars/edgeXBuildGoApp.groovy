@@ -28,7 +28,6 @@ def call(config) {
         agent {
             node {
                 label edgex.mainNode(config)
-                customWorkspace "/w/workspace/${config.project}/${env.BUILD_ID}"
             }
         }
         options {
@@ -60,12 +59,12 @@ def call(config) {
                             beforeAgent true
                             expression { edgex.nodeExists(config, 'amd64') }
                         }
-                        /*agent { // comment out to reuse mainNode
+                        agent { // comment out to reuse mainNode
                             node {
                                 label edgex.getNode(config, 'amd64')
                                 customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
                             }
-                        }*/
+                        }
                         environment {
                             ARCH = 'x86_64'
                         }
