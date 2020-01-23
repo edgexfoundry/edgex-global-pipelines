@@ -81,7 +81,7 @@ def call(config) {
                             stage('Prep VM') {
                                 steps {
                                     edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                    unstash 'ci-management'
+                                    // unstash 'ci-management' no need to unstash this since we are already on the mainNode
                                     script {
                                         cfgAmd64 = getConfigFilesFromEnv()
                                     }
