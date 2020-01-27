@@ -190,13 +190,15 @@ def call(config) {
             // We should be back on the mainAgent here.
 
             // CodeCov should only run once, no need to run per arch only
-            stage('CodeCov') {
-                when { environment name: 'SILO', value: 'production' }
-                steps {
-                    unstash 'coverage-report'
-                    edgeXCodecov "${env.PROJECT}-codecov-token"
-                }
-            }
+            // TODO: Coverage report is required to run CodeCov. 
+            // Test/QA and Device services WG will need to define unit testing for C code.
+            // stage('CodeCov') {
+            //     when { environment name: 'SILO', value: 'production' }
+            //     steps {
+            //         unstash 'coverage-report'
+            //         edgeXCodecov "${env.PROJECT}-codecov-token"
+            //     }
+            // }
 
             // Scan Docker Image Created
             stage('Snyk Scan') {
