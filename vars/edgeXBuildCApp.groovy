@@ -211,11 +211,14 @@ def call(config) {
                 }
                 steps {
                     script {
-                        def amd64Image = edgeXDocker.finalImageName("${env.DOCKER_IMAGE_NAME}")
-                        edgeXSnyk(dockerImage="${env.DOCKER_REGISTRY}/${amd64Image}:${env.GIT_COMMIT}")
-
-                        def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
-                        edgeXSnyk(dockerImage="${env.DOCKER_REGISTRY}/${arm64Image}:${env.GIT_COMMIT}")
+                        if(edgex.nodeExists(config, 'amd64')){
+                            def amd64Image = edgeXDocker.finalImageName("${env.DOCKER_IMAGE_NAME}")
+                            edgeXSnyk(dockerImage="${env.DOCKER_REGISTRY}/${amd64Image}:${env.GIT_COMMIT}")
+                        }
+                        if(edgex.nodeExists(config, 'arm64')){
+                            def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
+                            edgeXSnyk(dockerImage="${env.DOCKER_REGISTRY}/${arm64Image}:${env.GIT_COMMIT}")
+                        }
                     }
                 }
             }
@@ -231,11 +234,14 @@ def call(config) {
                 }
                 steps {
                     script {
-                        def amd64Image = edgeXDocker.finalImageName("${env.DOCKER_IMAGE_NAME}")
-                        edgeXClair("${env.DOCKER_REGISTRY}/${amd64Image}:${env.GIT_COMMIT}")
-
-                        def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
-                        edgeXClair("${env.DOCKER_REGISTRY}/${arm64Image}:${env.GIT_COMMIT}")
+                        if(edgex.nodeExists(config, 'amd64')) {
+                            def amd64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
+                            edgeXClair("${DOCKER_REGISTRY}/${amd64Image}:${GIT_COMMIT}")
+                        }
+                        if(edgex.nodeExists(config, 'arm64')) {
+                            def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
+                            edgeXClair("${DOCKER_REGISTRY}/${arm64Image}:${GIT_COMMIT}")
+                        }
                     }
                 }
             }
