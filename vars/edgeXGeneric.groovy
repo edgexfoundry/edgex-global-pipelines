@@ -1,7 +1,8 @@
 import com.cloudbees.groovy.cps.NonCPS
 /*edgeXGeneric([
     project: 'edgex-go',
-    mavenSettings: ['edgex-go-codecov-token:CODECOV_TOKEN'],
+    mavenSettings: ['edgex-go-codecov-token:CODECOV_TOKEN'], (optional)
+    credentials: [string(credentialsId: 'credential-id-here', variable: 'APIKEY')], (optional)
     env: [
         GOPATH: '/opt/go-custom/go'
     ],
@@ -91,15 +92,19 @@ def call(config) {
                                 when { expression { anyScript(config, 'pre_build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
-                                        configFileProvider(cfgAmd64) {
-                                            withEnv(["PATH=${setupPath(config)}"]) {
-                                                def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
-                                                println "$ARCH pre_build: ${scripts}"
-                                                scripts.each { userScript ->
-                                                    if(userScript.indexOf('shell/') == 0) {
-                                                        sh "./.ci-management/${userScript}"
-                                                    } else {
-                                                        sh userScript
+                                        println "[DEBUG] creds ==============> ${config.credentials}"
+
+                                        withCredentials(config.credentials) {
+                                            configFileProvider(cfgAmd64) {
+                                                withEnv(["PATH=${setupPath(config)}"]) {
+                                                    def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
+                                                    println "$ARCH pre_build: ${scripts}"
+                                                    scripts.each { userScript ->
+                                                        if(userScript.indexOf('shell/') == 0) {
+                                                            sh "./.ci-management/${userScript}"
+                                                        } else {
+                                                            sh userScript
+                                                        }
                                                     }
                                                 }
                                             }
@@ -111,15 +116,17 @@ def call(config) {
                                 when { expression { anyScript(config, 'build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
-                                        configFileProvider(cfgAmd64) {
-                                            withEnv(["PATH=${setupPath(config)}"]) {
-                                                def scripts = allScripts(config, 'build', env.GIT_BRANCH)
-                                                println "$ARCH build: ${scripts}"
-                                                scripts.each { userScript ->
-                                                    if(userScript.indexOf('shell/') == 0) {
-                                                        sh "./.ci-management/${userScript}"
-                                                    } else {
-                                                        sh userScript
+                                        withCredentials(config.credentials) {
+                                            configFileProvider(cfgAmd64) {
+                                                withEnv(["PATH=${setupPath(config)}"]) {
+                                                    def scripts = allScripts(config, 'build', env.GIT_BRANCH)
+                                                    println "$ARCH build: ${scripts}"
+                                                    scripts.each { userScript ->
+                                                        if(userScript.indexOf('shell/') == 0) {
+                                                            sh "./.ci-management/${userScript}"
+                                                        } else {
+                                                            sh userScript
+                                                        }
                                                     }
                                                 }
                                             }
@@ -131,15 +138,17 @@ def call(config) {
                                 when { expression { anyScript(config, 'post_build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
-                                        configFileProvider(cfgAmd64) {
-                                            withEnv(["PATH=${setupPath(config)}"]) {
-                                                def scripts = allScripts(config, 'post_build', env.GIT_BRANCH)
-                                                println "$ARCH post_build: ${scripts}"
-                                                scripts.each { userScript ->
-                                                    if(userScript.indexOf('shell/') == 0) {
-                                                        sh "./.ci-management/${userScript}"
-                                                    } else {
-                                                        sh userScript
+                                        withCredentials(config.credentials) {
+                                            configFileProvider(cfgAmd64) {
+                                                withEnv(["PATH=${setupPath(config)}"]) {
+                                                    def scripts = allScripts(config, 'post_build', env.GIT_BRANCH)
+                                                    println "$ARCH post_build: ${scripts}"
+                                                    scripts.each { userScript ->
+                                                        if(userScript.indexOf('shell/') == 0) {
+                                                            sh "./.ci-management/${userScript}"
+                                                        } else {
+                                                            sh userScript
+                                                        }
                                                     }
                                                 }
                                             }
@@ -173,15 +182,17 @@ def call(config) {
                                 when { expression { anyScript(config, 'pre_build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
-                                        configFileProvider(cfgArm64) {
-                                            withEnv(["PATH=${setupPath(config)}"]) {
-                                                def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
-                                                println "$ARCH pre_build: ${scripts}"
-                                                scripts.each { userScript ->
-                                                    if(userScript.indexOf('shell/') == 0) {
-                                                        sh "./.ci-management/${userScript}"
-                                                    } else {
-                                                        sh userScript
+                                        withCredentials(config.credentials) {
+                                            configFileProvider(cfgArm64) {
+                                                withEnv(["PATH=${setupPath(config)}"]) {
+                                                    def scripts = allScripts(config, 'pre_build', env.GIT_BRANCH)
+                                                    println "$ARCH pre_build: ${scripts}"
+                                                    scripts.each { userScript ->
+                                                        if(userScript.indexOf('shell/') == 0) {
+                                                            sh "./.ci-management/${userScript}"
+                                                        } else {
+                                                            sh userScript
+                                                        }
                                                     }
                                                 }
                                             }
@@ -193,15 +204,17 @@ def call(config) {
                                 when { expression { anyScript(config, 'build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
-                                        configFileProvider(cfgArm64) {
-                                            withEnv(["PATH=${setupPath(config)}"]) {
-                                                def scripts = allScripts(config, 'build', env.GIT_BRANCH)
-                                                println "$ARCH build: ${scripts}"
-                                                scripts.each { userScript ->
-                                                    if(userScript.indexOf('shell/') == 0) {
-                                                        sh "./.ci-management/${userScript}"
-                                                    } else {
-                                                        sh userScript
+                                        withCredentials(config.credentials) {
+                                            configFileProvider(cfgArm64) {
+                                                withEnv(["PATH=${setupPath(config)}"]) {
+                                                    def scripts = allScripts(config, 'build', env.GIT_BRANCH)
+                                                    println "$ARCH build: ${scripts}"
+                                                    scripts.each { userScript ->
+                                                        if(userScript.indexOf('shell/') == 0) {
+                                                            sh "./.ci-management/${userScript}"
+                                                        } else {
+                                                            sh userScript
+                                                        }
                                                     }
                                                 }
                                             }
@@ -213,15 +226,17 @@ def call(config) {
                                 when { expression { anyScript(config, 'post_build', env.GIT_BRANCH) } }
                                 steps {
                                     script {
-                                        configFileProvider(cfgArm64) {
-                                            withEnv(["PATH=${setupPath(config)}"]) {
-                                                def scripts = allScripts(config, 'post_build', env.GIT_BRANCH)
-                                                println "$ARCH post_build: ${scripts}"
-                                                scripts.each { userScript ->
-                                                    if(userScript.indexOf('shell/') == 0) {
-                                                        sh "./.ci-management/${userScript}"
-                                                    } else {
-                                                        sh userScript
+                                        withCredentials(config.credentials) {
+                                            configFileProvider(cfgArm64) {
+                                                withEnv(["PATH=${setupPath(config)}"]) {
+                                                    def scripts = allScripts(config, 'post_build', env.GIT_BRANCH)
+                                                    println "$ARCH post_build: ${scripts}"
+                                                    scripts.each { userScript ->
+                                                        if(userScript.indexOf('shell/') == 0) {
+                                                            sh "./.ci-management/${userScript}"
+                                                        } else {
+                                                            sh userScript
+                                                        }
                                                     }
                                                 }
                                             }
@@ -268,6 +283,11 @@ def call(config) {
 def validate(config) {
     if(!config.project) {
         error('[edgeXGeneric] The parameter "project" is required. This is typically the project name.')
+    }
+
+    // set default credentials if empty or null
+    if(!config.credentials) {
+        config.credentials = []
     }
 }
 
