@@ -213,11 +213,11 @@ def call(config) {
                     script {
                         if(edgex.nodeExists(config, 'amd64')) {
                             def amd64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
-                            edgeXClair("${DOCKER_REGISTRY}/${amd64Image}:${GIT_COMMIT}")
+                            edgeXClair("${DOCKER_REGISTRY}/${amd64Image}:latest")
                         }
                         if(edgex.nodeExists(config, 'arm64')) {
                             def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
-                            edgeXClair("${DOCKER_REGISTRY}/${arm64Image}:${GIT_COMMIT}")
+                            edgeXClair("${DOCKER_REGISTRY}/${arm64Image}:latest")
                         }
                     }
                 }
