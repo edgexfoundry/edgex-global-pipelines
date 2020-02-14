@@ -14,6 +14,9 @@
 // limitations under the License.
 //
 
+def taggedAMD64Images
+def taggedARM64Images
+
 def call(config) {
     edgex.bannerMessage "[edgeXBuildDocker] RAW Config: ${config}"
 
@@ -90,7 +93,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
+                                        taggedAMD64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -153,7 +156,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", true, "${DOCKER_NEXUS_REPO}")
+                                        taggedARM64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -189,13 +192,11 @@ def call(config) {
             //     }
             //     steps {
             //         script {
-            //             if(edgex.nodeExists(config, 'amd64')){
-            //                 def amd64Image = edgeXDocker.finalImageName("${env.DOCKER_IMAGE_NAME}")
-            //                 edgeXSnyk(dockerImage="${env.DOCKER_REGISTRY}/${amd64Image}:${env.GIT_COMMIT}")
+            //             if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images){
+            //                 edgeXSnyk(taggedAMD64Images.first(), env.DOCKER_FILE_PATH)
             //             }
-            //             if(edgex.nodeExists(config, 'arm64')){
-            //                 def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
-            //                 edgeXSnyk(dockerImage="${env.DOCKER_REGISTRY}/${arm64Image}:${env.GIT_COMMIT}")
+            //             if(edgex.nodeExists(config, 'arm64') && taggedARM64Images){
+            //                 edgeXSnyk(taggedARM64Images.first(), env.DOCKER_FILE_PATH)
             //             }
             //         }
             //     }
@@ -211,13 +212,11 @@ def call(config) {
                 }
                 steps {
                     script {
-                        if(edgex.nodeExists(config, 'amd64')) {
-                            def amd64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
-                            edgeXClair("${DOCKER_REGISTRY}/${amd64Image}:latest")
+                        if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
+                            edgeXClair(taggedAMD64Images.first())
                         }
-                        if(edgex.nodeExists(config, 'arm64')) {
-                            def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
-                            edgeXClair("${DOCKER_REGISTRY}/${arm64Image}:latest")
+                        if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
+                            edgeXClair(taggedARM64Images.first())
                         }
                     }
                 }

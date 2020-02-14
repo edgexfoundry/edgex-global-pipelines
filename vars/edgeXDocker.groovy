@@ -54,6 +54,8 @@ def build(dockerImageName, baseImage = null) {
 }
 
 def push(dockerImageName, latest = true, nexusRepo = 'staging') {
+    def taggedImages = []
+
     def nexusPortMapping = [
         snapshots: 10003,
         snapshot: 10003,
@@ -96,8 +98,11 @@ ${allTags.join('\n')}
     docker.withRegistry("https://${DOCKER_REGISTRY}:${nexusPort}") {
         allTags.each {
             image.push(it)
+            taggedImages << "${DOCKER_REGISTRY}:${nexusPort}/${finalDockerImageName}:${it}"
         }
     }
+
+    taggedImages
 }
 
 def finalImageName(imageName) {
