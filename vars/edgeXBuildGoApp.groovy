@@ -14,6 +14,9 @@
 // limitations under the License.
 //
 
+def taggedAMD64Images
+def taggedARM64Images
+
 def call(config) {
     edgex.bannerMessage "[edgeXBuildGoApp] RAW Config: ${config}"
 
@@ -114,7 +117,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
+                                        taggedAMD64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -181,7 +184,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", true, "${DOCKER_NEXUS_REPO}")
+                                        taggedARM64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -221,13 +224,11 @@ def call(config) {
                 }
                 steps {
                     script {
-                        if(edgex.nodeExists(config, 'amd64')) {
-                            def amd64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
-                            edgeXClair("${DOCKER_REGISTRY}/${amd64Image}:${GIT_COMMIT}")
+                        if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
+                            edgeXClair(taggedAMD64Images.first())
                         }
-                        if(edgex.nodeExists(config, 'arm64')) {
-                            def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
-                            edgeXClair("${DOCKER_REGISTRY}/${arm64Image}:${GIT_COMMIT}")
+                        if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
+                            edgeXClair(taggedARM64Images.first())
                         }
                     }
                 }
