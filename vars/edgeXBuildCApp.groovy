@@ -37,6 +37,9 @@ def call(config) {
             durabilityHint 'PERFORMANCE_OPTIMIZED'
             timeout(360)
         }
+        triggers {
+            issueCommentTrigger('.*^recheck$.*')
+        }
 
         stages {
             stage('Prepare') {

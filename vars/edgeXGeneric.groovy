@@ -45,6 +45,10 @@ def call(config) {
             timeout(360)
         }
 
+        triggers {
+            issueCommentTrigger('.*^recheck$.*')
+        }
+
         stages {
             stage('Prepare') {
                 steps {
