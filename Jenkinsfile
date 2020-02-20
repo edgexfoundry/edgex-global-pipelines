@@ -56,13 +56,6 @@ pipeline {
                 sh 'echo v${VERSION}'
                 edgeXSemver('tag')
                 edgeXInfraLFToolsSign(command: 'git-tag', version: 'v${VERSION}')
-            }
-        }
-
-        stage('Semver Bump Pre-Release Version') {
-            when { expression { edgex.isReleaseStream() } }
-            steps {
-                edgeXSemver('bump patch')
                 edgeXSemver('push')
             }
         }
@@ -74,6 +67,13 @@ pipeline {
                 sshagent (credentials: ['edgex-jenkins-ssh']) {
                     sh 'echo y | ./scripts/update-named-tag.sh "v${VERSION}" "experimental"'
                 }
+            }
+        }
+
+        stage('Semver Bump Pre-Release Version') {
+            when { expression { edgex.isReleaseStream() } }
+            steps {
+                edgeXSemver('bump patch')
             }
         }
     }
