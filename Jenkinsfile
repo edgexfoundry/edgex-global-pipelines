@@ -66,6 +66,14 @@ pipeline {
                 edgeXSemver('push')
             }
         }
+
+        // automatically bump experimental tag
+         stage('🧪 Bump Experimental Tag') {
+            when { expression { edgex.isReleaseStream() } }
+            steps {
+                sh 'echo y | ./scripts/update-named-tag.sh "v${VERSION}" "experimental"'
+            }
+        }
     }
 
     post {
