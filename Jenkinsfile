@@ -55,7 +55,7 @@ pipeline {
             steps {
                 sh 'echo v${VERSION}'
                 edgeXSemver('tag')
-                edgeXInfraLFToolsSign(command: 'git-tag', version: 'v${VERSION}')
+                // edgeXInfraLFToolsSign(command: 'git-tag', version: 'v${VERSION}')
                 edgeXSemver('push')
             }
         }
