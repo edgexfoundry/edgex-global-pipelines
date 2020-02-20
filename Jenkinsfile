@@ -55,18 +55,7 @@ pipeline {
             steps {
                 sh 'echo v${VERSION}'
                 edgeXSemver('tag')
-                // edgeXInfraLFToolsSign(command: 'git-tag', version: 'v${VERSION}')
-                edgeXSemver('push')
-            }
-        }
-
-        // automatically bump experimental tag
-        stage('🧪 Bump Experimental Tag') {
-            when { expression { edgex.isReleaseStream() } }
-            steps {
-                sshagent (credentials: ['edgex-jenkins-ssh']) {
-                    sh 'echo y | ./scripts/update-named-tag.sh "v${VERSION}" "experimental"'
-                }
+                edgeXInfraLFToolsSign(command: 'git-tag', version: 'v${VERSION}')
             }
         }
 
@@ -74,8 +63,19 @@ pipeline {
             when { expression { edgex.isReleaseStream() } }
             steps {
                 edgeXSemver('bump patch')
+                edgeXSemver('push')
             }
         }
+
+        // automatically bump experimental tag...more research needed
+        /*stage('🧪 Bump Experimental Tag') {
+            when { expression { edgex.isReleaseStream() } }
+            steps {
+                sshagent (credentials: ['edgex-jenkins-ssh']) {
+                    sh 'echo y | ./scripts/update-named-tag.sh "v${VERSION}" "experimental"'
+                }
+            }
+        }*/
     }
 
     post {
