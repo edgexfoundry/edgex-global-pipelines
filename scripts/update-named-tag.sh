@@ -42,7 +42,7 @@ if [[ "$response" =~ ^(yes|y)$ ]]; then
   fi
 
   commit=$(git rev-list -n 1 "${taggedVersion}")
-  git tag -m "update ${tagName} to ${taggedVersion}" -s "${tagName}" "$commit"
+  git tag -m "update ${tagName} to ${taggedVersion}" "${tagName}" "$commit"
   git push origin "${tagName}"
 else
   echo "cancelled update"
