@@ -34,6 +34,10 @@ pipeline {
             steps {
                 edgeXSetupEnvironment()
                 edgeXSemver 'init'
+                script {
+                    env.OG_VERSION = env.VERSION
+                    sh "echo Archived original version: [$OG_VERSION]"
+                }
             }
         }
 
@@ -62,20 +66,20 @@ pipeline {
         stage('Semver Bump Pre-Release Version') {
             when { expression { edgex.isReleaseStream() } }
             steps {
-                edgeXSemver('bump patch')
+                edgeXSemver('bump patch') //this changes the VERSION env var
                 edgeXSemver('push')
             }
         }
 
         // automatically bump experimental tag...more research needed
-        /*stage('🧪 Bump Experimental Tag') {
+        stage('🧪 Bump Experimental Tag') {
             when { expression { edgex.isReleaseStream() } }
             steps {
                 sshagent (credentials: ['edgex-jenkins-ssh']) {
-                    sh 'echo y | ./scripts/update-named-tag.sh "v${VERSION}" "experimental"'
+                    sh 'echo y | ./scripts/update-named-tag.sh "v${OG_VERSION}" "experimental"'
                 }
             }
-        }*/
+        }
     }
 
     post {
