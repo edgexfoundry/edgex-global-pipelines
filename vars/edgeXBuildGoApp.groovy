@@ -305,17 +305,23 @@ def validate(config) {
     }
 }
 
-def getGoLangBaseImage(version) {
-    def goBaseImages = [
-        '1.11': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.11.13-alpine',
-        '1.12': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
-        '1.13': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine'
-    ]
+def getGoLangBaseImage(version, alpineBased) {
+    def baseImage
 
-    def baseImage = goBaseImages[version]
+    if(alpineBased) {
+        def goBaseImages = [
+            '1.11': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.11.13-alpine',
+            '1.12': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
+            '1.13': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine'
+        ]
 
-    if(!baseImage) {
-        baseImage = "golang:${version}-alpine"
+        baseImage = goBaseImages[version]
+
+        if(!baseImage) {
+            baseImage = "golang:${version}-alpine"
+        }
+    } else {
+        baseImage = "golang:${version}"
     }
 
     baseImage
@@ -333,8 +339,9 @@ def toEnvironment(config) {
     def _testScript    = config.testScript ?: 'make test'
     def _buildScript   = config.buildScript ?: 'make build'
     def _goVersion     = config.goVersion ?: '1.12'
+    def _useAlpine     = edgex.defaultTrue(config.useAlpineBase)
 
-    def _dockerBaseImage     = getGoLangBaseImage(_goVersion)
+    def _dockerBaseImage     = getGoLangBaseImage(_goVersion, _useAlpine)
     def _dockerFilePath      = config.dockerFilePath ?: 'Dockerfile'
     def _dockerBuildFilePath = config.dockerBuildFilePath ?: 'Dockerfile.build'
     def _dockerBuildContext  = config.dockerBuildContext ?: '.'
