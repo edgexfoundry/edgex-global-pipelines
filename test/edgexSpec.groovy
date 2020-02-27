@@ -247,7 +247,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                         arch: 'amd64',
                         isDefault: true
                     ], [
-                        label: 'ubuntu18.04-docker-arm64-4c-2g',
+                        label: 'ubuntu18.04-docker-arm64-4c-16g',
                         arch: 'arm64',
                         isDefault: false
                     ]
