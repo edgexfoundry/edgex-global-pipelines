@@ -158,7 +158,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
     def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config" () {
         setup:
             getPipelineMock('edgex.defaultTrue')(null) >> {
-                false
+                true
             }
         expect:
             edgeXBuildGoApp.toEnvironment(config) == expectedResult
@@ -188,7 +188,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     TEST_SCRIPT: 'MyTestScript',
                     BUILD_SCRIPT: 'MyBuildScript',
                     GO_VERSION: 'MyGoVersion',
-                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion',
+                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion-alpine',
                     DOCKER_FILE_PATH: 'MyDockerFilePath',
                     DOCKER_BUILD_FILE_PATH: 'MyDockerBuildFilePath',
                     DOCKER_BUILD_CONTEXT: 'MyDockerBuildContext',
