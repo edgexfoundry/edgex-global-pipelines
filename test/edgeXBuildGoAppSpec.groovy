@@ -73,22 +73,45 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('error').call(_ as String)
     }
 
-    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version" () {
+    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and true alpine flag" () {
         setup:
         expect:
-            edgeXBuildGoApp.getGoLangBaseImage(version) == expectedResult
+            edgeXBuildGoApp.getGoLangBaseImage(version, true) == expectedResult
         where:
             version << [
                 '1.11',
                 '1.12',
                 '1.13',
-                '1.01'
+                '1.01',
+                'MyVersion'
             ]
             expectedResult << [
                 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.11.13-alpine',
                 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
                 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine',
-                'golang:1.01-alpine'
+                'golang:1.01-alpine',
+                'golang:MyVersion-alpine'
+            ]
+    }
+
+    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and false alpine flag" () {
+        setup:
+        expect:
+            edgeXBuildGoApp.getGoLangBaseImage(version, false) == expectedResult
+        where:
+            version << [
+                '1.11',
+                '1.12',
+                '1.13',
+                '1.01',
+                'MyVersion'
+            ]
+            expectedResult << [
+                'golang:1.11',
+                'golang:1.12',
+                'golang:1.13',
+                'golang:1.01',
+                'golang:MyVersion'
             ]
     }
 
@@ -153,7 +176,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     dockerImageName: 'MyDockerImageName',
                     dockerNexusRepo: 'MyNexusRepo',
                     semverBump: 'patch',
-                    goProxy: 'https://www.example.com/repository/go-proxy/'
+                    goProxy: 'https://www.example.com/repository/go-proxy/',
+                    useAlpineBase: true
                 ]
             ]
             expectedResult << [
@@ -164,7 +188,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     TEST_SCRIPT: 'MyTestScript',
                     BUILD_SCRIPT: 'MyBuildScript',
                     GO_VERSION: 'MyGoVersion',
-                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion-alpine',
+                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion',
                     DOCKER_FILE_PATH: 'MyDockerFilePath',
                     DOCKER_BUILD_FILE_PATH: 'MyDockerBuildFilePath',
                     DOCKER_BUILD_CONTEXT: 'MyDockerBuildContext',
