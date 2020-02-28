@@ -23,7 +23,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             edgeXSemver()
         then:
             1 * getPipelineMock('env.getProperty').call('GITSEMVER_HEAD_TAG') >> 'GitsemverHeadTag'
-            1 * getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgexfoundry/git-semver:latest-x86_64') >> explicitlyMockPipelineVariable('DockerImageMock')
+            1 * getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable('DockerImageMock')
             1 * getPipelineMock('sh')([script: 'git semver', returnStdout: true]) >> 'GitSemverVersion\n'
             // 1 * getPipelineMock('env.setProperty')('VERSION', '--version--')
             // noExceptionThrown()

@@ -15,9 +15,8 @@
 //
 
 def call(command = null, credentials = 'edgex-jenkins-ssh', debug = true) {
-    def arch = env.ARCH ?: 'x86_64'
     def gitSemverVersion = 'latest'
-    def semverImage = "nexus3.edgexfoundry.org:10004/edgexfoundry/git-semver:${gitSemverVersion}-${arch}"
+    def semverImage = "nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:${gitSemverVersion}"
     def envVars = [
         'SSH_KNOWN_HOSTS=/etc/ssh/ssh_known_hosts'
     ]
