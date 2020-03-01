@@ -72,7 +72,10 @@ def call(config = [:]) {
 
     withEnv(envVars) {
         configFileProvider(cfgFile) {
-            sh 'cp $SNAP_STORE_LOGIN $WORKSPACE/edgex-snap-store-login'
+            if(env.SILO == 'production') {
+                sh 'cp $SNAP_STORE_LOGIN $WORKSPACE/edgex-snap-store-login'
+            }
+
             sh """
             docker run --rm -u 0:0 --privileged \
               -v $WORKSPACE:/build \
