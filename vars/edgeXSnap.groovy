@@ -17,12 +17,12 @@
 /* Usage
 edgeXSnap(
     jobType: 'build|snapshot|release',
-    snapChannel: 'latest/edge',
+    snapChannel: 'latest/edge|latest/snapshot', used for jobType = snapshot|release
 )
 
 Optional:
 
-snapRevision, ...
+snapRevision, some revision number (2049)... used for jobType = release
 snapName, name of the snap. If not provided, the snapcraft.yaml will be used to determine the name
 snapBuilderImage, which docker image to use to build the snap
 snapBase, the base directory where to build the snap
@@ -64,8 +64,14 @@ def call(config = [:]) {
         error('Could not determine snap name. Please verify the snapcraft.yaml file and try again.')
     }
 
+    def cfgFile = []
+
+    if(env.SILO == 'production') {
+        cfgFile = [configFile(fileId: _snapStoreLoginSettings, variable: 'SNAP_STORE_LOGIN')]
+    }
+
     withEnv(envVars) {
-        configFileProvider([configFile(fileId: _snapStoreLoginSettings, variable: 'SNAP_STORE_LOGIN')]) {
+        configFileProvider(cfgFile) {
             sh 'cp $SNAP_STORE_LOGIN $WORKSPACE/edgex-snap-store-login'
             sh """
             docker run --rm -u 0:0 --privileged \
