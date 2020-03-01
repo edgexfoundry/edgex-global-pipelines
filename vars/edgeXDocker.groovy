@@ -25,6 +25,17 @@ def build(dockerImageName, baseImage = null) {
         buildArgs << "MAKE='${BUILD_SCRIPT}'"
     }
 
+    // transform to standard arch
+    def buildArgArch = env.ARCH
+
+    if(env.ARCH == 'x86_64') {
+        buildArgArch = 'amd64'
+    } else if(env.ARCH == 'aarch64') {
+        buildArgArch = 'arm64'
+    }
+
+    buildArgs << "ARCH=${buildArgArch}"
+
     if(env.http_proxy) {
         buildArgs << "http_proxy"
         buildArgs << "https_proxy"
@@ -36,7 +47,7 @@ def build(dockerImageName, baseImage = null) {
 
     def buildArgString = buildArgs.join(' --build-arg ')
 
-    def labels = ['', "'git_sha=${GIT_COMMIT}'", "'arch=${ARCH}'"]
+    def labels = ['', "'git_sha=${GIT_COMMIT}'", "'arch=${buildArgArch}'"]
 
     // in case VERSION is not set (i.e. use semver = fallse)
     if(env.VERSION) {
