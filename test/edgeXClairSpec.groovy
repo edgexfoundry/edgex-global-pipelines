@@ -35,7 +35,7 @@ public class EdgeXClairSpec extends JenkinsPipelineSpecification {
             explicitlyMockPipelineStep('withEnv')
             explicitlyMockPipelineStep('readJSON')
             explicitlyMockPipelineVariable('docker')
-            getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-klar:latest') >> explicitlyMockPipelineVariable('DockerImageMock')
+            getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-devops/edgex-klar:latest') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock('sh').call([script:'/klar MyDockerImage:MyTag | tee', returnStdout:true]) >> 'KlarOutput\n'
             getPipelineMock('readJSON').call([text:'KlarOutput']) >> 'KlarJsonOutput'
 
