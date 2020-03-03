@@ -63,7 +63,7 @@ public class EdgeXInfraLFToolsSignSpec extends JenkinsPipelineSpecification {
         setup:
             explicitlyMockPipelineStep('echo')
             explicitlyMockPipelineVariable('docker')
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-lftools:0.23.1-centos7') >> explicitlyMockPipelineVariable('DockerImageMock')
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-lftools:0.31.0-centos7') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock("libraryResource")('global-jjb-shell/sigul-configuration.sh') >> {
                 return 'sigul-configuration'
             }
@@ -89,7 +89,7 @@ public class EdgeXInfraLFToolsSignSpec extends JenkinsPipelineSpecification {
         setup:
             explicitlyMockPipelineStep('echo')
             explicitlyMockPipelineVariable('docker')
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-lftools:0.23.1-centos7') >> explicitlyMockPipelineVariable('DockerImageMock')
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-lftools:0.31.0-centos7') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock("libraryResource")('global-jjb-shell/sigul-configuration.sh') >> {
                 return 'sigul-configuration'
             }
@@ -115,7 +115,7 @@ public class EdgeXInfraLFToolsSignSpec extends JenkinsPipelineSpecification {
         setup:
             explicitlyMockPipelineStep('echo')
             explicitlyMockPipelineVariable('docker')
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-lftools:0.23.1-centos7') >> explicitlyMockPipelineVariable('DockerImageMock')
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-lftools:0.31.0-centos7') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock("libraryResource")('global-jjb-shell/sigul-configuration.sh') >> {
                 return 'sigul-configuration'
             }
