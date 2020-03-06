@@ -14,12 +14,12 @@
 // limitations under the License.
 //
 
-def collectReleaseYamlFiles(filePath = 'release/*.yaml') {
+def collectReleaseYamlFiles(filePath = 'release/*.yaml', releaseBranch = 'release') {
     def releaseData = []
     def yamlFiles = findFiles(glob: filePath)
 
     for (f in yamlFiles) {
-        if (edgex.didChange(f.toString())) {
+        if (edgex.didChange(f.toString(), releaseBranch)) {
             releaseData << readYaml(file: f.toString())
         }   
     }

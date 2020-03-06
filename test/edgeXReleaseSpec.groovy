@@ -13,8 +13,8 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
     def "Test collectReleaseYamlFiles [Should] return instance of java.util.ArrayList of size 2 [When] called with no parameters and two changed files" () {
         setup:
             getPipelineMock('findFiles').call([glob:'release/*.yaml']) >> ['app-functions-sdk-go.yaml', 'edgex-go.yaml']
-            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml') >> true
-            getPipelineMock('edgex.didChange').call('edgex-go.yaml') >> true
+            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml', 'release') >> true
+            getPipelineMock('edgex.didChange').call('edgex-go.yaml', 'release') >> true
             getPipelineMock('readYaml').call([file:'app-functions-sdk-go.yaml']) >> [
                     name:'app-functions-sdk-go', 
                     version:'v1.2.0', 
@@ -80,8 +80,8 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
     def "Test collectReleaseYamlFiles [Should] return instance of java.util.ArrayList of size 1 [When] called with no parameters and one changed file" () {
         setup:
             getPipelineMock('findFiles').call([glob:'release/*.yaml']) >> ['app-functions-sdk-go.yaml', 'edgex-go.yaml']
-            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml') >> true
-            getPipelineMock('edgex.didChange').call('edgex-go.yaml') >> false
+            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml', 'release') >> true
+            getPipelineMock('edgex.didChange').call('edgex-go.yaml', 'release') >> false
             getPipelineMock('readYaml').call([file:'app-functions-sdk-go.yaml']) >> [
                     name:'app-functions-sdk-go', 
                     version:'v1.2.0', 
@@ -133,8 +133,8 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
     def "Test collectReleaseYamlFiles [Should] return instance of java.util.ArrayList of size 0 [When] called with no parameters and no changed files" () {
         setup:
             getPipelineMock('findFiles').call([glob:'release/*.yaml']) >> ['app-functions-sdk-go.yaml', 'edgex-go.yaml']
-            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml') >> false
-            getPipelineMock('edgex.didChange').call('edgex-go.yaml') >> false
+            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml', 'release') >> false
+            getPipelineMock('edgex.didChange').call('edgex-go.yaml', 'release') >> false
             getPipelineMock('readYaml').call([file:'app-functions-sdk-go.yaml']) >> [
                     name:'app-functions-sdk-go', 
                     version:'v1.2.0', 
@@ -211,8 +211,8 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
     def "Test collectReleaseYamlFiles [Should] return instance of java.util.ArrayList of size 2 [When] called with a filepath parameter and two changed files" () {
         setup:
             getPipelineMock('findFiles').call([glob:'fuji/*.yaml']) >> ['app-functions-sdk-go.yaml', 'edgex-go.yaml']
-            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml') >> true
-            getPipelineMock('edgex.didChange').call('edgex-go.yaml') >> true
+            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml', 'release') >> true
+            getPipelineMock('edgex.didChange').call('edgex-go.yaml', 'release') >> true
             getPipelineMock('readYaml').call([file:'app-functions-sdk-go.yaml']) >> [
                     name:'app-functions-sdk-go', 
                     version:'v1.2.0', 
