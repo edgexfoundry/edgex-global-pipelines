@@ -23,7 +23,7 @@ def call(Map config = [:]) {
         def _sigulPKI = config.sigulPKI ?: 'sigul-pki'
 
         // Expose lftools image version for override
-        def _lftoolsImageVersion = config.lftoolsImageVersion ?: '0.31.0-centos7'
+        def _lftoolsImageVersion = config.lftoolsImageVersion ?: '0.23.1-centos7'
 
         def _command = config.command ?: ''
         def _directory = config.directory ?: ''
