@@ -41,6 +41,12 @@ pipeline {
             }
         }
 
+        stage('Linter') {
+            steps {
+                sh "./scripts/linter.sh"
+            }
+        }
+
         stage('Test') {
             when { expression { !edgex.isReleaseStream() } }
             agent {
