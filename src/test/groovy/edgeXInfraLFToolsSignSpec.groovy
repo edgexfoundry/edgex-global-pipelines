@@ -62,7 +62,6 @@ public class EdgeXInfraLFToolsSignSpec extends JenkinsPipelineSpecification {
     def "Test edgeXInfraLFToolsSign [Should] call expected shell scripts with expected arguments [When] command is 'dir'" () {
         setup:
             explicitlyMockPipelineStep('echo')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-lftools:0.23.1-centos7') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock("libraryResource")('global-jjb-shell/sigul-configuration.sh') >> {
                 return 'sigul-configuration'
@@ -88,7 +87,6 @@ public class EdgeXInfraLFToolsSignSpec extends JenkinsPipelineSpecification {
     def "Test edgeXInfraLFToolsSign [Should] call expected shell scripts with expected arguments [When] command is 'git-tag'" () {
         setup:
             explicitlyMockPipelineStep('echo')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-lftools:0.23.1-centos7') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock("libraryResource")('global-jjb-shell/sigul-configuration.sh') >> {
                 return 'sigul-configuration'
@@ -114,7 +112,6 @@ public class EdgeXInfraLFToolsSignSpec extends JenkinsPipelineSpecification {
     def "Test edgeXInfraLFToolsSign [Should] throw exception [When] command is invalid" () {
         setup:
             explicitlyMockPipelineStep('echo')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-lftools:0.23.1-centos7') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock("libraryResource")('global-jjb-shell/sigul-configuration.sh') >> {
                 return 'sigul-configuration'

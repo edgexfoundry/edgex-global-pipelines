@@ -1,0 +1,123 @@
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'jacoco'
+}
+
+group = 'edgexfoundry'
+version = "0.0.1"
+description = "Testing EdgeX Global Pipelines Shared Library"
+
+// Spock works with Java 1.7 and above
+sourceCompatibility = 1.8
+
+project.buildDir = 'target'
+
+repositories {
+  // Spock releases are available from Maven Central
+  mavenCentral()
+  // Spock snapshots are available from the Sonatype OSS snapshot repository
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven { url "https://repo.jenkins-ci.org/releases" }
+  maven { url "https://repo.jenkins-ci.org/public" }
+}
+
+// this is for jacoco to know where the source groovy is. Jacoco does not work at the moment
+// this only works if you are running clean tests each time
+//sourceSets {
+//  main {
+//    java { srcDirs = [] }
+//    groovy { srcDirs += ["$buildDir/classes/vars"] }
+//  }
+//}
+
+dependencies {
+  def withoutIcu = { exclude group: 'com.ibm.icu', module: 'icu4j' }
+
+  // mandatory dependencies for using Spock
+  implementation "org.codehaus.groovy:groovy-all:2.5.8"
+  implementation "com.cloudbees:groovy-cps:1.31@jar", withoutIcu
+
+  implementation "org.slf4j:jcl-over-slf4j:1.7.25"
+  testImplementation "org.slf4j:log4j-over-slf4j:1.7.25"
+  testImplementation "org.slf4j:slf4j-api:1.7.25"
+
+  testImplementation "ch.qos.logback:logback-core:1.2.3"
+  testImplementation "ch.qos.logback:logback-classic:1.2.3"
+  testImplementation "org.apache.commons:commons-csv:1.1"
+  testImplementation "com.google.guava:guava:20.0"
+
+  testImplementation group: 'org.apache.maven', name: 'maven-model', version: '3.0.2'
+
+  testImplementation "org.spockframework:spock-core:1.3-groovy-2.5@jar"
+
+  // one of these dependencies has a transitive dependency to icu4j which is breaking the test runtime
+  // `withoutIcu` excludes that dependency...I have not been able to pinpoint which one
+  // so I added `withoutIcu` to all of them
+
+  // Jenkins related
+  testImplementation "com.homeaway.devtools.jenkins:jenkins-spock:2.0.1", withoutIcu
+  testImplementation "javax.servlet:javax.servlet-api:3.1.0", withoutIcu
+  testImplementation "org.jenkins-ci.main:jenkins-core:2.225", withoutIcu
+  testImplementation "org.jenkins-ci.plugins.workflow:workflow-api:2.40@jar", withoutIcu
+  testImplementation "org.jenkins-ci.plugins.workflow:workflow-step-api:2.22@jar", withoutIcu
+  testImplementation "org.jenkins-ci.plugins.workflow:workflow-cps:2.78@jar", withoutIcu
+  testImplementation "org.jenkins-ci.plugins.workflow:workflow-durable-task-step:2.35@jar", withoutIcu // provides the sh() pipeline step
+  testImplementation "org.jenkins-ci.plugins:durable-task:1.33@jar", withoutIcu // transitive dependency for workflow-durable-task-step
+  testImplementation "org.jenkins-ci.plugins.workflow:workflow-cps-global-lib:2.15@jar", withoutIcu // provides libraryResource() step
+  testImplementation "org.jenkins-ci:symbol-annotation:1.10", withoutIcu
+  testImplementation "org.jenkins-ci.plugins:slack:2.35@jar", withoutIcu // provides the slackSend() pipeline step
+  testImplementation "org.jenkins-ci.plugins:pipeline-stage-step:2.3@jar", withoutIcu // provides stage() step
+  testImplementation "org.jenkins-ci.plugins:ssh-agent:1.17@jar", withoutIcu // provides sshagent() step
+  testImplementation "org.jenkins-ci.plugins:config-file-provider:3.6.2@jar", withoutIcu // provides the configFileProvider() pipeline step
+  testImplementation "org.jenkins-ci.plugins:credentials-binding:1.20@jar", withoutIcu // provides withCredentials() step
+  testImplementation "org.jenkins-ci.plugins:pipeline-utility-steps:2.3.1@jar", withoutIcu // provides findFiles() step
+  testImplementation "org.jenkins-ci.plugins:script-security:1.68@jar", withoutIcu
+
+  testImplementation "org.jenkins-ci.plugins:docker-commons:1.15@jar"
+  testImplementation "org.jenkins-ci.plugins:docker-workflow:1.21@jar"
+
+  testImplementation "org.springframework:spring-core:4.3.19.RELEASE", withoutIcu
+  testImplementation "org.springframework:spring-test:4.3.2.RELEASE", withoutIcu
+}
+
+test {
+  systemProperty 'root.loglevel', 'INFO'
+  systemProperty 'root.appender', 'Stdout'
+  systemProperty 'test.loglevel', 'INFO'
+  systemProperty 'logdir', './target/logs'
+
+  reports {
+    junitXml.enabled = true
+  }
+}
+
+jacocoTestReport {
+  reports {
+    xml.enabled true
+    csv.enabled false
+    html.enabled true
+  }
+}
+
+// this is needed for spock to find all the source code in the var directory
+task copyGlobalLibVars (type: Copy) {
+  from "$rootDir/vars"
+  include '**/*.groovy'
+  into "$buildDir/classes/vars"
+}
+
+compileTestGroovy {
+  options.incremental = true
+  options.fork        = true
+  options.failOnError = false
+}
+compileTestGroovy.dependsOn copyGlobalLibVars
+
+// print the test classpath. Good for debugging ClassNotFound issues
+task printClasspath {
+  doLast {
+    configurations.testRuntimeClasspath.each { println it }
+  }
+}
+

@@ -7,6 +7,8 @@ public class EdgeXBuildGoModSpec extends JenkinsPipelineSpecification {
 
     def setup() {
         edgeXBuildGoMod = loadPipelineScriptForTest('vars/edgeXBuildGoMod.groovy')
+        explicitlyMockPipelineStep('edgeXBuildGoApp')
+        explicitlyMockPipelineStep('edgeXBuildGoApp.call')
     }
 
     def "Test edgeXBuildGoMod [Should] call edgeXBuildGoApp with expected arguments [When] called with config" () {
@@ -15,7 +17,7 @@ public class EdgeXBuildGoModSpec extends JenkinsPipelineSpecification {
                 project: 'go-mod-bootstrap',
                 goVersion: '1.11'])
         then:
-            1 * getPipelineMock('edgeXBuildGoApp.call').call([
+            1 * getPipelineMock('edgeXBuildGoApp').call([
                 project:'go-mod-bootstrap',
                 goVersion:'1.11',
                 buildImage:false,

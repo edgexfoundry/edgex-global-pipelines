@@ -28,7 +28,6 @@ public class EdgeXInfraShipLogsSpec extends JenkinsPipelineSpecification {
             edgeXInfraShipLogs.getBinding().setVariable('env', environmentVariables)
             explicitlyMockPipelineStep('echo')
             explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-lftools-log-publisher:alpine') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock("libraryResource")('global-jjb-shell/create-netrc.sh') >> {
                 return 'create-netrc'
