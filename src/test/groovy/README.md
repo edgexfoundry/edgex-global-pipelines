@@ -1,25 +1,53 @@
-## How to test
+# How to test
 
 Ensure the current working directory is the root of the edgex-global-pipelines repository.
 
-If you are running behind a proxy, then you will need to bind mount the settings.xml file. Note their is an issue with Maven interpolating the proxy port thus you will need to update the PROXY_PORT value in the settings.xml manually; the default port value is 911.
+## Testing with Native Gradle
+
+Gradle easily allows for running without manually needing to install the gradle binary. The provided wrapper script gradlew/gradlew.bat will download gradle and run whatever task you specify.
 
 ```Shell
-docker container run \
---rm \
---env PROXY_HOST="--specify-your-proxy-server-hostname-here--" \
---env PROXY_PORT="--specify-your-proxy-server-port-here--" \
--it \
--v $(pwd):/edgex-global-pipelines \
--v $(pwd)/test/settings.xml:/root/.m2/settings.xml \
--w /edgex-global-pipelines \
-maven:3.6.3-jdk-8 \
-/bin/sh
+./gradlew clean test
 ```
 
-Execute the tests with the following command:
+## Testing with Dockerized Gradle
+
+By running the tests with docker, you avoid having to install gradle on your host machine (Good for CI/CD)
+
 ```Shell
-mvn clean test
+docker run --rm -t \
+  -v $HOME/.gradle:/home/gradle/.gradle \ # bind mount your gradle cache
+  -v $PWD:/code -w /code \ # bind mount current working directory to /code
+  gradle:6.2.2 \ # docker image
+  gradle clean test # gradle tasks
 ```
 
-Note: The initial compilation takes several minutes because Maven downloads all the dependencies defined in the pom.xml. After the initial run subsequent test executions should execute quicker.
+## Running behind a proxy
+
+Gradle allows you to pass in proxy configuration as either command line arguments or the environment variable `GRADLE_OPTS`.
+
+### Command line example
+
+```Shell
+gradle -Dhttp.proxyHost=proxy.example.com -Dhttp.proxyPort=1234 -Dhttps.proxyHost=proxy.example.com -Dhttps.proxyPort=1234 test
+```
+
+### Environment variable example
+
+```Shell
+export GRADLE_OPTS=-Dhttp.proxyHost=proxy.example.com -Dhttp.proxyPort=1234 -Dhttps.proxyHost=proxy.example.com -Dhttps.proxyPort=1234
+gradle test
+```
+
+### Environment variable with docker example
+
+```Shell
+docker run --rm -t \
+  -e GRADLE_OPTS="-Dhttp.proxyHost=proxy.example.com -Dhttp.proxyPort=1234 -Dhttps.proxyHost=proxy.example.com -Dhttps.proxyPort=1234" \
+  -v $HOME/.gradle:/home/gradle/.gradle \ # bind mount your gradle cache
+  -v $PWD:/code -w /code \ # bind mount current working directory to /code
+  gradle:6.2.2 \ # docker image
+  gradle clean test # gradle tasks
+```
+
+**Note:** The initial compilation takes several minutes because Gradle downloads all the dependencies defined in the build.gradle. After the initial run subsequent executions for testing should be quicker.
