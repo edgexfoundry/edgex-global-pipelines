@@ -24,12 +24,12 @@ repositories {
 
 // this is for jacoco to know where the source groovy is. Jacoco does not work at the moment
 // this only works if you are running clean tests each time
-//sourceSets {
-//  main {
-//    java { srcDirs = [] }
-//    groovy { srcDirs += ["$buildDir/classes/vars"] }
-//  }
-//}
+// sourceSets {
+//   main {
+//     java { srcDirs = [] }
+//     groovy { srcDirs += ["$buildDir/classes/vars"] }
+//   }
+// }
 
 dependencies {
   def withoutIcu = { exclude group: 'com.ibm.icu', module: 'icu4j' }
