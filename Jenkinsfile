@@ -65,7 +65,7 @@ pipeline {
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true,
-                    reportDir: 'reports/tests/test',
+                    reportDir: 'target/reports/tests/test',
                     reportFiles: 'index.html',
                     reportName: 'Unit Test Summary'
                 ])
@@ -75,7 +75,7 @@ pipeline {
                 //     allowMissing: true,
                 //     alwaysLinkToLastBuild: true,
                 //     keepAll: true,
-                //     reportDir: 'reports/jacoco/test/html',
+                //     reportDir: 'target/reports/jacoco/test/html',
                 //     reportFiles: 'index.html',
                 //     reportName: 'Jacoco Test Report'
                 // ])
