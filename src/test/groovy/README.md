@@ -29,14 +29,14 @@ Gradle allows you to pass in proxy configuration as either command line argument
 ### Command line example
 
 ```Shell
-gradle -Dhttp.proxyHost=proxy.example.com -Dhttp.proxyPort=1234 -Dhttps.proxyHost=proxy.example.com -Dhttps.proxyPort=1234 test
+gradlew -Dhttp.proxyHost=proxy.example.com -Dhttp.proxyPort=1234 -Dhttps.proxyHost=proxy.example.com -Dhttps.proxyPort=1234 test
 ```
 
 ### Environment variable example
 
 ```Shell
 export GRADLE_OPTS=-Dhttp.proxyHost=proxy.example.com -Dhttp.proxyPort=1234 -Dhttps.proxyHost=proxy.example.com -Dhttps.proxyPort=1234
-gradle test
+gradlew test
 ```
 
 ### Environment variable with docker example
