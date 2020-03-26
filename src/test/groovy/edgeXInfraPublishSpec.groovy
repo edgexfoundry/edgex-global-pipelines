@@ -9,6 +9,7 @@ public class EdgeXInfraPublishSpec extends JenkinsPipelineSpecification {
 
         edgeXInfraPublish = loadPipelineScriptForTest('vars/edgeXInfraPublish.groovy')
         explicitlyMockPipelineVariable('out')
+        explicitlyMockPipelineStep('edgeXInfraShipLogs')
     }
 
     def "Test edgeXInfraPublish [Should] throw exception [When] logSettingsFile is null" () {

@@ -15,6 +15,7 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
     def setup() {
         edgeXBuildDocker = loadPipelineScriptForTest('vars/edgeXBuildDocker.groovy')
         edgeXBuildDocker.getBinding().setVariable('env', environment)
+        edgeXBuildDocker.getBinding().setVariable('edgex', {})
         explicitlyMockPipelineVariable('out')
     }
 
@@ -33,10 +34,15 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
 
     def "Test toEnvironment [Should] return expected map [When] called" () {
         setup:
-            getPipelineMock('edgex.defaultFalse')(null) >> {
+            explicitlyMockPipelineStep('defaultFalse')
+            explicitlyMockPipelineStep('defaultTrue')
+            explicitlyMockPipelineStep('bannerMessage')
+            explicitlyMockPipelineStep('printMap')
+
+            getPipelineMock('defaultFalse')(null) >> {
                 false
             }
-            getPipelineMock('edgex.defaultTrue')(null) >> {
+            getPipelineMock('defaultTrue')(null) >> {
                 true
             }
 

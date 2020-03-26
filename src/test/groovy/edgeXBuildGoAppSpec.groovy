@@ -14,6 +14,10 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
     def setup() {
 
         edgeXBuildGoApp = loadPipelineScriptForTest('vars/edgeXBuildGoApp.groovy')
+        edgeXBuildGoApp.getBinding().setVariable('edgex', {})
+        explicitlyMockPipelineStep('bannerMessage')
+        explicitlyMockPipelineStep('printMap')
+        explicitlyMockPipelineStep('defaultTrue')
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture" () {
@@ -25,7 +29,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BASE_IMAGE': 'MyDockerBaseImage'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
-            explicitlyMockPipelineVariable('docker')
             edgeXBuildGoApp.getBinding().setVariable('ARCH', 'MyArch')
             edgeXBuildGoApp.getBinding().setVariable('DOCKER_BASE_IMAGE', 'MyDockerBaseImage')
             edgeXBuildGoApp.getBinding().setVariable('DOCKER_BUILD_FILE_PATH', 'MyDockerBuildFilePath')
@@ -47,7 +50,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BASE_IMAGE': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
-            explicitlyMockPipelineVariable('docker')
             edgeXBuildGoApp.getBinding().setVariable('ARCH', 'arm64')
             edgeXBuildGoApp.getBinding().setVariable('DOCKER_BASE_IMAGE', 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine')
             edgeXBuildGoApp.getBinding().setVariable('DOCKER_BUILD_FILE_PATH', 'MyDockerBuildFilePath')
@@ -121,7 +123,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'SILO': 'sandbox'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('edgex.defaultTrue')(null) >> {
+            getPipelineMock('defaultTrue')(null) >> {
                 true
             }
         expect:
@@ -157,7 +159,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
 
     def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config" () {
         setup:
-            getPipelineMock('edgex.defaultTrue')(null) >> {
+            getPipelineMock('defaultTrue')(null) >> {
                 false
             }
         expect:

@@ -34,7 +34,6 @@ public class EdgeXClairSpec extends JenkinsPipelineSpecification {
 
             explicitlyMockPipelineStep('withEnv')
             explicitlyMockPipelineStep('readJSON')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-devops/edgex-klar:latest') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock('sh').call([script:'/klar MyDockerImage:MyTag | tee', returnStdout:true]) >> 'KlarOutput\n'
             getPipelineMock('readJSON').call([text:'KlarOutput']) >> 'KlarJsonOutput'
@@ -74,7 +73,6 @@ KlarOutput
         setup:
             explicitlyMockPipelineStep('withEnv')
             explicitlyMockPipelineStep('readJSON')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('MyKlarImage') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXClair.scan('MyImage', 'MyServer', 'MyKlarImage', 'json')
@@ -98,7 +96,6 @@ KlarOutput
         setup:
             explicitlyMockPipelineStep('withEnv')
             explicitlyMockPipelineStep('readJSON')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('MyKlarImage') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock('sh').call([script:'/klar MyImage | tee', returnStdout:true]) >> 'KlarOutput\n'
             getPipelineMock('readJSON').call([text:'KlarOutput']) >> {
@@ -111,7 +108,6 @@ KlarOutput
     def "Test scan [Should] return expected result [When] called with json outputFormat and klar command returns nothing" () {
         setup:
             explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('MyKlarImage') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock('sh').call([script:'/klar MyImage | tee', returnStdout:true]) >> '\n'
         expect:
@@ -121,7 +117,6 @@ KlarOutput
     def "Test scan [Should] return expected result [When] called with non-json outputFormat" () {
         setup:
             explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('MyKlarImage') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock('sh').call([script:'/klar MyImage | tee', returnStdout:true]) >> 'KlarOutput\n'
         expect:

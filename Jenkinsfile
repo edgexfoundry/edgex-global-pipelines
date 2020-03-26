@@ -41,9 +41,9 @@ pipeline {
             }
         }
 
-        stage('Linter') {
+        stage('Lint Pipelines') {
             steps {
-                sh "./scripts/linter.sh"
+                sh './scripts/linter.sh'
             }
         }
 
@@ -51,12 +51,34 @@ pipeline {
             when { expression { !edgex.isReleaseStream() } }
             agent {
                 docker {
-                    image "${env.DOCKER_REGISTRY}:10003/edgex-devops/egp-unit-test:latest"
+                    image "gradle:6.2" //temporarily using base gradle until this code is fully merged
                     reuseNode true
                 }
             }
             steps {
-                sh 'mvn clean test'
+                sh 'gradle clean test'
+
+                junit allowEmptyResults: true, testResults: 'target/test-results/test/*.xml'
+
+                // Test summary
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'target/reports/tests/test',
+                    reportFiles: 'index.html',
+                    reportName: 'Unit Test Summary'
+                ])
+
+                // // Jacoco Report
+                // publishHTML([
+                //     allowMissing: true,
+                //     alwaysLinkToLastBuild: true,
+                //     keepAll: true,
+                //     reportDir: 'target/reports/jacoco/test/html',
+                //     reportFiles: 'index.html',
+                //     reportName: 'Jacoco Test Report'
+                // ])
             }
         }
 

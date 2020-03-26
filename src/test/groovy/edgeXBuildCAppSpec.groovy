@@ -14,6 +14,11 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
     def setup() {
 
         edgeXBuildCApp = loadPipelineScriptForTest('vars/edgeXBuildCApp.groovy')
+        edgeXBuildCApp.getBinding().setVariable('edgex', {})
+        explicitlyMockPipelineStep('bannerMessage')
+        explicitlyMockPipelineStep('printMap')
+        explicitlyMockPipelineStep('defaultTrue')
+        explicitlyMockPipelineStep('defaultFalse')
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture" () {
@@ -27,7 +32,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXBuildCApp.getBinding().setVariable('env', environmentVariables)
-            explicitlyMockPipelineVariable('docker')
+
         when:
             edgeXBuildCApp.prepBaseBuildImage()
         then:
@@ -47,7 +52,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXBuildCApp.getBinding().setVariable('env', environmentVariables)
-            explicitlyMockPipelineVariable('docker')
+
         when:
             edgeXBuildCApp.prepBaseBuildImage()
         then:
@@ -75,7 +80,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                 'SILO': 'sandbox'
             ]
             edgeXBuildCApp.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('edgex.defaultTrue')(null) >> {
+            getPipelineMock('defaultTrue')(null) >> {
                 true
             }
         expect:
@@ -109,7 +114,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
 
     def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config" () {
         setup:
-            getPipelineMock('edgex.defaultTrue')(null) >> {
+            getPipelineMock('defaultTrue')(null) >> {
                 false
             }
         expect:

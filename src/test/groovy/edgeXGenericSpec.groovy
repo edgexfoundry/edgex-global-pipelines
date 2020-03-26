@@ -15,6 +15,7 @@ public class EdgeXGenericSpec extends JenkinsPipelineSpecification {
     def setup() {
         edgeXGeneric = loadPipelineScriptForTest('vars/edgeXGeneric.groovy')
         edgeXGeneric.getBinding().setVariable('env', environment)
+        edgeXGeneric.getBinding().setVariable('edgex', {})
         explicitlyMockPipelineVariable('out')
     }
 
@@ -33,7 +34,11 @@ public class EdgeXGenericSpec extends JenkinsPipelineSpecification {
 
     def "Test toEnvironment [Should] return expected [When] called - DD" () {
         setup:
-            getPipelineMock('edgex.defaultFalse')(null) >> {
+            explicitlyMockPipelineStep('defaultFalse')
+            explicitlyMockPipelineStep('bannerMessage')
+            explicitlyMockPipelineStep('printMap')
+
+            getPipelineMock('defaultFalse')(null) >> {
                 false
             }
 
@@ -91,8 +96,12 @@ public class EdgeXGenericSpec extends JenkinsPipelineSpecification {
 
     def "Test toEnvironment [Should] return expected [When] called for Sandbox - DD" () {
         setup:
-            getPipelineMock('edgex.defaultFalse')(null) >> {
-                false
+            explicitlyMockPipelineStep('defaultFalse')
+            explicitlyMockPipelineStep('bannerMessage')
+            explicitlyMockPipelineStep('printMap')
+
+            getPipelineMock('defaultFalse')(null) >> {
+              false
             }
             edgeXGeneric.getBinding().setVariable('env', [SILO: 'sandbox'])
 

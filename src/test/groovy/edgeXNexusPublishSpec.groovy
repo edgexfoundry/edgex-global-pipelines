@@ -29,7 +29,6 @@ public class EdgeXNexusPublishSpec extends JenkinsPipelineSpecification {
                 'DOCKER_REGISTRY': 'MyDockerRegistry'
             ]
             edgeXNexusPublish.getBinding().setVariable('env', environmentVariables)
-            explicitlyMockPipelineVariable('docker')
             def String[] zipFiles = ['ZipFile1', 'ZipFile2', 'ZipFile3']
             edgeXNexusPublish.getBinding().setVariable('NEXUS_URL', 'MyNexusUrl')
             edgeXNexusPublish.getBinding().setVariable('NEXUS_REPO', 'MyNexusRepo')

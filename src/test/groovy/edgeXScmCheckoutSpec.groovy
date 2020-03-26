@@ -9,6 +9,8 @@ public class EdgeXScmCheckoutSpec extends JenkinsPipelineSpecification {
 
         edgeXScmCheckout = loadPipelineScriptForTest('vars/edgeXScmCheckout.groovy')
         explicitlyMockPipelineVariable('out')
+        explicitlyMockPipelineStep('checkout')
+        explicitlyMockPipelineStep('edgeXSetupEnvironment')
     }
 
     def "Test edgeXScmCheckout [Should] call checkout with expected parameters [When] config includes tags gitCheckoutExtensions" () {

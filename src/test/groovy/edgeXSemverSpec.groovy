@@ -9,13 +9,13 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
 
         edgeXSemver = loadPipelineScriptForTest('vars/edgeXSemver.groovy')
         explicitlyMockPipelineVariable('out')
+        explicitlyMockPipelineStep('sshagent')
     }
 
     @Ignore
     def "Test edgeXSemver [Should] do expected [When] called with command" () {
         setup:
             explicitlyMockPipelineVariable('env')
-            explicitlyMockPipelineVariable('docker')
             // TODO: figure out how to mock abd verify env.setProperty calls
             // Caused by: groovy.lang.MissingPropertyException: No such property: VERSION for class: com.homeaway.devtools.jenkins.testing.PipelineVariableImpersonato
 

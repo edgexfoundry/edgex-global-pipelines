@@ -16,7 +16,6 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
                 'WORKSPACE': 'MyWorkspace'
             ]
             edgeXSnyk.getBinding().setVariable('env', environmentVariables)
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.217.3') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXSnyk()
@@ -31,7 +30,6 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
                 'SNYK_ORG': 'MySnykOrg'
             ]
             edgeXSnyk.getBinding().setVariable('env', environmentVariables)
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.217.3') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXSnyk()
@@ -45,7 +43,6 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
                 'WORKSPACE': 'MyWorkspace'
             ]
             edgeXSnyk.getBinding().setVariable('env', environmentVariables)
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.217.3') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXSnyk('MyDockerImage', 'MyDockerFile')
@@ -59,7 +56,6 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
                 'WORKSPACE': 'MyWorkspace'
             ]
             edgeXSnyk.getBinding().setVariable('env', environmentVariables)
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.217.3') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXSnyk('MyDockerImage', 'MyDockerFile')

@@ -24,7 +24,7 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             edgeXDocker.getBinding().setVariable('ARCH', 'MyArch')
             edgeXDocker.getBinding().setVariable('DOCKER_FILE_PATH', 'MyDockerFilePath')
             edgeXDocker.getBinding().setVariable('DOCKER_BUILD_CONTEXT', 'MyDockerBuildContext')
-            explicitlyMockPipelineVariable('docker')
+
         when:
             edgeXDocker.build('MyDockerImageName')
         then:
@@ -47,8 +47,6 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             edgeXDocker.getBinding().setVariable('DOCKER_BUILD_CONTEXT', 'MyDockerBuildContext')
             edgeXDocker.getBinding().setVariable('BUILD_SCRIPT', 'MyBuildScript')
             edgeXDocker.getBinding().setVariable('VERSION', 'MyVersion')
-
-            explicitlyMockPipelineVariable('docker')
         when:
             edgeXDocker.build('MyDockerImageName')
         then:
@@ -67,7 +65,6 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             edgeXDocker.getBinding().setVariable('GIT_COMMIT', 'MyGitCommit')
             edgeXDocker.getBinding().setVariable('VERSION', 'MyVersion')
             edgeXDocker.getBinding().setVariable('DOCKER_REGISTRY', 'MyDockerRegistry')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('MyDockerImageName') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXDocker.push('MyDockerImageName')
@@ -90,7 +87,6 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
             edgeXDocker.getBinding().setVariable('DOCKER_REGISTRY', 'MyDockerRegistry')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('MyDockerImageName') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXDocker.push('MyDockerImageName', true, 'snapshot')
@@ -107,7 +103,6 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
             edgeXDocker.getBinding().setVariable('DOCKER_REGISTRY', 'MyDockerRegistry')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('MyDockerImageName') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXDocker.push('MyDockerImageName', true, 'snapshots')
@@ -124,7 +119,6 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
             edgeXDocker.getBinding().setVariable('DOCKER_REGISTRY', 'MyDockerRegistry')
-            explicitlyMockPipelineVariable('docker')
             getPipelineMock('docker.image')('MyDockerImageName') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXDocker.push('MyDockerImageName', true, 'release')
