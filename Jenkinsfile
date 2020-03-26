@@ -51,12 +51,13 @@ pipeline {
             when { expression { !edgex.isReleaseStream() } }
             agent {
                 docker {
-                    image "gradle:6.2" //temporarily using base gradle until this code is fully merged
+                    image "${DOCKER_REGISTRY}:10003/edgex-devops/egp-unit-test:gradle"
+                    args '-u 0:0 --privileged'
                     reuseNode true
                 }
             }
             steps {
-                sh 'gradle clean test'
+                sh 'gradle -Dgradle.user.home=/gradleCache clean test'
 
                 junit allowEmptyResults: true, testResults: 'target/test-results/test/*.xml'
 
