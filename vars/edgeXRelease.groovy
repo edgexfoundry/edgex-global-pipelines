@@ -35,7 +35,7 @@ def parallelStepFactory(data) {
 
 def parallelStepFactoryTransform(step) {
 return {
-        stage("${step.name}") {
+        stage(step.name.toString()) {
 
             if(step.gitTag == true) {
                 stage("Git Tag Publish") {
@@ -47,14 +47,17 @@ return {
             
             if(step.dockerImages == true) {
                 stage("Docker Image Publish") {
+                    echo "[edgeXRelease] about to release docker images for ${step.dockerSource.join(',')}"
                     // This looping logic may make more sense in the edgeXReleaseDockerImage library
-                    step.dockerSource.each { dockerFrom ->
+                    for(int i = 0; i < step.dockerSource.size(); i++) {
+                        def dockerFrom = step.dockerSource[i]
                         def dockerFromClean = dockerFrom.replaceAll('https://', '')
                         // assumes from always has hostname
                         def dockerFromImageName = dockerFromClean.split('/').last().split(':').first()
-                        
-                        step.dockerDestination.each { dockerTo ->
-                            def dockerToClean = dockerFrom.replaceAll('https://', '')
+
+                        for(int j = 0; j < step.dockerDestination.size(); j++) {
+                            def dockerTo = step.dockerDestination[j]
+                            def dockerToClean = dockerTo.replaceAll('https://', '')
                             // assumes from always has hostname
                             def dockerToImageName = dockerToClean.split('/').last()
 
