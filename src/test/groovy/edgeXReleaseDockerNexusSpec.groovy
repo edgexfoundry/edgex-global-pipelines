@@ -1,82 +1,62 @@
 import com.homeaway.devtools.jenkins.testing.JenkinsPipelineSpecification
 import spock.lang.Ignore
-
-public class EdgeXReleaseDockerNexusSpec extends JenkinsPipelineSpecification {
-    
+public class edgeXReleaseDockerNexus extends JenkinsPipelineSpecification {
    def edgeXReleaseDockerNexus = null
-
    def setup() {
-        edgeXReleaseDockerNexus = loadPipelineScriptForTest('vars/edgeXReleaseDockerNexus.groovy')
-        explicitlyMockPipelineVariable('out')
-    }
-   def "Test edgeXDockerTag [Should] raise error [When] config does not include a dockerImageRepo parameter" () {
+       edgeXReleaseDockerNexus = loadPipelineScriptForTest('vars/edgeXReleaseDockerNexus.groovy')
+       explicitlyMockPipelineVariable('out')
+   }
+   def "Test edgeXReleaseDockerNexus [Should] raise error [When] config does not include a nexusPortMapping parameter and is not an integer value" () {
        setup:
            explicitlyMockPipelineStep('error')
        when:
            try {
                def config = [
-                   dockerImageRepo: ''
+                   nexusPortMapping: '10004'.isInteger()
                ]
-               edgeXDockerTag(config)
+               edgeXReleaseDockerNexus(config)
            }
            catch(TestException exception) {
            }
        then:
            1 * getPipelineMock('error').call()
    }
-   def "Test call [Should] return expected map of overriden values [When] custom config" () {
-       setup:
-           getPipelineMock('edgex.defaultTrue')(null) >> {
-               false
-           }
-       expect:
-           edgeXDockerTag.call() == expectedResult
-       where:
-           config << [
-               [
-                   snapshots: 10003,
-                    snapshot: 10003,
-                    staging: 10004,
-                    release: 10002
-               ]
-           ]
-           expectedResult << [
-               [
-                   snapshots: 10003,
-                    snapshot: 10003,
-                    staging: 10004,
-                    release: 10002
-               ]
-           ]
-   }
-   def "Test edgeXDockerTag [Should] return [When] called " () {
+   def "Test edgeXReleaseDockerNexus [Should] raise error [When] config does not include a _dockerImageRepo parameter" () {
        setup:
            explicitlyMockPipelineStep('error')
        when:
            try {
                def config = [
-               [
-                   branchName: 'master',
-                   version: 'v0.0.1-test',
-                   dockerNexusURL: 'nexus3edgexfoundry.org',
                    dockerImageRepo: 'sample-service'
-                   from: 'staging'
-                   to: 'release'
-               ],
-               [
-                   snapshots: 10003,
-                    snapshot: 10003,
-                    staging: 10004,
-                    release: 10002
                ]
-               ]
-               edgeXDockerTag(config)
+               edgeXReleaseDockerNexus(config)
            }
            catch(TestException exception) {
            }
        then:
-           1 * getPipelineMock('sh').call('docker pull ${dockerNexusURL}:${from}/${dockerImageRepo}:${branchName}')
-           1 * getPipelineMock('sh').call('docker tag ${imageID} ${dockerNexusURL}:${to}/${dockerImageRepo}:${version}')
-           1 * getPipelineMock('sh').call('docker push ${dockerNexusURL}:${to}/${dockerImageRepo}:${version}')
+           1 * getPipelineMock('error').call()
+   }
+   def "Test edgeXReleaseDockerNexus [Should] return [When] called " () {
+       setup:
+           explicitlyMockPipelineStep('error')
+       when:
+           try {
+               def config = [
+                   version: 'v0.0.1-test',
+                   dockerNexusURL: 'nexus3edgexfoundry.org',
+                   dockerImageRepo: 'sample-service'
+                   sourceNexusPort: '10004'
+                   destinationNexusPort: '10002'
+               ]
+                               ]
+               edgeXReleaseDockerNexus(config)
+           }
+           catch(TestException exception) {
+           }
+       then:
+           1 * getPipelineMock().call()
+           1 * getPipelineMock('sh').call('docker pull ${dockerNexusURL}:${sourceNexusPort}/${dockerImageRepo}')
+           1 * getPipelineMock('sh').call('docker tag ${dockerNexusURL}:${sourceNexusPort}/${dockerImageRepo} ${dockerNexusURL}:${destinationNexusPort}/${_dockerImageRepo}:${_version}')
+           1 * getPipelineMock('sh').call('docker push ${dockerNexusURL}:${destinationNexusPort}/${dockerImageRepo}:${version}')
    }
 }
