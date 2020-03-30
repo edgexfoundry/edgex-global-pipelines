@@ -47,10 +47,26 @@ return {
             
             if(step.dockerImages == true) {
                 stage("Docker Image Publish") {
-                    
-                    edgeXReleaseDockerHub(step)
-                    edgeXReleaseDockerNexus(step)
+                    // This looping logic may make more sense in the edgeXReleaseDockerImage library
+                    step.dockerSource.each { dockerFrom ->
+                        def dockerFromClean = dockerFrom.replaceAll('https://', '')
+                        // assumes from always has hostname
+                        def dockerFromImageName = dockerFromClean.split('/').last().split(':').first()
+                        
+                        step.dockerDestination.each { dockerTo ->
+                            def dockerToClean = dockerFrom.replaceAll('https://', '')
+                            // assumes from always has hostname
+                            def dockerToImageName = dockerToClean.split('/').last()
 
+                            if(dockerFromImageName == dockerToImageName) {
+                                edgeXReleaseDockerImage (
+                                    from: dockerFrom,
+                                    to: dockerTo,
+                                    version: step.version
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
