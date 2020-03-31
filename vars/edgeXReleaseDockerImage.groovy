@@ -33,12 +33,14 @@ edgeXReleaseDockerImage(
 */
 import com.cloudbees.groovy.cps.NonCPS
 
-def call (config) {
-    validate(config)
+def call (step) {
+    validate(step)
 
-    def _sourceImage = config.from
-    def _releaseTarget = config.to
-    def _version = config.version
+@NonCPS
+def publishDockerImage(from,to,version){
+    def _sourceImage = from
+    def _releaseTarget = to
+    def _version = version
 
     def _releaseTargetRepo = getReleaseTarget(_releaseTarget)
     
@@ -46,16 +48,16 @@ def call (config) {
         def finalTargetImage = getFinalImageWithTag(_sourceImage, _releaseTargetRepo, _version)
 
         if(finalTargetImage) {
-            // for now assume edgeXDockerLogin() was already called...
-
-            echo "======================================================="
-            echo "docker tag ${_sourceImage} ${finalTargetImage}"
-            echo "docker push ${finalTargetImage}"
-            echo "======================================================="
+         // for now assume edgeXDockerLogin() was already called...
+           echo "======================================================="
+           echo "docker tag ${_sourceImage} ${finalTargetImage}"
+           echo "docker push ${finalTargetImage}"
+           echo "======================================================="
         }
 
     } else {
         error("Unknown release target: Available targets: ${getAvaliableTargets().collect{ k,v -> v }.join(', ') }")
+     
     }
 }
 
@@ -116,5 +118,31 @@ def getReleaseTarget(targetImage) {
         targetHost
     } else {
         null
+    }
+}
+
+@NonCPS
+
+def publishDockerImages (step) {
+    for(int i = 0; i < step.dockerSource.size(); i++) {
+        def dockerFrom = step.dockerSource[i]
+        def dockerFromClean = dockerFrom.replaceAll('https://', '')
+        // assumes from always has hostname
+        def dockerFromImageName = dockerFromClean.split('/').last().split(':').first()
+
+        for(int j = 0; j < step.dockerDestination.size(); j++) {
+            def dockerTo = step.dockerDestination[j]
+            def dockerToClean = dockerTo.replaceAll('https://', '')
+            // assumes from always has hostname
+            def dockerToImageName = dockerToClean.split('/').last()
+
+            if(dockerFromImageName == dockerToImageName) {
+                publishDockerImage (
+                   dockerFrom,
+                   dockerTo,
+                   step.version
+                )
+            }
+        }
     }
 }
