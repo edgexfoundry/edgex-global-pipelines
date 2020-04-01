@@ -48,27 +48,9 @@ return {
             if(step.dockerImages == true) {
                 stage("Docker Image Publish") {
                     echo "[edgeXRelease] about to release docker images for ${step.dockerSource.join(',')}"
-                    // This looping logic may make more sense in the edgeXReleaseDockerImage library
-                    for(int i = 0; i < step.dockerSource.size(); i++) {
-                        def dockerFrom = step.dockerSource[i]
-                        def dockerFromClean = dockerFrom.replaceAll('https://', '')
-                        // assumes from always has hostname
-                        def dockerFromImageName = dockerFromClean.split('/').last().split(':').first()
 
-                        for(int j = 0; j < step.dockerDestination.size(); j++) {
-                            def dockerTo = step.dockerDestination[j]
-                            def dockerToClean = dockerTo.replaceAll('https://', '')
-                            // assumes from always has hostname
-                            def dockerToImageName = dockerToClean.split('/').last()
+                   edgeXReleaseDockerImage(step)
 
-                            if(dockerFromImageName == dockerToImageName) {
-                                edgeXReleaseDockerImage (
-                                    from: dockerFrom,
-                                    to: dockerTo,
-                                    version: step.version
-                                )
-                            }
-                        }
                     }
                 }
             }
@@ -81,5 +63,5 @@ return {
                 }
             }
         }
-    }
+    }   
 }
