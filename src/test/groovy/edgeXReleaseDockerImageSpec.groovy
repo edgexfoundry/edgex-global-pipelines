@@ -3,7 +3,6 @@ import spock.lang.Ignore
 
 public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
     def edgeXReleaseDockerImage = null
-    def edgeXDocker = null
 
     public static class TestException extends RuntimeException {
         public TestException(String _message) {
@@ -13,7 +12,6 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
 
     def setup() {
         edgeXReleaseDockerImage = loadPipelineScriptForTest('vars/edgeXReleaseDockerImage.groovy')
-        edgeXDocker = loadPipelineScriptForTest('vars/edgeXDocker.groovy')
         explicitlyMockPipelineVariable('out')
         explicitlyMockPipelineStep('error')
     }
