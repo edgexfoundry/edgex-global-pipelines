@@ -168,4 +168,70 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             ]
     }
 
+    def "Test cleanImageUrl [Should] return no http:// or https:// [When] called" () {
+        setup:
+        expect:
+            edgeXDocker.cleanImageUrl('http://nexus3.edgexfoundry.org:10001/docker-foo-bar:master') == 'nexus3.edgexfoundry.org:10001/docker-foo-bar:master'
+            edgeXDocker.cleanImageUrl('https://nexus3.edgexfoundry.org:10001/docker-foo-bar:master') == 'nexus3.edgexfoundry.org:10001/docker-foo-bar:master'
+            edgeXDocker.cleanImageUrl('nexus3.edgexfoundry.org:10001/docker-foo-bar:master') == 'nexus3.edgexfoundry.org:10001/docker-foo-bar:master'
+            edgeXDocker.cleanImageUrl('edgexfoundry/docker-foo-bar:master') == 'edgexfoundry/docker-foo-bar:master'
+    }
+
+    def "Test parse [Should] return expected [When] called" () {
+        setup:
+        expect:
+            [
+                'http://nexus3.edgexfoundry.org:10001/docker-foo-bar:master',
+                'https://nexus3.edgexfoundry.org:10002/docker-foo-bar:master',
+                'nexus3.edgexfoundry.org:10003/docker-foo-bar:master',
+                'nexus3.edgexfoundry.org:10004/edgex-devops/docker-foo-bar',
+                'example.com/extra/docker-foo-bar:master',
+                'edgexfoundry/docker-foo-bar:v1.1.2',
+                'edgexfoundry/docker-foo-bar',
+                'docker.io/edgexfoundry/docker-foo-bar:v1.1.2',
+                'python:3-alpine',
+                'node'
+            ].collect { edgeXDocker.parse(it) } == expectedResult
+        where:
+            expectedResult = [
+                [host:'nexus3.edgexfoundry.org:10001', fullImage:'docker-foo-bar:master', namespace:null, image:'docker-foo-bar', tag:'master'],
+                [host:'nexus3.edgexfoundry.org:10002', fullImage:'docker-foo-bar:master', namespace:null, image:'docker-foo-bar', tag:'master'],
+                [host:'nexus3.edgexfoundry.org:10003', fullImage:'docker-foo-bar:master', namespace:null, image:'docker-foo-bar', tag:'master'],
+                [host:'nexus3.edgexfoundry.org:10004', fullImage:'edgex-devops/docker-foo-bar', namespace:'edgex-devops', image:'docker-foo-bar', tag:'latest'],
+                [host:'example.com', fullImage:'extra/docker-foo-bar:master', namespace:'extra', image:'docker-foo-bar', tag:'master'],
+                [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar:v1.1.2', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'v1.1.2'],
+                [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'latest'],
+                [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar:v1.1.2', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'v1.1.2'],
+                [host:'docker.io', fullImage:'python:3-alpine', namespace:null, image:'python', tag:'3-alpine'],
+                [host:'docker.io', fullImage:'node', namespace:null, image:'node', tag:'latest']
+            ]
+    }
+
+    def "Test toImageStr [Should] return expected [When] called" () {
+        setup:
+        expect:
+            [
+                [host:'nexus3.edgexfoundry.org:10001', fullImage:'docker-foo-bar:master', namespace:null, image:'docker-foo-bar', tag:'master'],
+                [host:'nexus3.edgexfoundry.org:10002', fullImage:'docker-foo-bar:latest', namespace:null, image:'docker-foo-bar', tag:'latest'],
+                [host:'nexus3.edgexfoundry.org:10003', fullImage:'edgex-devops/docker-foo-bar', namespace:'edgex-devops', image:'docker-foo-bar', tag:'latest'],
+                [host:'example.com', fullImage:'extra/docker-foo-bar:master', namespace:'extra', image:'docker-foo-bar', tag:'master'],
+                [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar:v1.1.2', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'v1.1.2'],
+                [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'latest'],
+                [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar:v1.1.2', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'v1.1.2'],
+                [host:'docker.io', fullImage:'python:3-alpine', namespace:null, image:'python', tag:'3-alpine'],
+                [host:null, fullImage:'node', namespace:null, image:'node', tag:null]
+            ].collect { edgeXDocker.toImageStr(it) } == expectedResult
+        where:
+            expectedResult = [
+                'nexus3.edgexfoundry.org:10001/docker-foo-bar:master',
+                'nexus3.edgexfoundry.org:10002/docker-foo-bar:latest',
+                'nexus3.edgexfoundry.org:10003/edgex-devops/docker-foo-bar:latest',
+                'example.com/extra/docker-foo-bar:master',
+                'docker.io/edgexfoundry/docker-foo-bar:v1.1.2',
+                'docker.io/edgexfoundry/docker-foo-bar:latest',
+                'docker.io/edgexfoundry/docker-foo-bar:v1.1.2',
+                'docker.io/python:3-alpine',
+                'docker.io/node'
+            ]
+    }
 }

@@ -56,7 +56,7 @@ dependencies {
   // so I added `withoutIcu` to all of them
 
   // Jenkins related
-  testImplementation "com.homeaway.devtools.jenkins:jenkins-spock:2.0.1", withoutIcu
+  testImplementation "com.homeaway.devtools.jenkins:jenkins-spock:2.1.2", withoutIcu
   testImplementation "javax.servlet:javax.servlet-api:3.1.0", withoutIcu
   testImplementation "org.jenkins-ci.main:jenkins-core:2.225", withoutIcu
   testImplementation "org.jenkins-ci.plugins.workflow:workflow-api:2.40@jar", withoutIcu

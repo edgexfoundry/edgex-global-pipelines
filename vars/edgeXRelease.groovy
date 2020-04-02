@@ -21,7 +21,7 @@ def collectReleaseYamlFiles(filePath = 'release/*.yaml', releaseBranch = 'releas
     for (f in yamlFiles) {
         if (edgex.didChange(f.toString(), releaseBranch)) {
             releaseData << readYaml(file: f.toString())
-        }   
+        }
     }
 
     return releaseData
@@ -34,34 +34,26 @@ def parallelStepFactory(data) {
 }
 
 def parallelStepFactoryTransform(step) {
-return {
+    return {
         stage(step.name.toString()) {
-
             if(step.gitTag == true) {
                 stage("Git Tag Publish") {
-
                     edgeXReleaseGitTag(step)
-
                 }
             }
             
             if(step.dockerImages == true) {
                 stage("Docker Image Publish") {
                     echo "[edgeXRelease] about to release docker images for ${step.dockerSource.join(',')}"
-
-                   edgeXReleaseDockerImage(step)
-
-                    }
+                    edgeXReleaseDockerImage(step)
                 }
             }
 
             if(step.snap == true) {
                 stage("Snap Publish") {
-                    
                     edgeXReleaseSnap(step)
-
                 }
             }
         }
-    }   
+    }
 }

@@ -33,58 +33,14 @@ edgeXReleaseDockerImage(
 */
 import com.cloudbees.groovy.cps.NonCPS
 
-def call (step) {
-    validate(step)
-
-@NonCPS
-def publishDockerImage(from,to,version){
-    def _sourceImage = from
-    def _releaseTarget = to
-    def _version = version
-
-    def _releaseTargetRepo = getReleaseTarget(_releaseTarget)
-    
-    if(_releaseTargetRepo) {
-        def finalTargetImage = getFinalImageWithTag(_sourceImage, _releaseTargetRepo, _version)
-
-        if(finalTargetImage) {
-         // for now assume edgeXDockerLogin() was already called...
-           echo "======================================================="
-           echo "docker tag ${_sourceImage} ${finalTargetImage}"
-           echo "docker push ${finalTargetImage}"
-           echo "======================================================="
-        }
-
-    } else {
-        error("Unknown release target: Available targets: ${getAvaliableTargets().collect{ k,v -> v }.join(', ') }")
-     
-    }
-}
-
-@NonCPS
-def getFinalImageWithTag(sourceImage, releaseTargetRepo, version) {
-    def fullImageName = sourceImage.substring(sourceImage.indexOf('/')+1) //edgex-devops/sample-service
-    def finalTargetImage = "${releaseTargetRepo}/${fullImageName.split(':')[0]}:${version}"
-
-    finalTargetImage
-}
-
-def validate(config) {
-    if(!config.from) {
-        error("[edgeXReleaseDockerImage] Please provide source image. Example: from: 'nexus3.edgexfoundry.org:10004/sample:master'")
-    }
-
-    if(!config.to) {
-        error("[edgeXReleaseDockerImage] Please provide release target: Available targets: ${getAvaliableTargets().collect{ k,v -> v }.join(', ') }")
-    }
-
-    if(!config.version) {
-        error("[edgeXReleaseDockerImage] Please provide release version. Example: v1.1.2")
-    }
+def call (releaseInfo) {
+    validate(releaseInfo)
+    publishDockerImages(releaseInfo)
 }
 
 @NonCPS
 def getAvaliableTargets() {
+    // this is the master list of valid hosts we will release to
     def validReleaseTargets = [
         'nexus3.edgexfoundry.org:10002': 'release',
         'docker.io': 'dockerhub'
@@ -94,55 +50,96 @@ def getAvaliableTargets() {
 }
 
 @NonCPS
-def getReleaseTarget(targetImage) {
-    def targetHost = targetImage.replaceAll('https://', '').split('/')[0]
-    def validHost = getAvaliableTargets()[targetHost]
+def isValidReleaseRegistry(targetImage) {
+    def validHost = getAvaliableTargets()[targetImage.host]
 
-    def dockerHubHost = 'docker.io'
-    def dockerHubNamespace = 'edgexfoundry'
-
-    // handle both uses cases where user passes in
-    // docker.io/edgexfoundry/foo
-    // edgexfoundry/foo
-
-    if(validHost == 'dockerhub' || (!validHost && targetHost == dockerHubNamespace)) {
-        def searchIndex = !validHost ? 0 : 1
-        def ns = targetImage.split('/')[searchIndex]
-        if(dockerHubNamespace == ns) {
-            "${dockerHubHost}/${dockerHubNamespace}"
-        }
-        else {
-            null
-        }
-    } else if(validHost) {
-        targetHost
+    if(validHost && targetImage.host != 'docker.io') {
+        println "[edgeXReleaseDockerImage] Valid Host: Nexus release detected."
+        true
+    } else if(validHost && targetImage.host == 'docker.io' && 'edgexfoundry' == targetImage.namespace) {
+        println "[edgeXReleaseDockerImage] Valid Host: DockerHub release detected."
+        true
     } else {
-        null
+        println "[edgeXReleaseDockerImage] Invalid Host [${targetImage.host}] Unknown release detected."
+        false
+    }
+}
+
+// this method parses the releaseInfo information an maps dockerSource to dockerDestination
+@NonCPS
+def publishDockerImages (releaseInfo) {
+    for(int i = 0; i < releaseInfo.dockerSource.size(); i++) {
+        def dockerFrom = edgeXDocker.parse(releaseInfo.dockerSource[i])
+        def publishCount = 0
+
+        if(dockerFrom) {
+            // set the source version to the releaseStream from the yaml
+            dockerFrom.tag = releaseInfo.releaseStream
+
+            for(int j = 0; j < releaseInfo.dockerDestination.size(); j++) {
+                def dockerTo = edgeXDocker.parse(releaseInfo.dockerDestination[j])
+                if(dockerTo) {
+                    // set the destination version to the version from the yaml
+                    dockerTo.tag = releaseInfo.version
+
+                    // if we have matching image names...then publish the image
+                    if(dockerFrom.imageName == dockerTo.imageName) {
+                        if(isValidReleaseRegistry(dockerTo)) {
+                            publishDockerImage (dockerFrom, dockerTo)
+                            publishCount++
+                        }
+                    }
+                }
+            }
+
+            if(publishCount == 0) {
+                echo "[edgeXReleaseDockerImage] The sourceImage [${dockerFrom ? edgeXDocker.toImageStr(dockerFrom) : releaseInfo.dockerSource[i] }] did not release...No corresponding dockerDestination entry found."
+            }
+            else {
+                echo "[edgeXReleaseDockerImage] Successfully published [${publishCount}] images"
+            }
+        } else {
+            echo "[edgeXReleaseDockerImage] Could not parse docker source image: [${releaseInfo.dockerSource[i]}]"
+        }
     }
 }
 
 @NonCPS
+def publishDockerImage(from, to) {
+    def finalFrom = edgeXDocker.toImageStr(from)
+    def finalTo = edgeXDocker.toImageStr(to)
 
-def publishDockerImages (step) {
-    for(int i = 0; i < step.dockerSource.size(); i++) {
-        def dockerFrom = step.dockerSource[i]
-        def dockerFromClean = dockerFrom.replaceAll('https://', '')
-        // assumes from always has hostname
-        def dockerFromImageName = dockerFromClean.split('/').last().split(':').first()
+    if(finalFrom && finalTo) {
+        // for now assume edgeXDockerLogin() was already called...
+        def tagCmd = "docker tag ${finalFrom} ${finalTo}"
+        def pushCmd = "docker push ${finalTo}"
 
-        for(int j = 0; j < step.dockerDestination.size(); j++) {
-            def dockerTo = step.dockerDestination[j]
-            def dockerToClean = dockerTo.replaceAll('https://', '')
-            // assumes from always has hostname
-            def dockerToImageName = dockerToClean.split('/').last()
-
-            if(dockerFromImageName == dockerToImageName) {
-                publishDockerImage (
-                   dockerFrom,
-                   dockerTo,
-                   step.version
-                )
-            }
+        // default DRY_RUN is on (null)
+        if([null, '1', 'true'].contains(env.DRY_RUN)) {
+            echo tagCmd
+            echo pushCmd
+        } else {
+            sh tagCmd
+            sh pushCmd
         }
+    }
+}
+
+@NonCPS
+def validate(releaseYaml) {
+    if(!releaseYaml.dockerSource) {
+        error("[edgeXReleaseDockerImage] Release yaml does not contain 'dockerSource'")
+    }
+
+    if(!releaseYaml.dockerDestination) {
+        error("[edgeXReleaseDockerImage] Release yaml does not contain 'dockerDestination'")
+    }
+
+    if(!releaseYaml.releaseStream) {
+        error("[edgeXReleaseDockerImage] Release yaml does not contain 'releaseStream' (branch where you are releasing from). Example: master")
+    }
+
+    if(!releaseYaml.version) {
+        error("[edgeXReleaseDockerImage] Release yaml does not contain release 'version'. Example: v1.1.2")
     }
 }
