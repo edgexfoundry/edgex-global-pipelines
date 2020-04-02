@@ -207,6 +207,12 @@ def call(config) {
                     edgeXCodecov "${PROJECT}-codecov-token"
                 }
             }
+            //Get Release Version/Tags
+            stage('api') {
+                sh """
+                curl --silent "https://api.github.com/repos/edgexfoundry/edgex-global-pipelines/tags" | jq -r '.[0].name
+                """
+            }
 
             // Scan Go Dependencies
             stage('Snyk Scan') {
