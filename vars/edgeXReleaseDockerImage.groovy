@@ -52,15 +52,18 @@ def getAvaliableTargets() {
 @NonCPS
 def isValidReleaseRegistry(targetImage) {
     def validHost = getAvaliableTargets()[targetImage.host]
+
     if(validHost && targetImage.host != 'docker.io') {
+        println "[edgeXReleaseDockerImage] Valid Host: Nexus release detected."
         true
     } else if(validHost && targetImage.host == 'docker.io' && 'edgexfoundry' == targetImage.namespace) {
+        println "[edgeXReleaseDockerImage] Valid Host: DockerHub release detected."
         true
     } else {
+        println "[edgeXReleaseDockerImage] Invalid Host [${targetImage.host}] Unknown release detected."
         false
     }
 }
-
 
 // this method parses the releaseInfo information an maps dockerSource to dockerDestination
 @NonCPS
@@ -90,13 +93,13 @@ def publishDockerImages (releaseInfo) {
             }
 
             if(publishCount == 0) {
-                println "[edgeXReleaseDockerImage] The sourceImage [${releaseInfo.dockerSource[i]}] did not release...No cooresponding dockerDestination entry found."
+                echo "[edgeXReleaseDockerImage] The sourceImage [${dockerFrom ? edgeXDocker.toImageStr(dockerFrom) : releaseInfo.dockerSource[i] }] did not release...No corresponding dockerDestination entry found."
             }
             else {
-                println "[edgeXReleaseDockerImage] Successfully published [${publishCount}] images"
+                echo "[edgeXReleaseDockerImage] Successfully published [${publishCount}] images"
             }
         } else {
-            println "[edgeXReleaseDockerImage] Could not parse docker source image: [${releaseInfo.dockerSource[i]}]"
+            echo "[edgeXReleaseDockerImage] Could not parse docker source image: [${releaseInfo.dockerSource[i]}]"
         }
     }
 }
@@ -106,10 +109,19 @@ def publishDockerImage(from, to) {
     def finalFrom = edgeXDocker.toImageStr(from)
     def finalTo = edgeXDocker.toImageStr(to)
 
-    if(finalTargetImage) {
+    if(finalFrom && finalTo) {
         // for now assume edgeXDockerLogin() was already called...
-        sh "echo docker tag ${finalFrom} ${finalTo}"
-        sh "echo docker push ${finalTo}"
+        def tagCmd = "docker tag ${finalFrom} ${finalTo}"
+        def pushCmd = "docker push ${finalTo}"
+
+        // default DRY_RUN is on (null)
+        if([null, '1', 'true'].contains(env.DRY_RUN)) {
+            echo tagCmd
+            echo pushCmd
+        } else {
+            sh tagCmd
+            sh pushCmd
+        }
     }
 }
 
