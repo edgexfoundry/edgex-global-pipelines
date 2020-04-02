@@ -16,29 +16,26 @@
 
 /*
 
+releaseYaml:
+
 version: 1.1.2
+releaseStream: master
 dockerSource:
-  - nexus3.edgexfoundry.org:10004/sample-service:master
+  - nexus3.edgexfoundry.org:10004/sample-service
 dockerDestination:
   - nexus3.edgexfoundry.org:10002/sample-service
   - docker.io/edgexfoundry/sample-service
 ---
 
-edgeXReleaseDockerImage(
-    from: 'nexus3.edgexfoundry.org:10004/sample-service:master',
-    to: 'edgexfoundry/sample-service',
-    version: 'v0.0.1-test'
+edgeXReleaseDockerImage(releaseYaml)
 )
 
 */
-import com.cloudbees.groovy.cps.NonCPS
-
 def call (releaseInfo) {
     validate(releaseInfo)
     publishDockerImages(releaseInfo)
 }
 
-@NonCPS
 def getAvaliableTargets() {
     // this is the master list of valid hosts we will release to
     def validReleaseTargets = [
@@ -49,7 +46,6 @@ def getAvaliableTargets() {
     validReleaseTargets
 }
 
-@NonCPS
 def isValidReleaseRegistry(targetImage) {
     def validHost = getAvaliableTargets()[targetImage.host]
 
@@ -66,7 +62,6 @@ def isValidReleaseRegistry(targetImage) {
 }
 
 // this method parses the releaseInfo information an maps dockerSource to dockerDestination
-@NonCPS
 def publishDockerImages (releaseInfo) {
     for(int i = 0; i < releaseInfo.dockerSource.size(); i++) {
         def dockerFrom = edgeXDocker.parse(releaseInfo.dockerSource[i])
@@ -104,7 +99,6 @@ def publishDockerImages (releaseInfo) {
     }
 }
 
-@NonCPS
 def publishDockerImage(from, to) {
     def finalFrom = edgeXDocker.toImageStr(from)
     def finalTo = edgeXDocker.toImageStr(to)
@@ -125,7 +119,6 @@ def publishDockerImage(from, to) {
     }
 }
 
-@NonCPS
 def validate(releaseYaml) {
     if(!releaseYaml.dockerSource) {
         error("[edgeXReleaseDockerImage] Release yaml does not contain 'dockerSource'")
