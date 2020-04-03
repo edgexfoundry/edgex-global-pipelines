@@ -80,11 +80,17 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
                 edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
             } catch(TestException exception) { }
         then:
-            1 * getPipelineMock('echo').call("docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go:v1.2.0")
-            1 * getPipelineMock('echo').call("docker push nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go:v1.2.0")
+            1 * getPipelineMock('echo').call([
+                    'docker pull nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master',
+                    'docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go:v1.2.0',
+                    'docker push nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go:v1.2.0'
+                ].join("\n"))
 
-            1 * getPipelineMock('echo').call("docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master docker.io/edgexfoundry/app-functions-sdk-go:v1.2.0")
-            1 * getPipelineMock('echo').call("docker push docker.io/edgexfoundry/app-functions-sdk-go:v1.2.0")
+            1 * getPipelineMock('echo').call([
+                    'docker pull nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master',
+                    'docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master docker.io/edgexfoundry/app-functions-sdk-go:v1.2.0',
+                    'docker push docker.io/edgexfoundry/app-functions-sdk-go:v1.2.0'
+                ].join('\n'))
     }
 
     def "Test edgeXReleaseDockerImage [Should] run sh commands to tag and push when DRY_RUN is false [When] called" () {
@@ -99,9 +105,11 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
                 edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
             } catch(TestException exception) { }
         then:
+            1 * getPipelineMock('sh').call("docker pull nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master")
             1 * getPipelineMock('sh').call("docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go:v1.2.0")
             1 * getPipelineMock('sh').call("docker push nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go:v1.2.0")
 
+            1 * getPipelineMock('sh').call("docker pull nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master")
             1 * getPipelineMock('sh').call("docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master docker.io/edgexfoundry/app-functions-sdk-go:v1.2.0")
             1 * getPipelineMock('sh').call("docker push docker.io/edgexfoundry/app-functions-sdk-go:v1.2.0")
 
