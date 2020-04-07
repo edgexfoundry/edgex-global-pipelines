@@ -90,6 +90,15 @@ test {
   reports {
     junitXml.enabled = true
   }
+
+  // prints a summary after test execution
+  testLogging {
+    afterSuite { desc, result ->
+      if (!desc.parent) {
+        println "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+      }
+    }
+  }
 }
 
 jacocoTestReport {
@@ -120,4 +129,3 @@ task printClasspath {
     configurations.testRuntimeClasspath.each { println it }
   }
 }
-
