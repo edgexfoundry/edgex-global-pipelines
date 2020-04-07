@@ -20,6 +20,12 @@ def isReleaseStream(branchName = env.GIT_BRANCH) {
     env.SILO == 'production' && (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
 
+def releaseInfo(displayVersion='stable,experimental') {
+    withEnv(["DISPLAY_VERSION=${displayVersion}"]) {
+        sh(script: libraryResource('releaseinfo.sh'))
+    }
+}
+
 def didChange(expression, previous='origin/master') {
     // If there was no previous successful build (as in building for first time) will return true.
     def diffCount = 0
