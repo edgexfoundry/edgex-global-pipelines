@@ -54,36 +54,103 @@ def getSSHRepoName(repo) {
     repo.replaceAll("https://github.com/", "git@github.com:")
 }
 
+def isDryRun() {
+    // return True if DRY_RUN is set False otherwise
+    [null, '1', 'true'].contains(env.DRY_RUN)
+}
+
+/*
+TODO: attempted to mitigate DRY by implementing the following function
+      but was unable to get it to work on our internal Jenkins servers
+      thus not going to attempt it for EdgeX and leaving it for furture
+      attempt
+
+def executeCommands(directive, commands) {
+    // execute directive commands or echo them if isDryRun
+    if(isDryRun()) {
+        echo(commands.collect {"${directive} ${it}"}.join('\n'))
+    }
+    else {
+        commands.each { command ->
+            Eval.xy(directive, command, "x y")
+        }
+    }
+}
+*/
+
 def cloneRepo(repo, branch, name, credentials) {
     // clone the repo branch to name using the specified ssh credentials
     def ssh_repo = getSSHRepoName(repo)
-    println "[edgeXReleaseGitTag]: git cloning ${ssh_repo} : ${branch} to ${name}"
+    println "[edgeXReleaseGitTag]: git cloning ${ssh_repo} : ${branch} to ${name} - DRY_RUN: ${env.DRY_RUN}"
+
+    def commands = [
+        "git clone -b ${branch} ${ssh_repo} ${name}",
+        "cd ${name}"
+    ]
     sshagent(credentials: [credentials]) {
-        sh "git clone -b ${branch} ${ssh_repo} ${name}"
-        sh "cd ${name}"
+        if(isDryRun()) {
+            echo(commands.collect {"sh ${it}"}.join('\n'))
+        }
+        else {
+            commands.each { command ->  // named variable required due to LOL
+                sh command
+            }
+        }
     }
 }
 
-def setGitTag(name, version) {
+def setAndSignGitTag(name, version) {
     // call edgeXSemver functions to force tag version and push
-    println "[edgeXReleaseGitTag]: setting tag for ${name} to: ${version}"
-    edgeXSemver "init -ver=${version} -force"
-    edgeXSemver "tag -force"
-    edgeXSemver "push"
+    println "[edgeXReleaseGitTag]: setting tag for ${name} to: ${version} - DRY_RUN: ${env.DRY_RUN}"
+
+    def commands = [
+        "init -ver=${version} -force",
+        "tag -force"
+    ]
+    if(isDryRun()) {
+        echo(commands.collect {"edgeXSemver ${it}"}.join('\n'))
+    }
+    else {
+        commands.each { command ->
+            edgeXSemver command
+        }
+    }
+    signGitTag(version)
 }
 
 def signGitTag(version) {
     // call edgeXInfraLFToolsSign to sign git tag version
-    println "[edgeXReleaseGitTag]: signing tag: v${version}"
-    edgeXInfraLFToolsSign(command: "git-tag", version: "v${version}")
+    println "[edgeXReleaseGitTag]: signing tag: v${version} - DRY_RUN: ${env.DRY_RUN}"
+    if(isDryRun()) {
+        echo("edgeXInfraLFToolsSign(command: git-tag version: v${version})")
+    }
+    else {
+        edgeXInfraLFToolsSign(command: "git-tag", version: "v${version}")
+    }
+}
+
+def pushGitTag(name, version) {
+    // call edgeXSemver push to push git tags
+    println "[edgeXReleaseGitTag]: pushing git tag for ${name}: ${version} - DRY_RUN: ${env.DRY_RUN}"
+    def commands = [
+        "push"
+    ]
+    if(isDryRun()) {
+        echo(commands.collect {"edgeXSemver ${it}"}.join('\n'))
+    }
+    else {
+        commands.each { command ->
+            edgeXSemver command
+        }
+    }
 }
 
 def releaseGitTag(releaseInfo, credentials) {
     // exception handled function that clones, sets and signs git tag version
     try {
         cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, releaseInfo.name, credentials)
-        setGitTag(releaseInfo.name, releaseInfo.version)
-        signGitTag(releaseInfo.version)
+        setAndSignGitTag(releaseInfo.name, releaseInfo.version)
+        pushGitTag(releaseInfo.name, releaseInfo.version)
     }
     catch(error) {
         echo("[edgeXReleaseGitTag]: ERROR occurred releasing git tag: ${error}")
