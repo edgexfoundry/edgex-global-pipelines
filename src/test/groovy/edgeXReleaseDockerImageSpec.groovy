@@ -80,11 +80,15 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
                 edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
             } catch(TestException exception) { }
         then:
+            1 * getPipelineMock('echo').call("[edgeXReleaseDockerImage] DRY_RUN: docker login happens here")
+
             1 * getPipelineMock('echo').call([
                     'docker pull nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master',
                     'docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go:v1.2.0',
                     'docker push nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go:v1.2.0'
                 ].join("\n"))
+
+            1 * getPipelineMock('echo').call("[edgeXReleaseDockerImage] DRY_RUN: docker login happens here")
 
             1 * getPipelineMock('echo').call([
                     'docker pull nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master',
@@ -99,6 +103,7 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
                 'DRY_RUN': 'false'
             ]
             edgeXReleaseDockerImage.getBinding().setVariable('env', environmentVariables)
+            explicitlyMockPipelineStep('edgeXDockerLogin')
 
         when:
             try {
