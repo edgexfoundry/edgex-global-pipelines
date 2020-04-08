@@ -104,15 +104,17 @@ def publishDockerImage(from, to) {
     def finalTo = edgeXDocker.toImageStr(to)
 
     if(finalFrom && finalTo) {
-        // for now assume edgeXDockerLogin() was already called...
         def pullCmd = "docker pull ${finalFrom}"
         def tagCmd  = "docker tag ${finalFrom} ${finalTo}"
         def pushCmd = "docker push ${finalTo}"
 
         // default DRY_RUN is on (null)
         if([null, '1', 'true'].contains(env.DRY_RUN)) {
+            echo "[edgeXReleaseDockerImage] DRY_RUN: docker login happens here"
             echo([pullCmd, tagCmd, pushCmd].join('\n'))
         } else {
+            edgeXDockerLogin(settingsFile: env.RELEASE_DOCKER_SETTINGS)
+
             sh pullCmd
             sh tagCmd
             sh pushCmd
