@@ -150,3 +150,8 @@ def releaseInfo(tagVersions='stable experimental') {
         }
     }
 }
+
+def isDryRun() {
+    // return True if DRY_RUN is set False otherwise
+    [null, '1', 'true'].contains(env.DRY_RUN)
+}

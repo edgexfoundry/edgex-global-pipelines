@@ -363,4 +363,33 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
         then:
             1 * getPipelineMock('sh').call(script: libraryResource('releaseinfo.sh'))
     }
+
+    def "Test isDryRun [Should] return false [When] DRY_RUN has false values" () {
+        setup:
+            def values = [
+                '0',
+                'false',
+                'other'
+            ]           
+        expect:
+            values.each { value ->
+                edgeX.getBinding().setVariable('env', ['DRY_RUN': value])
+                edgeX.isDryRun() == false
+            }
+    }
+
+    def "Test isDryRun [Should] return true [When] DRY_RUN has true values" () {
+        setup:
+            def values = [
+                null,
+                '1',
+                'true'
+            ]           
+        expect:
+            values.each { value ->
+                edgeX.getBinding().setVariable('env', ['DRY_RUN': value])
+                edgeX.isDryRun() == true
+            }
+    }
+
 }
