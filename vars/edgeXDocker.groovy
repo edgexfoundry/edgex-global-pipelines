@@ -133,7 +133,7 @@ def cleanImageUrl(imageUrl) {
 
 def parse(imageUrl, useLatest = true, defaultRegistry='docker.io') {
     def parsedImage
-    println "[edgeXDocker.parse] Parsing ${imageUrl}"
+    //println "[edgeXDocker.parse] Parsing ${imageUrl}"
     try {
         def s = cleanImageUrl(imageUrl)
 

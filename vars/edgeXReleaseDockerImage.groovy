@@ -50,19 +50,25 @@ def isValidReleaseRegistry(targetImage) {
     def validHost = getAvaliableTargets()[targetImage.host]
 
     if(validHost && targetImage.host != 'docker.io') {
-        println "[edgeXReleaseDockerImage] Valid Host: Nexus release detected."
+        // println "[edgeXReleaseDockerImage] Valid Host: Nexus release detected."
         true
     } else if(validHost && targetImage.host == 'docker.io' && 'edgexfoundry' == targetImage.namespace) {
-        println "[edgeXReleaseDockerImage] Valid Host: DockerHub release detected."
+        // println "[edgeXReleaseDockerImage] Valid Host: DockerHub release detected."
         true
     } else {
-        println "[edgeXReleaseDockerImage] Invalid Host [${targetImage.host}] Unknown release detected."
+        // println "[edgeXReleaseDockerImage] Invalid Host [${targetImage.host}] Unknown release detected."
         false
     }
 }
 
 // this method parses the releaseInfo information an maps dockerSource to dockerDestination
 def publishDockerImages (releaseInfo) {
+    if([null, '1', 'true'].contains(env.DRY_RUN)) {
+        echo "[edgeXReleaseDockerImage] DRY_RUN: docker login happens here"
+    } else {
+        edgeXDockerLogin(settingsFile: env.RELEASE_DOCKER_SETTINGS)
+    }
+
     for(int i = 0; i < releaseInfo.dockerSource.size(); i++) {
         def dockerFrom = edgeXDocker.parse(releaseInfo.dockerSource[i])
         def publishCount = 0
@@ -78,7 +84,7 @@ def publishDockerImages (releaseInfo) {
                     dockerTo.tag = releaseInfo.version
 
                     // if we have matching image names...then publish the image
-                    if(dockerFrom.imageName == dockerTo.imageName) {
+                    if(dockerFrom.image == dockerTo.image) {
                         if(isValidReleaseRegistry(dockerTo)) {
                             publishDockerImage (dockerFrom, dockerTo)
                             publishCount++
@@ -110,11 +116,8 @@ def publishDockerImage(from, to) {
 
         // default DRY_RUN is on (null)
         if([null, '1', 'true'].contains(env.DRY_RUN)) {
-            echo "[edgeXReleaseDockerImage] DRY_RUN: docker login happens here"
             echo([pullCmd, tagCmd, pushCmd].join('\n'))
         } else {
-            edgeXDockerLogin(settingsFile: env.RELEASE_DOCKER_SETTINGS)
-
             sh pullCmd
             sh tagCmd
             sh pushCmd
