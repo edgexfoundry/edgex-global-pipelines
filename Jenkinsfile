@@ -32,9 +32,11 @@ pipeline {
     stages {
         stage('Prep') {
             steps {
-                edgeXSetupEnvironment()
-                edgeXSemver 'init'
                 script {
+                    //edgex.releaseInfo() this can be uncommented once this moves to stable
+                    edgeXSetupEnvironment()
+                    edgeXSemver 'init'
+
                     env.OG_VERSION = env.VERSION
                     sh "echo Archived original version: [$OG_VERSION]"
                 }
