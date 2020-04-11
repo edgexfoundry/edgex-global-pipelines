@@ -47,6 +47,7 @@ def call(config) {
         stages {
             stage('Prepare') {
                 steps {
+                    script { edgex.releaseInfo() }
                     edgeXSetupEnvironment(_envVarMap)
                 }
             }

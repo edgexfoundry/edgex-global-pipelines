@@ -20,6 +20,16 @@ def isReleaseStream(branchName = env.GIT_BRANCH) {
     env.SILO == 'production' && (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
 
+def releaseInfo(tagVersions='stable experimental') {
+    def credId = (env.SILO == 'production') ? 'edgex-jenkins-github-personal-access-token' : 'edgex-jenkins-access-username'
+    // these env var names are declararive syntax norms
+    withCredentials([usernamePassword(credentialsId: credId, usernameVariable: 'GH_TOKEN_USR', passwordVariable: 'GH_TOKEN_PSW')]) {
+        withEnv(["EGP_TAG_VERSIONS=${tagVersions}"]) {
+            sh(script: libraryResource('releaseinfo.sh'))
+        }
+    }
+}
+
 def didChange(expression, previous='origin/master') {
     // If there was no previous successful build (as in building for first time) will return true.
     def diffCount = 0

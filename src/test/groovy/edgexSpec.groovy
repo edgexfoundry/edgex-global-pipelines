@@ -349,4 +349,16 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 false
             ]
     }
+
+    // still working on a better test. right now just confirming the proper script is executed
+    def "Test releaseInfo [Should] run releaseinfo.sh shell script with [When] called" () {
+        setup:
+            explicitlyMockPipelineVariable('usernamePassword')
+            explicitlyMockPipelineVariable('withEnv')
+
+        when:
+            edgeX.releaseInfo()
+        then:
+            1 * getPipelineMock('sh').call(script: libraryResource('releaseinfo.sh'))
+    }
 }
