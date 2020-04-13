@@ -355,6 +355,8 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
         setup:
             explicitlyMockPipelineVariable('usernamePassword')
             explicitlyMockPipelineVariable('withEnv')
+            explicitlyMockPipelineVariable('bannerMessage')
+            explicitlyMockPipelineVariable('echo')
 
         when:
             edgeX.releaseInfo()
