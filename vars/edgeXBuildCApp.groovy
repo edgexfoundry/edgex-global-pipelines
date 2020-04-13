@@ -120,6 +120,20 @@ def call(config) {
                                     }
                                 }
                             }
+
+                            /*stage('Snap') {
+                                when {
+                                    expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                }
+                                steps {
+                                    script {
+                                        edgeXSnap(
+                                            jobType: edgex.isReleaseStream()
+                                                ? 'stage' : 'build'
+                                        )
+                                    }
+                                }
+                            }*/
                         }
                     }
 
@@ -185,6 +199,20 @@ def call(config) {
                                     }
                                 }
                             }
+
+                            /*stage('Snap') {
+                                when {
+                                    expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                }
+                                steps {
+                                    script {
+                                        edgeXSnap(
+                                            jobType: edgex.isReleaseStream()
+                                                ? 'stage' : 'build'
+                                        )
+                                    }
+                                }
+                            }*/
                         }
                     }
                 }
