@@ -125,6 +125,20 @@ def call(config) {
                                     }
                                 }
                             }
+
+                            stage('Snap') {
+                                when {
+                                    expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                }
+                                steps {
+                                    script {
+                                        edgeXSnap(
+                                            jobType: edgex.isReleaseStream()
+                                                ? 'stage' : 'build'
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -189,6 +203,20 @@ def call(config) {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                         taggedARM64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", true, "${DOCKER_NEXUS_REPO}")
+                                    }
+                                }
+                            }
+
+                            stage('Snap') {
+                                when {
+                                    expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                }
+                                steps {
+                                    script {
+                                        edgeXSnap(
+                                            jobType: edgex.isReleaseStream()
+                                                ? 'stage' : 'build'
+                                        )
                                     }
                                 }
                             }
