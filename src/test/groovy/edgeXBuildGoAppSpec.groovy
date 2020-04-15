@@ -4,6 +4,7 @@ import spock.lang.Ignore
 public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
 
     def edgeXBuildGoApp = null
+    def edgex = null
 
     public static class TestException extends RuntimeException {
         public TestException(String _message) { 
@@ -12,12 +13,11 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
     }
 
     def setup() {
-
         edgeXBuildGoApp = loadPipelineScriptForTest('vars/edgeXBuildGoApp.groovy')
-        edgeXBuildGoApp.getBinding().setVariable('edgex', {})
-        explicitlyMockPipelineStep('bannerMessage')
-        explicitlyMockPipelineStep('printMap')
-        explicitlyMockPipelineStep('defaultTrue')
+        edgex = loadPipelineScriptForTest('vars/edgex.groovy')
+        edgeXBuildGoApp.getBinding().setVariable('edgex', edgex)
+
+        explicitlyMockPipelineStep('echo')
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture" () {
@@ -123,9 +123,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'SILO': 'sandbox'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('defaultTrue')(null) >> {
-                true
-            }
         expect:
             edgeXBuildGoApp.toEnvironment(config) == expectedResult
         where:
@@ -152,16 +149,15 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
                     SEMVER_BUMP_LEVEL: 'pre',
-                    GOPROXY: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
+                    GOPROXY: 'https://nexus3.edgexfoundry.org/repository/go-proxy/',
+                    SNAP_CHANNEL: 'latest/edge',
+                    BUILD_SNAP: false
                 ]
             ]
     }
 
     def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config" () {
         setup:
-            getPipelineMock('defaultTrue')(null) >> {
-                false
-            }
         expect:
             edgeXBuildGoApp.toEnvironment(config) == expectedResult
         where:
@@ -179,28 +175,31 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     dockerNexusRepo: 'MyNexusRepo',
                     semverBump: 'patch',
                     goProxy: 'https://www.example.com/repository/go-proxy/',
-                    useAlpineBase: true
+                    useAlpineBase: true,
+                    snapChannel: 'edge'
                 ]
             ]
             expectedResult << [
                 [
                     MAVEN_SETTINGS: 'pSoda-settings',
                     PROJECT: 'pSoda',
-                    USE_SEMVER: false,
+                    USE_SEMVER: true,
                     TEST_SCRIPT: 'MyTestScript',
                     BUILD_SCRIPT: 'MyBuildScript',
                     GO_VERSION: 'MyGoVersion',
-                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion',
+                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion-alpine',
                     DOCKER_FILE_PATH: 'MyDockerFilePath',
                     DOCKER_BUILD_FILE_PATH: 'MyDockerBuildFilePath',
                     DOCKER_BUILD_CONTEXT: 'MyDockerBuildContext',
                     DOCKER_IMAGE_NAME: 'MyDockerImageName',
                     DOCKER_REGISTRY_NAMESPACE: 'MyDockerNameSpace',
                     DOCKER_NEXUS_REPO: 'MyNexusRepo',
-                    BUILD_DOCKER_IMAGE: false,
-                    PUSH_DOCKER_IMAGE: false,
+                    BUILD_DOCKER_IMAGE: true,
+                    PUSH_DOCKER_IMAGE: true,
                     SEMVER_BUMP_LEVEL: 'patch',
-                    GOPROXY: 'https://www.example.com/repository/go-proxy/'
+                    GOPROXY: 'https://www.example.com/repository/go-proxy/',
+                    SNAP_CHANNEL: 'edge',
+                    BUILD_SNAP: false
                 ]
             ]
     }

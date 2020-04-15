@@ -121,19 +121,22 @@ def call(config) {
                                 }
                             }
 
-                            /*stage('Snap') {
+                            stage('Snap') {
                                 when {
-                                    expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                    allOf {
+                                        environment name: 'BUILD_SNAP', value: 'true'
+                                        expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                    }
                                 }
                                 steps {
                                     script {
                                         edgeXSnap(
-                                            jobType: edgex.isReleaseStream()
-                                                ? 'stage' : 'build'
+                                            jobType: edgex.isReleaseStream() ? 'stage' : 'build',
+                                            snapChannel: env.SNAP_CHANNEL
                                         )
                                     }
                                 }
-                            }*/
+                            }
                         }
                     }
 
@@ -200,19 +203,22 @@ def call(config) {
                                 }
                             }
 
-                            /*stage('Snap') {
+                            stage('Snap') {
                                 when {
-                                    expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                    allOf {
+                                        environment name: 'BUILD_SNAP', value: 'true'
+                                        expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                    }
                                 }
                                 steps {
                                     script {
                                         edgeXSnap(
-                                            jobType: edgex.isReleaseStream()
-                                                ? 'stage' : 'build'
+                                            jobType: edgex.isReleaseStream() ? 'stage' : 'build',
+                                            snapChannel: env.SNAP_CHANNEL
                                         )
                                     }
                                 }
-                            }*/
+                            }
                         }
                     }
                 }
@@ -368,6 +374,8 @@ def toEnvironment(config) {
     def _buildImage          = edgex.defaultTrue(config.buildImage)
     def _pushImage           = edgex.defaultTrue(config.pushImage)
     def _semverBump          = config.semverBump ?: 'pre'
+    def _snapChannel         = config.snapChannel ?: 'latest/edge'
+    def _buildSnap           = edgex.defaultFalse(config.buildSnap)
 
     // no image to build, no image to push
     if(!_buildImage) {
@@ -389,7 +397,9 @@ def toEnvironment(config) {
         DOCKER_NEXUS_REPO: _dockerNexusRepo,
         BUILD_DOCKER_IMAGE: _buildImage,
         PUSH_DOCKER_IMAGE: _pushImage,
-        SEMVER_BUMP_LEVEL: _semverBump
+        SEMVER_BUMP_LEVEL: _semverBump,
+        SNAP_CHANNEL: _snapChannel,
+        BUILD_SNAP: _buildSnap
     ]
 
     edgex.bannerMessage "[edgeXBuildCApp] Pipeline Parameters:"
