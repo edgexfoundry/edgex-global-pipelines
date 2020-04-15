@@ -54,7 +54,7 @@ def call(config = [:]) {
 
     // find the snapcraft.yaml in the snapBase dir and return the name of the snap if not specified
     if(!_snapName) {
-        _snapName = sh(script: "grep -Po '^name: \\K(.*)' \$(find ${_snapBase} | grep snapcraft.yaml)", returnStdout: true)
+        _snapName = sh(script: "grep -Po '^name: \\K(.*)' \$(find ${_snapBase} | grep snapcraft.yaml)", returnStdout: true).trim().replaceAll('\n', '')
     }
 
     // if not null or empty
