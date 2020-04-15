@@ -4,6 +4,7 @@ import spock.lang.Ignore
 public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
 
     def edgeXBuildCApp = null
+    def edgex = null
 
     public static class TestException extends RuntimeException {
         public TestException(String _message) { 
@@ -14,11 +15,10 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
     def setup() {
 
         edgeXBuildCApp = loadPipelineScriptForTest('vars/edgeXBuildCApp.groovy')
-        edgeXBuildCApp.getBinding().setVariable('edgex', {})
-        explicitlyMockPipelineStep('bannerMessage')
-        explicitlyMockPipelineStep('printMap')
-        explicitlyMockPipelineStep('defaultTrue')
-        explicitlyMockPipelineStep('defaultFalse')
+        edgex = loadPipelineScriptForTest('vars/edgex.groovy')
+        edgeXBuildCApp.getBinding().setVariable('edgex', edgex)
+
+        explicitlyMockPipelineStep('echo')
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture" () {
@@ -80,9 +80,6 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                 'SILO': 'sandbox'
             ]
             edgeXBuildCApp.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('defaultTrue')(null) >> {
-                true
-            }
         expect:
             edgeXBuildCApp.toEnvironment(config) == expectedResult
         where:
@@ -107,16 +104,15 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_NEXUS_REPO: 'staging',
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
-                    SEMVER_BUMP_LEVEL: 'pre'
+                    SEMVER_BUMP_LEVEL: 'pre',
+                    SNAP_CHANNEL: 'latest/edge',
+                    BUILD_SNAP: false
                 ]
             ]
     }
 
     def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config" () {
         setup:
-            getPipelineMock('defaultTrue')(null) >> {
-                false
-            }
         expect:
             edgeXBuildCApp.toEnvironment(config) == expectedResult
         where:
@@ -131,14 +127,15 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     dockerNamespace: 'MyDockerNameSpace',
                     dockerImageName: 'MyDockerImageName',
                     dockerNexusRepo: 'MyNexusRepo',
-                    semverBump: 'patch'
+                    semverBump: 'patch',
+                    snapChannel: 'edge'
                 ]
             ]
             expectedResult << [
                 [
                     MAVEN_SETTINGS: 'device-sdk-c-settings',
                     PROJECT: 'device-sdk-c',
-                    USE_SEMVER: false,
+                    USE_SEMVER: true,
                     TEST_SCRIPT: 'MyTestScript',
                     BUILD_SCRIPT: 'MyBuildScript',
                     DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base:latest',
@@ -148,9 +145,11 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_IMAGE_NAME: 'MyDockerImageName',
                     DOCKER_REGISTRY_NAMESPACE: 'MyDockerNameSpace',
                     DOCKER_NEXUS_REPO: 'MyNexusRepo',
-                    BUILD_DOCKER_IMAGE: false,
-                    PUSH_DOCKER_IMAGE: false,
-                    SEMVER_BUMP_LEVEL: 'patch'
+                    BUILD_DOCKER_IMAGE: true,
+                    PUSH_DOCKER_IMAGE: true,
+                    SEMVER_BUMP_LEVEL: 'patch',
+                    SNAP_CHANNEL: 'edge',
+                    BUILD_SNAP: false
                 ]
             ]
     }
