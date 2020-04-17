@@ -11,8 +11,14 @@ do
 	if [[ $ret == *"Errors"* ]];then
 		echo $ret
 		echo "Linting has failed for $JENKINS_FILE"
-		exit 1
+		nonZeroexit=true
 	else
 		echo "$JENKINS_FILE successfully validated"
 	fi
 done
+
+# set non-zero exit if linter reports any errors
+if [ $nonZeroexit ]
+then
+	exit 1
+fi
