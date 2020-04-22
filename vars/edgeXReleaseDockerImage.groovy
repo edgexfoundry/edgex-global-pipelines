@@ -20,11 +20,16 @@ releaseYaml:
 
 version: 1.1.2
 releaseStream: master
-dockerSource:
-  - nexus3.edgexfoundry.org:10004/sample-service
-dockerDestination:
-  - nexus3.edgexfoundry.org:10002/sample-service
-  - docker.io/edgexfoundry/sample-service
+dockerImage: true
+docker:
+  - image: nexus3.edgexfoundry.org:10004/sample-service
+    destination:
+      - nexus3.edgexfoundry.org:10002/sample-service
+      - docker.io/edgexfoundry/sample-service
+  - image: nexus3.edgexfoundry.org:10004/sample-service-arm64
+    destination:
+      - nexus3.edgexfoundry.org:10002/sample-service-arm64
+      - docker.io/edgexfoundry/sample-service-arm64
 ---
 
 edgeXReleaseDockerImage(releaseYaml)
@@ -61,46 +66,46 @@ def isValidReleaseRegistry(targetImage) {
     }
 }
 
-// this method parses the releaseInfo information an maps dockerSource to dockerDestination
+// this method parses the releaseInfo information an maps docker element in the yaml
 def publishDockerImages (releaseInfo) {
-    if([null, '1', 'true'].contains(env.DRY_RUN)) {
+    if(edgex.isDryRun()) {
         echo "[edgeXReleaseDockerImage] DRY_RUN: docker login happens here"
     } else {
         edgeXDockerLogin(settingsFile: env.RELEASE_DOCKER_SETTINGS)
     }
 
-    for(int i = 0; i < releaseInfo.dockerSource.size(); i++) {
-        def dockerFrom = edgeXDocker.parse(releaseInfo.dockerSource[i])
+    for(int i = 0; i < releaseInfo.docker.size(); i++) {
+        def dockerInfo = releaseInfo.docker[i]
+
+        def dockerFrom = edgeXDocker.parse(dockerInfo.image)
         def publishCount = 0
 
         if(dockerFrom) {
             // set the source version to the releaseStream from the yaml
             dockerFrom.tag = releaseInfo.releaseStream
 
-            for(int j = 0; j < releaseInfo.dockerDestination.size(); j++) {
-                def dockerTo = edgeXDocker.parse(releaseInfo.dockerDestination[j])
+            for(int j = 0; j < dockerInfo.destination.size(); j++) {
+                def dockerTo = edgeXDocker.parse(dockerInfo.destination[j])
                 if(dockerTo) {
                     // set the destination version to the version from the yaml
                     dockerTo.tag = releaseInfo.version
 
                     // if we have matching image names...then publish the image
-                    if(dockerFrom.image == dockerTo.image) {
-                        if(isValidReleaseRegistry(dockerTo)) {
-                            publishDockerImage (dockerFrom, dockerTo)
-                            publishCount++
-                        }
+                    if(isValidReleaseRegistry(dockerTo)) {
+                        publishDockerImage (dockerFrom, dockerTo)
+                        publishCount++
                     }
                 }
             }
 
             if(publishCount == 0) {
-                echo "[edgeXReleaseDockerImage] The sourceImage [${dockerFrom ? edgeXDocker.toImageStr(dockerFrom) : releaseInfo.dockerSource[i] }] did not release...No corresponding dockerDestination entry found."
+                echo "[edgeXReleaseDockerImage] The sourceImage [${dockerFrom ? edgeXDocker.toImageStr(dockerFrom) : dockerInfo.image}] did not release..."
             }
             else {
                 echo "[edgeXReleaseDockerImage] Successfully published [${publishCount}] images"
             }
         } else {
-            echo "[edgeXReleaseDockerImage] Could not parse docker source image: [${releaseInfo.dockerSource[i]}]"
+            echo "[edgeXReleaseDockerImage] Could not parse docker source image: [${dockerInfo.image}]"
         }
     }
 }
@@ -114,8 +119,7 @@ def publishDockerImage(from, to) {
         def tagCmd  = "docker tag ${finalFrom} ${finalTo}"
         def pushCmd = "docker push ${finalTo}"
 
-        // default DRY_RUN is on (null)
-        if([null, '1', 'true'].contains(env.DRY_RUN)) {
+        if(edgex.isDryRun()) {
             echo([pullCmd, tagCmd, pushCmd].join('\n'))
         } else {
             sh pullCmd
@@ -126,12 +130,8 @@ def publishDockerImage(from, to) {
 }
 
 def validate(releaseYaml) {
-    if(!releaseYaml.dockerSource) {
-        error("[edgeXReleaseDockerImage] Release yaml does not contain 'dockerSource'")
-    }
-
-    if(!releaseYaml.dockerDestination) {
-        error("[edgeXReleaseDockerImage] Release yaml does not contain 'dockerDestination'")
+    if(!releaseYaml.docker) {
+        error("[edgeXReleaseDockerImage] Release yaml does not contain a list 'docker' images")
     }
 
     if(!releaseYaml.releaseStream) {
