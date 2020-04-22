@@ -169,10 +169,10 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
             ]
             edgeXReleaseSnap.getBinding().setVariable('env', environmentVariables)
         when:
-            edgeXReleaseSnap.getSnapMetadata("https://github.com/edgexfoundry/edgex-go", "master")
+            edgeXReleaseSnap.getSnapMetadata("https://github.com/edgexfoundry/edgex-go", "master", "edgex-go")
         then:
-            1 * 
-            1 * getPipelineMock("readYaml").call(file: "/w/thecars/snapcraft.yaml")
+            1 * getPipelineMock("sh").call("curl --fail -o /w/thecars/snapcraft-edgex-go.yaml -O https://raw.githubusercontent.com/edgexfoundry/edgex-go/master/snap/snapcraft.yaml")
+            1 * getPipelineMock("readYaml").call(file: "/w/thecars/snapcraft-edgex-go.yaml")
     }
 
     def "Test getSnapInfo [Should] call sh with the expected arguments [When] called" () {
@@ -223,7 +223,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
                 'WORKSPACE': '/w/thecars'
             ]
             edgeXReleaseSnap.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('sh').call('curl --fail -o /w/thecars/snapcraft.yaml -O https://raw.githubusercontent.com/edgexfoundry/sample-service/master/snap/snapcraft.yaml') >> {
+            getPipelineMock('sh').call('curl --fail -o /w/thecars/snapcraft-sample-service.yaml -O https://raw.githubusercontent.com/edgexfoundry/sample-service/master/snap/snapcraft.yaml') >> {
                 throw new Exception('curl Exception')
             }
         when:
@@ -244,7 +244,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
             def archList = []
             edgeXReleaseSnap.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('isDryRun')() >> true
-            getPipelineMock('readYaml').call(file: '/w/thecars/snapcraft.yaml') >> [
+            getPipelineMock('readYaml').call(file: '/w/thecars/snapcraft-sample-service.yaml') >> [
                 name: 'sample-service',
                 architectures: [
                     [
@@ -294,7 +294,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
             def archList = []
             edgeXReleaseSnap.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('isDryRun')() >> false
-            getPipelineMock('readYaml').call(file: '/w/thecars/snapcraft.yaml') >> [
+            getPipelineMock('readYaml').call(file: '/w/thecars/snapcraft-sample-service.yaml') >> [
                 name: 'sample-service',
                 architectures: [
                     [

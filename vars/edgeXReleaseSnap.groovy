@@ -70,12 +70,12 @@ def getSnapcraftAddress(repo, branch) {
     repo.replaceAll("\\.git", "").replaceAll("https://github.com/", "https://raw.githubusercontent.com/") + "/${branch}/snap/snapcraft.yaml"
 }
 
-def getSnapMetadata(repo, branch) {
+def getSnapMetadata(repo, branch, name) {
     // return snap meta data for repo
     println "[edgeXReleaseSnap]: getting snap metadata for repo: ${repo} branch: ${branch}"
     def snapCraftAddress = getSnapcraftAddress(repo, branch)
-    sh "curl --fail -o ${env.WORKSPACE}/snapcraft.yaml -O ${snapCraftAddress}"
-    readYaml(file: "${env.WORKSPACE}/snapcraft.yaml")
+    sh "curl --fail -o ${env.WORKSPACE}/snapcraft-${name}.yaml -O ${snapCraftAddress}"
+    readYaml(file: "${env.WORKSPACE}/snapcraft-${name}.yaml")
 }
 
 def getSnapInfo(snapName) {
@@ -109,7 +109,7 @@ def releaseSnap(releaseInfo) {
     try {
         println "[edgeXReleaseSnap]: releasing snaps for: ${releaseInfo.name}"
         // get snap metadata from snapcraft.yaml located in the repo
-        def snapMetadata = getSnapMetadata(releaseInfo.repo, releaseInfo.releaseStream)
+        def snapMetadata = getSnapMetadata(releaseInfo.repo, releaseInfo.releaseStream, releaseInfo.name)
         // get snap info from snapcraft.io store
         def snapInfo = getSnapInfo(snapMetadata.name)
         snapMetadata.architectures.each { architecture ->
