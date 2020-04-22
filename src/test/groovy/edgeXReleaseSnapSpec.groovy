@@ -272,7 +272,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
             4 * getPipelineMock('withEnv').call(_) >> { _arguments ->
                     archList << _arguments[0][0][0]
                 }
-            assert archList == ['ARCH=arm64', 'ARCH=arm64', 'ARCH=amd64', 'ARCH=amd64']
+            assert archList == ['ARCH=amd64', 'ARCH=amd64', 'ARCH=amd64', 'ARCH=amd64']
             // TODO: figure out why the assertion below didn't work
             // 2 * getPipelineMock('withEnv').call(_) >> { _arguments ->
             //         def envArgs = [
@@ -328,7 +328,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
             4 * getPipelineMock('withEnv').call(_) >> { _arguments ->
                     archList << _arguments[0][0][0]
                 }
-            assert archList == ['ARCH=arm64', 'ARCH=arm64', 'ARCH=amd64', 'ARCH=amd64']
+            assert archList == ['ARCH=amd64', 'ARCH=amd64', 'ARCH=amd64', 'ARCH=amd64']
     }
 
     def "Test edgeXReleaseSnap [Should] echo repo is not snap enabled [When] release info yaml snap is false" () {
