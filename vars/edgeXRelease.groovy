@@ -44,7 +44,6 @@ def parallelStepFactoryTransform(step) {
             
             if(step.dockerImages == true) {
                 stage("Docker Image Publish") {
-                    echo "[edgeXRelease] about to release docker images for ${step.dockerSource.join(',')}"
                     edgeXReleaseDockerImage(step)
                 }
             }
