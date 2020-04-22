@@ -126,7 +126,9 @@ def releaseSnap(releaseInfo) {
                         def trackName = snapChannel.trackName ?: 'latest/edge'
                         snapRevision = getSnapRevision(snapInfo, architecture.'build-on', trackName)
                     }
-                    withEnv(["ARCH=${architecture.'build-on'}"]) {
+                    // to facilitate releases we leverage x86 based docker image to release snaps
+                    // revision number is unique and distinguishes between snap architectures
+                    withEnv(['ARCH=amd64']) {
                         def message = """[edgeXReleaseSnap]:\
                             edgeXSnap(jobType: 'release',\
                                 snapChannel: ${snapChannel.channel},\
