@@ -2,7 +2,7 @@ import com.homeaway.devtools.jenkins.testing.JenkinsPipelineSpecification
 import spock.lang.Ignore
 
 public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
-    def edgeXReleaseDockerImage
+    def edgeXReleaseDockerImage, edgex
     def validReleaseYaml, invalidReleaseYaml
     
     public static class TestException extends RuntimeException {
@@ -17,6 +17,9 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
         def edgeXDocker = loadPipelineScriptForTest('vars/edgeXDocker.groovy')
         edgeXReleaseDockerImage.getBinding().setVariable('edgeXDocker', edgeXDocker)
 
+        edgex = loadPipelineScriptForTest('vars/edgex.groovy')
+        edgeXReleaseDockerImage.getBinding().setVariable('edgex', edgex)
+
         explicitlyMockPipelineVariable('out')
         explicitlyMockPipelineStep('error')
         explicitlyMockPipelineStep('echo')
@@ -28,13 +31,19 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
             releaseStream:'master',
             repo:'https://github.com/edgexfoundry/app-functions-sdk-go.git',
             dockerImages:true,
-            dockerSource:['nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go', 'nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go-arm64'],
-            dockerDestination:[
-                'nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go',
-                'edgexfoundry/docker-app-functions-sdk-go',
-                'nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go-arm64',
-                'edgexfoundry/docker-app-functions-sdk-go-arm64'
-            ]
+            docker:[[
+                image: 'nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go',
+                destination: [
+                    'nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go',
+                    'edgexfoundry/docker-app-functions-sdk-go'
+                ]
+            ], [
+                image: 'nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go-arm64',
+                destination: [
+                    'nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go-arm64',
+                    'edgexfoundry/docker-app-functions-sdk-go-arm64'
+                ]
+            ]]
         ]
 
         invalidReleaseYaml = [
@@ -44,11 +53,13 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
             releaseStream:'master',
             repo:'https://github.com/edgexfoundry/app-functions-sdk-go.git',
             dockerImages:true,
-            dockerSource:['nexus3.edgexfoundry.org:10003/docker-app-functions-sdk-go'],
-            dockerDestination:[
-                'nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go', // invalid destination
-                'https://example.com/edgexfoundry/docker-app-functions-sdk-go' // invalid destination
-            ]
+            docker:[[
+                image: 'nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go',
+                destination: [
+                    'nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go', // invalid destination
+                    'example.com/edgexfoundry/docker-app-functions-sdk-go' // invalid destination
+                ]
+            ]]
         ]
     }
 
@@ -64,8 +75,7 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
             catch(TestException exception) {
             }
         then:
-            1 * getPipelineMock('error').call("[edgeXReleaseDockerImage] Release yaml does not contain 'dockerSource'")
-            1 * getPipelineMock('error').call("[edgeXReleaseDockerImage] Release yaml does not contain 'dockerDestination'")
+            1 * getPipelineMock('error').call("[edgeXReleaseDockerImage] Release yaml does not contain a list 'docker' images")
             1 * getPipelineMock('error').call("[edgeXReleaseDockerImage] Release yaml does not contain 'releaseStream' (branch where you are releasing from). Example: master")
             1 * getPipelineMock('error').call("[edgeXReleaseDockerImage] Release yaml does not contain release 'version'. Example: v1.1.2")
     }
@@ -77,6 +87,8 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
                 'RELEASE_DOCKER_SETTINGS': 'some-settings'
             ]
             edgeXReleaseDockerImage.getBinding().setVariable('env', environmentVariables)
+            edgex.getBinding().setVariable('env', environmentVariables)
+
         when:
 
             try {
@@ -117,6 +129,8 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
                 'RELEASE_DOCKER_SETTINGS': 'some-settings'
             ]
             edgeXReleaseDockerImage.getBinding().setVariable('env', environmentVariables)
+            edgex.getBinding().setVariable('env', environmentVariables)
+
             explicitlyMockPipelineStep('edgeXDockerLogin')
 
         when:
@@ -145,13 +159,20 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
 
     def "Test edgeXReleaseDockerImage [Should] error [When] invalid yaml configuration is used" () {
         setup:
+            def environmentVariables = [
+                    'DRY_RUN': 'false'
+            ]
+            edgeXReleaseDockerImage.getBinding().setVariable('env', environmentVariables)
+            edgex.getBinding().setVariable('env', environmentVariables)
+
+            explicitlyMockPipelineStep('edgeXDockerLogin')
 
         when:
             try {
                 edgeXReleaseDockerImage.publishDockerImages(invalidReleaseYaml)
             } catch(TestException exception) { }
         then:
-            1 * getPipelineMock('echo').call("[edgeXReleaseDockerImage] The sourceImage [nexus3.edgexfoundry.org:10003/docker-app-functions-sdk-go:master] did not release...No corresponding dockerDestination entry found.")
+            1 * getPipelineMock('echo').call("[edgeXReleaseDockerImage] The sourceImage [nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master] did not release...")
     }
 
     def "Test edgeXReleaseDockerImage.isValidReleaseRegistry [Should] return valid docker release target [When] called " () {
