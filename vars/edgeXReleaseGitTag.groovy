@@ -60,8 +60,7 @@ def cloneRepo(repo, branch, name, credentials) {
     def ssh_repo = getSSHRepoName(repo)
     println "[edgeXReleaseGitTag]: git cloning ${ssh_repo} : ${branch} to ${name} - DRY_RUN: ${env.DRY_RUN}"
     def commands = [
-        "git clone -b ${branch} ${ssh_repo} ${name}",
-        "cd ${name}"
+        "git clone -b ${branch} ${ssh_repo} ${env.WORKSPACE}/${name}",
     ]
     sshagent(credentials: [credentials]) {
         if(edgex.isDryRun()) {
@@ -86,21 +85,25 @@ def setAndSignGitTag(name, version) {
         echo(commands.collect {"edgeXSemver ${it}"}.join('\n'))
     }
     else {
-        commands.each { command ->
-            edgeXSemver command
+        dir("${name}") {
+            commands.each { command ->
+                edgeXSemver command
+            }
         }
     }
-    signGitTag(version)
+    signGitTag(version, name)
 }
 
-def signGitTag(version) {
+def signGitTag(version, name) {
     // call edgeXInfraLFToolsSign to sign git tag version
     println "[edgeXReleaseGitTag]: signing tag: v${version} - DRY_RUN: ${env.DRY_RUN}"
     if(edgex.isDryRun()) {
         echo("edgeXInfraLFToolsSign(command: git-tag version: v${version})")
     }
     else {
-        edgeXInfraLFToolsSign(command: "git-tag", version: "v${version}")
+        dir("${name}") {
+            edgeXInfraLFToolsSign(command: "git-tag", version: "v${version}")
+        }
     }
 }
 
@@ -114,8 +117,10 @@ def pushGitTag(name, version) {
         echo(commands.collect {"edgeXSemver ${it}"}.join('\n'))
     }
     else {
-        commands.each { command ->
-            edgeXSemver command
+        dir("${name}") {
+            commands.each { command ->
+                edgeXSemver command
+            }
         }
     }
 }
