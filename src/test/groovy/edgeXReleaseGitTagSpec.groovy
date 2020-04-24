@@ -179,27 +179,28 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('echo.call')('edgeXInfraLFToolsSign(command: git-tag version: v1.2.3)')
     }
 
-    def "Test pushGitTag [Should] call edgeXSemver push [When] DRY_RUN is false" () {
+    def "Test bumpAndPushGitTag [Should] call edgeXSemver bump and push [When] DRY_RUN is false" () {
         setup:
             getPipelineMock('isDryRun')() >> false
             explicitlyMockPipelineStep('edgeXSemver')
             explicitlyMockPipelineStep('dir')
         when:
-            edgeXReleaseGitTag.pushGitTag('sample-service', '1.2.3')
+            edgeXReleaseGitTag.bumpAndPushGitTag('sample-service', '1.2.3', 'pre')
         then:
             1 * getPipelineMock('edgeXSemver').call('push')
+            1 * getPipelineMock('edgeXSemver').call('bump pre')
             1 * getPipelineMock('dir').call(_) >> { _arguments ->
                 assert 'sample-service' == _arguments[0][0]
             }
     }
 
-    def "Test pushGitTag [Should] echo edgeXSemver push [When] DRY_RUN is true" () {
+    def "Test bumpAndPushGitTag [Should] echo edgeXSemver bump and push [When] DRY_RUN is true" () {
         setup:
             getPipelineMock('isDryRun')() >> true
         when:
-            edgeXReleaseGitTag.pushGitTag('sample-service', '1.2.3')
+            edgeXReleaseGitTag.bumpAndPushGitTag('sample-service', '1.2.3', 'pre')
         then:
-            1 * getPipelineMock('echo.call')('edgeXSemver push')
+            1 * getPipelineMock('echo.call')('edgeXSemver bump pre\nedgeXSemver push')
     }
 
     def "Test releaseGitTag [Should] catch and and raise error [When] exception occurs" () {
@@ -231,6 +232,20 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             edgeXReleaseGitTag(validReleaseInfo)
         then:
             noExceptionThrown()
+    }
+
+    def "Test edgeXReleaseGitTag [Should] call edgeXSemver bump [When] called with semverBumpLevel" () {
+        setup:
+            getPipelineMock('isDryRun')() >> false
+            explicitlyMockPipelineStep('sshagent')
+            explicitlyMockPipelineStep('edgeXSemver')
+            explicitlyMockPipelineStep('edgeXInfraLFToolsSign')
+            explicitlyMockPipelineStep('dir')
+        when:
+            validReleaseInfo.semverBumpLevel = '-pre=exp pre'
+            edgeXReleaseGitTag(validReleaseInfo)
+        then:
+            1 * getPipelineMock('edgeXSemver').call('bump -pre=exp pre')
     }
 
 }
