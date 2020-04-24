@@ -24,6 +24,7 @@ version: '1.1.2'
 releaseStream: 'master'
 repo: 'https://github.com/edgexfoundry/sample-service.git'
 gitTag: true
+semverBumpLevel: 'patch'  # optional and defaults to 'pre'
 
 edgeXReleaseGitTag(releaseYaml)
 
@@ -107,10 +108,11 @@ def signGitTag(version, name) {
     }
 }
 
-def pushGitTag(name, version) {
-    // call edgeXSemver push to push git tags
+def bumpAndPushGitTag(name, version, bumpLevel) {
+    // call edgeXSemver bump to bump semver branch to next bumpLevel and push to push git tag
     println "[edgeXReleaseGitTag]: pushing git tag for ${name}: ${version} - DRY_RUN: ${env.DRY_RUN}"
     def commands = [
+        "bump ${bumpLevel}",
         "push"
     ]
     if(edgex.isDryRun()) {
@@ -130,7 +132,8 @@ def releaseGitTag(releaseInfo, credentials) {
     try {
         cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, releaseInfo.name, credentials)
         setAndSignGitTag(releaseInfo.name, releaseInfo.version)
-        pushGitTag(releaseInfo.name, releaseInfo.version)
+        def semverBumpLevel = releaseInfo.semverBumpLevel ?: 'pre'
+        bumpAndPushGitTag(releaseInfo.name, releaseInfo.version, semverBumpLevel)
     }
     catch(Exception ex) {
         error("[edgeXReleaseGitTag]: ERROR occurred releasing git tag: ${ex}")
