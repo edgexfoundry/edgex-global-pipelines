@@ -234,6 +234,19 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             noExceptionThrown()
     }
 
+    def "Test edgeXReleaseGitTag [Should] call edgeXSemver bump with default [When] called" () {
+        setup:
+            getPipelineMock('isDryRun')() >> false
+            explicitlyMockPipelineStep('sshagent')
+            explicitlyMockPipelineStep('edgeXSemver')
+            explicitlyMockPipelineStep('edgeXInfraLFToolsSign')
+            explicitlyMockPipelineStep('dir')
+        when:
+            edgeXReleaseGitTag(validReleaseInfo)
+        then:
+            1 * getPipelineMock('edgeXSemver').call('bump -pre=dev pre')
+    }
+
     def "Test edgeXReleaseGitTag [Should] call edgeXSemver bump [When] called with semverBumpLevel" () {
         setup:
             getPipelineMock('isDryRun')() >> false

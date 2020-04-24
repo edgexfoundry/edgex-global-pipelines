@@ -24,7 +24,7 @@ version: '1.1.2'
 releaseStream: 'master'
 repo: 'https://github.com/edgexfoundry/sample-service.git'
 gitTag: true
-semverBumpLevel: 'patch'  # optional and defaults to 'pre'
+semverBumpLevel: 'patch'  # optional and defaults to '-pre=dev pre'
 
 edgeXReleaseGitTag(releaseYaml)
 
@@ -132,7 +132,7 @@ def releaseGitTag(releaseInfo, credentials) {
     try {
         cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, releaseInfo.name, credentials)
         setAndSignGitTag(releaseInfo.name, releaseInfo.version)
-        def semverBumpLevel = releaseInfo.semverBumpLevel ?: 'pre'
+        def semverBumpLevel = releaseInfo.semverBumpLevel ?: '-pre=dev pre'
         bumpAndPushGitTag(releaseInfo.name, releaseInfo.version, semverBumpLevel)
     }
     catch(Exception ex) {
