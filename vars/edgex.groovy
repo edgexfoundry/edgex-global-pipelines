@@ -33,11 +33,10 @@ def didChange(expression, previous='origin/master') {
     } else{
         // If we are merging into master then both previous and the current will be the same
         // so we need to calculate the previous commit has
-        // if(previous =~ /.*master/ && env.GIT_BRANCH =~ /.*master/) {
-        //     previous = sh (script: "git show --pretty=%H ${env.GIT_COMMIT}^1 | xargs", returnStdout: true).trim()
-        //}
-
-        previous = 'origin/HEAD'
+        if(previous =~ /.*master|.*release/ && env.GIT_BRANCH =~ /.*master|.*release/) {
+            println "[didChange-DEBUG] currently merging into ${env.GIT_BRANCH}, need to lookup previous commit sha1"
+            previous = sh (script: "git show --pretty=%H ${env.GIT_COMMIT}^1 | xargs", returnStdout: true).trim()
+        }
 
         println "[didChange-DEBUG] we have a previous commit: [${previous}]"
         println "[didChange-DEBUG] Files changed since the previous commit:"
