@@ -131,9 +131,11 @@ def releaseGitTag(releaseInfo, credentials) {
     // exception handled function that clones, sets and signs git tag version
     try {
         cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, releaseInfo.name, credentials)
-        setAndSignGitTag(releaseInfo.name, releaseInfo.version)
-        def semverBumpLevel = releaseInfo.semverBumpLevel ?: '-pre=dev pre'
-        bumpAndPushGitTag(releaseInfo.name, releaseInfo.version, semverBumpLevel)
+        withEnv(["SEMVER_BRANCH=${releaseInfo.releaseStream}"]) {
+            setAndSignGitTag(releaseInfo.name, releaseInfo.version)
+            def semverBumpLevel = releaseInfo.semverBumpLevel ?: '-pre=dev pre'
+            bumpAndPushGitTag(releaseInfo.name, releaseInfo.version, semverBumpLevel)
+        }
     }
     catch(Exception ex) {
         error("[edgeXReleaseGitTag]: ERROR occurred releasing git tag: ${ex}")
