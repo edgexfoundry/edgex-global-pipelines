@@ -76,7 +76,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
             getPipelineMock('sh')([
                 returnStdout: true,
-                script: 'git diff --name-only 6c48b4195c2eda681d9817e490d6fbb8042956fc origin/HEAD | grep \"test\" | wc -l'
+                script: 'git diff --name-only 6c48b4195c2eda681d9817e490d6fbb8042956fc origin/master | grep \"test\" | wc -l'
             ]) >> {
                 '0'
             }
