@@ -120,6 +120,9 @@ def publishDockerImage(from, to) {
         def pushCmd = "docker push ${finalTo}"
 
         if(edgex.isDryRun()) {
+            if(env.DRY_RUN_PULL_DOCKER_IMAGES && env.DRY_RUN_PULL_DOCKER_IMAGES == 'true') {
+                sh pullCmd
+            }
             echo([pullCmd, tagCmd, pushCmd].join('\n'))
         } else {
             sh pullCmd
