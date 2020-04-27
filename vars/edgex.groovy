@@ -33,9 +33,11 @@ def didChange(expression, previous='origin/master') {
     } else{
         // If we are merging into master then both previous and the current will be the same
         // so we need to calculate the previous commit has
-        if(previous =~ /.*master/ && env.GIT_BRANCH =~ /.*master/) {
-            previous = sh (script: "git show --pretty=%H ${env.GIT_COMMIT}^1 | xargs", returnStdout: true).trim()
-        }
+        // if(previous =~ /.*master/ && env.GIT_BRANCH =~ /.*master/) {
+        //     previous = sh (script: "git show --pretty=%H ${env.GIT_COMMIT}^1 | xargs", returnStdout: true).trim()
+        //}
+
+        previous = 'origin/HEAD'
 
         println "[didChange-DEBUG] we have a previous commit: [${previous}]"
         println "[didChange-DEBUG] Files changed since the previous commit:"
@@ -46,12 +48,6 @@ def didChange(expression, previous='origin/master') {
           returnStdout: true,
           script: "git diff --name-only ${env.GIT_COMMIT} ${previous} | grep \"${expression}\" | wc -l"
         ).trim().toInteger()
-
-        // If the build is triggered manually
-        if (previous == env.GIT_COMMIT) {
-            println "[didChange-DEBUG] The build has been triggered manually. [${previous}] == [${env.GIT_COMMIT}]"
-            diffCount = 1
-        }
     }
 
     return diffCount > 0
