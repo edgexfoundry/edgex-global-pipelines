@@ -76,8 +76,9 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
             getPipelineMock('sh')([
                 returnStdout: true,
-                script: 'git diff --name-only 6c48b4195c2eda681d9817e490d6fbb8042956fc origin/master | grep \"test\" | wc -l']) >> {
-                    '0'
+                script: 'git diff --name-only 6c48b4195c2eda681d9817e490d6fbb8042956fc origin/HEAD | grep \"test\" | wc -l'
+            ]) >> {
+                '0'
             }
 
         expect:
@@ -86,34 +87,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
         where:
             expectedResult << [
                 false
-            ]
-    }
-
-    def "Test didChange [Should] return true [When] previous commit on master branch - the build is triggered manually" () {
-        setup:
-            def environmentVariables = [
-                GIT_BRANCH: 'master',
-                GIT_COMMIT: '7d3f2c0273125e8082e3acf436c918364558d8d0'
-            ]
-            edgeX.getBinding().setVariable('env', environmentVariables)
-
-            getPipelineMock('sh')([
-                returnStdout: true,
-                script: 'git show --pretty=%H 7d3f2c0273125e8082e3acf436c918364558d8d0^1 | xargs']) >> {
-                    '7d3f2c0273125e8082e3acf436c918364558d8d0'
-            }
-            getPipelineMock('sh')([
-                returnStdout: true,
-                script: 'git diff --name-only 7d3f2c0273125e8082e3acf436c918364558d8d0 7d3f2c0273125e8082e3acf436c918364558d8d0 | grep \"test\" | wc -l']) >> {
-                    '0'
-            }
-
-        expect:
-            edgeX.didChange('test') == expectedResult
-
-        where:
-            expectedResult << [
-                true
             ]
     }
 
