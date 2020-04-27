@@ -205,6 +205,7 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
 
     def "Test releaseGitTag [Should] catch and and raise error [When] exception occurs" () {
         setup:
+            explicitlyMockPipelineStep('withEnv')
             explicitlyMockPipelineStep('error')
             // TODO: figure out how to properly stub cloneRepo to set side-effect Exception
             // explicitlyMockPipelineVariable('cloneRepo')
@@ -221,8 +222,26 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('error').call('[edgeXReleaseGitTag]: ERROR occurred releasing git tag: java.lang.Exception: SSH Exception')
     }
 
+    def "Test releaseGitTag [Should] set SEMVER_BRANCH env var [When] called" () {
+        setup:
+        setup:
+            explicitlyMockPipelineStep('withEnv')
+            getPipelineMock('isDryRun')() >> false
+            explicitlyMockPipelineStep('sshagent')
+            explicitlyMockPipelineStep('edgeXSemver')
+            explicitlyMockPipelineStep('edgeXInfraLFToolsSign')
+            explicitlyMockPipelineStep('dir')
+        when:
+            edgeXReleaseGitTag.releaseGitTag(validReleaseInfo, 'MyCredentials')
+        then:
+            1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
+                    assert _arguments[0][0][0] == 'SEMVER_BRANCH=master'
+                }
+    }
+
     def "Test edgeXReleaseGitTag [Should] not throw error [When] called with valid release info and DRY_RUN is false" () {
         setup:
+            explicitlyMockPipelineStep('withEnv')
             getPipelineMock('isDryRun')() >> false
             explicitlyMockPipelineStep('sshagent')
             explicitlyMockPipelineStep('edgeXSemver')
@@ -236,6 +255,7 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
 
     def "Test edgeXReleaseGitTag [Should] call edgeXSemver bump with default [When] called" () {
         setup:
+            explicitlyMockPipelineStep('withEnv')
             getPipelineMock('isDryRun')() >> false
             explicitlyMockPipelineStep('sshagent')
             explicitlyMockPipelineStep('edgeXSemver')
@@ -249,6 +269,7 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
 
     def "Test edgeXReleaseGitTag [Should] call edgeXSemver bump [When] called with semverBumpLevel" () {
         setup:
+            explicitlyMockPipelineStep('withEnv')
             getPipelineMock('isDryRun')() >> false
             explicitlyMockPipelineStep('sshagent')
             explicitlyMockPipelineStep('edgeXSemver')
