@@ -16,7 +16,7 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
                 'WORKSPACE': 'MyWorkspace'
             ]
             edgeXSnyk.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.217.3') >> explicitlyMockPipelineVariable('DockerImageMock')
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.317.0') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXSnyk()
         then:
@@ -30,7 +30,7 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
                 'SNYK_ORG': 'MySnykOrg'
             ]
             edgeXSnyk.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.217.3') >> explicitlyMockPipelineVariable('DockerImageMock')
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.317.0') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXSnyk()
         then:
@@ -43,7 +43,7 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
                 'WORKSPACE': 'MyWorkspace'
             ]
             edgeXSnyk.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.217.3') >> explicitlyMockPipelineVariable('DockerImageMock')
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.317.0') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXSnyk('MyDockerImage', 'MyDockerFile')
         then:
@@ -56,7 +56,7 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
                 'WORKSPACE': 'MyWorkspace'
             ]
             edgeXSnyk.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.217.3') >> explicitlyMockPipelineVariable('DockerImageMock')
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.317.0') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXSnyk('MyDockerImage', 'MyDockerFile')
         then:
