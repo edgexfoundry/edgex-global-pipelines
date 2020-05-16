@@ -64,7 +64,8 @@ def build(dockerImageName, baseImage = null) {
     docker.build(finalImageName(dockerImageName), "-f ${DOCKER_FILE_PATH} ${buildArgString} ${labelString} ${DOCKER_BUILD_CONTEXT}")
 }
 
-def push(dockerImageName, latest = true, nexusRepo = 'staging') {
+// overload dockerImage to be a String or a Map
+def push(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {
     def taggedImages = []
 
     def nexusPortMapping = [
@@ -76,7 +77,50 @@ def push(dockerImageName, latest = true, nexusRepo = 'staging') {
 
     def nexusPort = nexusPortMapping[nexusRepo]
 
-    def allTags = ["${env.GIT_COMMIT}"]
+    if(tags == null) {
+        tags = getDockerTags(latest)
+    }
+
+    def finalImage = dockerImage
+
+    // I am not sure I like this :(
+    // use case whe dockerImage is a string like "docker-edgex-foo"
+    if(dockerImage.class.name =~ /String/) {
+        def defaultRegistry = env.DOCKER_REGISTRY ?: 'nexus3.edgexfoundry.org'
+        finalImage = parse(finalImageName(dockerImage), false)
+        finalImage.host = "${defaultRegistry}:${nexusPort}"
+    }
+
+    def image = docker.image(finalImage.image)
+
+    println """[edgeXDocker.push] Tagging docker image ${finalImage.image} with the following tags:
+${tags.join('\n')}
+====================================================="""
+
+    def registry = "https://${finalImage.host}"
+    if(finalImage.namespace) {
+        registry += "/${finalImage.namespace}"
+    }
+
+    docker.withRegistry(registry) {
+        tags.each {
+            image.push(it)
+            finalImage.tag = it
+            taggedImages << "${toImageStr(finalImage)}"
+        }
+    }
+    println "=====================================================" //debug
+    println "taggedImages:\n${taggedImages.collect {"  - ${it}"}.join('\n')}" //debug
+
+    taggedImages
+}
+
+def getDockerTags(latest = true, customTags = env.DOCKER_CUSTOM_TAGS) {
+    def allTags = []
+
+    if(env.GIT_COMMIT) {
+        allTags << "${env.GIT_COMMIT}"
+    }
 
     if(latest) {
         allTags << 'latest'
@@ -84,36 +128,207 @@ def push(dockerImageName, latest = true, nexusRepo = 'staging') {
 
     if(env.VERSION) {
         allTags << env.VERSION
-        allTags << "${GIT_COMMIT}-${VERSION}"
+        allTags << "${env.GIT_COMMIT}-${env.VERSION}"
     }
 
     if(env.SEMVER_BRANCH) {
         allTags << env.SEMVER_BRANCH
     }
 
-    def customTags = env.DOCKER_CUSTOM_TAGS
     if(customTags) {
         customTags.split(' ').each {
             allTags << it
         }
     }
 
-    def finalDockerImageName = finalImageName(dockerImageName)
+    allTags
+}
 
-    def image = docker.image(finalDockerImageName)
+/* Promote list of images
+    pseudo code
+    when repo = snapshot
+        tag with git sha
+        push to snapshots repo to promotion namespace (promotion namespace allows a common place for all images needing promotion to land)
+    when repo = staging
+        get previous commit sha
+        pull last image promoted to snapshots with previous commit sha
+        if a version is provided, relabel docker image with new version and new git commit sha
+        else only relabel with new git commit sha
+        push relabeled image to staging with default tags
 
-    println """[edgeXDocker.push] Tagging docker image ${finalDockerImageName} with the following tags:
-${allTags.join('\n')}
-====================================================="""
+    def images = [
+        'edgexfoundry/docker-core-metadata-go',
+        'edgexfoundry/docker-core-metadata-go-arm64'
+    ]
+    usage: promote(images, 'staging', env.GIT_COMMIT)
+*/
+def promote(dockerImages, nexusRepo, commit, version) {
+    def promotedImages = []
+    dockerImages.each { imageUrl ->
+        def parsedImage = parse(imageUrl)
+        def taggedImages
 
-    docker.withRegistry("https://${DOCKER_REGISTRY}:${nexusPort}") {
-        allTags.each {
-            image.push(it)
-            taggedImages << "${DOCKER_REGISTRY}:${nexusPort}/${finalDockerImageName}:${it}"
+        if(nexusRepo == 'staging') {
+            def promoteFrom = env.DOCKER_REGISTRY ? "${env.DOCKER_REGISTRY}:10004" : 'nexus3.edgexfoundry.org:10004'
+            def previousCommit = edgex.getPreviousCommit(commit)
+            def imageToPromote = "${promoteFrom}/${parsedImage.image}:${previousCommit}"
+            def stagingImage = "${parsedImage.image}:promoting"
+
+            sh "docker pull ${imageToPromote}"
+
+            // relabel and retag
+            def labels = ['git_sha': commit]
+            if(version) {
+                labels << ["version": version]
+                relabel(imageToPromote, stagingImage, labels, false)
+            } else {
+                relabel(imageToPromote, stagingImage, labels, false)
+            }
+
+            println "[edgexDocker] pushing ${stagingImage} to [${nexusRepo}]"
+
+            def tags = getDockerTags(true)
+
+            taggedImages = push(stagingImage, false, nexusRepo, tags)
+        } else if(nexusRepo == 'snapshot') {
+            // in this use case the image should already
+            // have been built on the host, so no need to pull
+            def promotionNamespace = env.DOCKER_PROMOTION_NAMESPACE ?: 'edgex-promotion'
+
+            // when deploying to sandbox only use the commit tag
+            def tags = [ commit ]
+
+            withEnv(["DOCKER_REGISTRY_NAMESPACE=${promotionNamespace}"]) {
+                taggedImages = push(parsedImage.image, false, nexusRepo, tags)
+            }
+        }
+
+        if(taggedImages) {
+            promotedImages.addAll(taggedImages)
         }
     }
 
-    taggedImages
+    promotedImages
+}
+
+/*
+    # https://github.com/moby/moby/issues/3465#issuecomment-383416201
+    pseudo code
+        pull image if needed
+        save docker image as tar
+        untar docker image layers
+        read manifest.json and extract docker image config json
+        read docker image config json
+        for each label to change
+            Update config JSON where labels are stored
+            - config.Labels
+            - container_config.Labels
+            - container_config.Cmd
+            - history
+        tar files again
+        docker load tar
+        retag docker image
+*/
+def relabel(dockerImage, newDockerImage, labels, pull = true) {
+    // if no new image is specified, retag same image
+    def relabeledJson
+
+    if(pull) {
+        sh "docker pull ${dockerImage}"
+    }
+
+    //Do this work in a tmp dir to avoid dirtying the workspace
+    def tmpDir = edgex.getTmpDir()
+    dir(tmpDir) {
+        sh "docker save -o ./image.tar ${dockerImage}"
+        sh 'tar -xvf image.tar && rm -rf image.tar'
+
+        def config = getDockerConfigJson('./manifest.json')
+
+        if(config.json) {
+            labels.each { key, value ->
+                //first place to check: config.Labels
+                def configLabel = config.json.config.Labels[key]
+
+                if (configLabel) {
+                    // println "Found the following for ${key} [${configLabel}]"
+                    // println "Writing new value: [${value}]"
+                    config.json.config.Labels[key] = value
+                    // println "New value [${config.json.config.Labels[key]}]"
+                }
+
+                //container_config.Labels
+                def containerConfigLabel = config.json.container_config.Labels[key]
+
+                if (containerConfigLabel) {
+                    // println "Found the following for ${key} [${containerConfigLabel}]"
+                    // println "Writing new value: [${value}]"
+                    config.json.container_config.Labels[key] = value
+                    // println "New value [${config.json.container_config.Labels[key]}]"
+                }
+
+                // rebuild container_config.Cmd
+                if (config.json.container_config.Cmd) {
+                    def newCmd = []
+                    config.json.container_config.Cmd.each { cmdSpec ->
+                        if (cmdSpec =~ /LABEL $key/) {
+                            def newLabelStr = replaceDockerLabel(cmdSpec, key, value)
+                            newCmd << newLabelStr
+                        } else {
+                            newCmd << cmdSpec
+                        }
+                    }
+                    config.json.container_config.Cmd = newCmd
+                }
+
+                // rebuild history
+                config.json.history.each { historySpec ->
+                    if (historySpec.created_by =~ /LABEL $key/) {
+                        def newLabelStr = replaceDockerLabel(historySpec.created_by, key, value)
+                        historySpec.created_by = newLabelStr
+                    }
+                }
+
+                // println config.json //debug
+            }
+
+            // new json should be good here. lets write it out
+            // this will replace existing file
+            writeJSON file: config.filename, json: config.json
+
+            relabeledJson = config.json // this was added to facilitate testing
+
+            sh 'tar -cvf image.tar *'
+            sh 'docker load -i image.tar'
+
+            if (newDockerImage) {
+                def tagCommand = [
+                        'docker',
+                        'tag',
+                        dockerImage.replaceAll('\n', ''),
+                        newDockerImage.replaceAll('\n', '')
+                ]
+                sh tagCommand.join(' ')
+            }
+        }
+    }
+
+    relabeledJson
+}
+
+def getDockerConfigJson(manifestFile) {
+    def manifest = readJSON file: manifestFile
+    def configJSON = readJSON file: "./${manifest.Config[0]}"
+
+    [ filename: manifest.Config[0], json: configJSON ]
+}
+
+def replaceDockerLabel(labelStr, key, value) {
+    // println "Old Label: ${labelStr}" // debug
+    def newLabelStr = labelStr.replaceAll(/LABEL $key=(.*)/, "LABEL ${key}=${value}")
+    // println "New Label: ${newLabelStr}" // debug
+
+    newLabelStr
 }
 
 def finalImageName(imageName) {

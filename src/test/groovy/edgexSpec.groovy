@@ -343,7 +343,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 '0',
                 'false',
                 'other'
-            ]           
+            ]
         expect:
             values.each { value ->
                 edgeX.getBinding().setVariable('env', ['DRY_RUN': value])
@@ -357,12 +357,113 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 null,
                 '1',
                 'true'
-            ]           
+            ]
         expect:
             values.each { value ->
                 edgeX.getBinding().setVariable('env', ['DRY_RUN': value])
                 edgeX.isDryRun() == true
             }
+    }
+
+    def "Test isMergeCommit [Should] return true [When] commit is a merge commit" () {
+        setup:
+            getPipelineMock('sh')([
+                returnStdout: true,
+                script: 'git rev-list -1 --merges MergeCommitSha~1..MergeCommitSha'
+            ]) >> {
+                'MergeCommitSha'
+            }
+
+        expect:
+            edgeX.isMergeCommit('MergeCommitSha') == expectedResult
+
+        where:
+            expectedResult << [
+                true
+            ]
+    }
+
+    def "Test isMergeCommit [Should] return false [When] commit is not a merge commit" () {
+        setup:
+            def environmentVariables = [
+                GIT_COMMIT: 'RegularCommitSha'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+            getPipelineMock('sh')([
+                    returnStdout: true,
+                    script: 'git rev-list -1 --merges RegularCommitSha~1..RegularCommitSha'
+            ]) >> {
+                'AnotherCommit'
+            }
+
+        expect:
+            edgeX.isMergeCommit('RegularCommitSha') == expectedResult
+
+        where:
+            expectedResult << [
+                false
+            ]
+    }
+
+    def "Test getPreviousCommit [Should] the previous commit [When] doing a merge commit" () {
+        setup:
+            explicitlyMockPipelineStep('isMergeCommit')
+
+            // mock isMergeCommit
+            getPipelineMock('sh')([
+                    returnStdout: true,
+                    script: 'git rev-list -1 --merges MergeCommitSha~1..MergeCommitSha'
+            ]) >> {
+                'MergeCommitSha'
+            }
+
+            getPipelineMock('sh')([
+                    returnStdout: true,
+                    script: "git rev-list --parents -n 1 MergeCommitSha | cut -d' ' -f3"
+            ]) >> {
+                'SomePreviousCommitSha'
+            }
+
+        expect:
+            edgeX.getPreviousCommit('MergeCommitSha') == expectedResult
+        where:
+            expectedResult = 'SomePreviousCommitSha'
+    }
+
+    def "Test getPreviousCommit [Should] the previous commit [When] doing a regular/squash commit" () {
+        setup:
+            explicitlyMockPipelineStep('isMergeCommit')
+
+            getPipelineMock('sh')([
+                    returnStdout: true,
+                    script: 'git show --pretty=%H HEAD~1 | xargs'
+            ]) >> {
+                'SomePreviousCommit'
+            }
+
+        expect:
+            edgeX.getPreviousCommit('RegularCommitSha') == expectedResult
+        where:
+            expectedResult = 'SomePreviousCommit'
+    }
+
+    def "Test getTmpDir [Should] return a directory name [When] called" () {
+        setup:
+        getPipelineMock('sh')([
+                returnStdout: true,
+                script: 'mktemp -d -t ci-XXXXX']) >>
+        {
+            '/tmp/ci-20jBb'
+        }
+
+        expect:
+            edgeX.getTmpDir() =~ expectedResult
+
+        where:
+            expectedResult << [
+                '/tmp/ci-'
+            ]
     }
 
 }
