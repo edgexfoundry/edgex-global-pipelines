@@ -150,3 +150,31 @@ def isDryRun() {
     // return True if DRY_RUN is set False otherwise
     [null, '1', 'true'].contains(env.DRY_RUN)
 }
+
+def isMergeCommit(commit) {
+    def s = "git rev-list -1 --merges ${commit}~1..${commit}"
+    def mergeCommitParent = sh(script: s, returnStdout: true)
+    println "-----------> ${s} ${mergeCommitParent} ${commit} [${mergeCommitParent == commit}]"
+    (mergeCommitParent == commit)
+}
+
+// This method handles the use case for
+// merge-commit vs squash-commit Github merge types
+def getPreviousCommit(commit) {
+    def previousCommit
+    def mergeCommit = isMergeCommit(commit)
+
+    if(mergeCommit) {
+        // the merge commit previous commit is pulled by
+        // looking the at commit parents
+        previousCommit = sh(script: "git rev-list --parents -n 1 ${commit} | cut -d' ' -f3", returnStdout: true)
+    } else {
+        // easier lookup HEAD~1
+        previousCommit = sh(script: 'git show --pretty=%H HEAD~1 | xargs', returnStdout: true)
+    }
+    previousCommit
+}
+
+def getTmpDir(pattern = 'ci-XXXXX') {
+    sh(script: "mktemp -d -t ${pattern}", returnStdout: true).trim()
+}
