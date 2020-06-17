@@ -14,8 +14,6 @@
 // limitations under the License.
 //
 
-loadGlobalLibrary()
-
 pipeline {
     agent {
         label 'centos7-docker-4c-2g'
@@ -34,6 +32,16 @@ pipeline {
             steps {
                 script {
                     //edgex.releaseInfo() this can be uncommented once this moves to stable
+                    def branch = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+                    def commit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+
+                    echo "================================"
+                    env.GIT_BRANCH = branch
+                    env.GIT_COMMIT = commit
+                    sh 'env | sort'
+                    echo "is release stream [${edgex.isReleaseStream()}]"
+                    echo "================================"
+
                     edgeXSetupEnvironment()
                     edgeXSemver 'init'
 
@@ -123,19 +131,4 @@ pipeline {
             edgeXInfraPublish()
         }
     }
-}
-
-def loadGlobalLibrary(branch = '*/master') {
-    library(identifier: 'edgex-global-pipelines@master', 
-        retriever: legacySCM([
-            $class: 'GitSCM',
-            userRemoteConfigs: [[url: 'https://github.com/edgexfoundry/edgex-global-pipelines.git']],
-            branches: [[name: branch]],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [[
-                $class: 'SubmoduleOption',
-                recursiveSubmodules: true,
-            ]]]
-        )
-    ) _
 }
