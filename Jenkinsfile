@@ -36,8 +36,8 @@ pipeline {
                     def commit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
                     echo "================================"
-                    env.GIT_BRANCH = branch
-                    env.GIT_COMMIT = commit
+                    env.setProperty('GIT_BRANCH', branch)
+                    env.setProperty('GIT_COMMIT', commit)
                     sh 'env | sort'
                     echo "is release stream [${edgex.isReleaseStream()}]"
                     echo "================================"
