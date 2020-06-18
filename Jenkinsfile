@@ -37,6 +37,8 @@ pipeline {
 
                     env.OG_VERSION = env.VERSION
                     sh "echo Archived original version: [$OG_VERSION]"
+
+                    sh 'env | sort'
                 }
             }
         }
@@ -48,7 +50,7 @@ pipeline {
         }
 
         stage('Test') {
-            when { not { expression { getGitBranchName() =~ /^master$/ } } }
+            when { not { expression { env.BRANCH_NAME =~ /^master$/ } } }
             agent {
                 docker {
                     image "${DOCKER_REGISTRY}:10003/edgex-devops/egp-unit-test:gradle"
@@ -84,7 +86,7 @@ pipeline {
         }
 
         stage('Semver Tag') {
-            when { expression { getGitBranchName() =~ /^master$/ } }
+            when { expression { env.BRANCH_NAME =~ /^master$/ } }
             steps {
                 sh 'echo v${VERSION}'
                 edgeXSemver('tag')
@@ -93,7 +95,7 @@ pipeline {
         }
 
         stage('Semver Bump Pre-Release Version') {
-            when { expression { getGitBranchName() =~ /^master$/ } }
+            when { expression { env.BRANCH_NAME =~ /^master$/ } }
             steps {
                 edgeXSemver('bump patch') //this changes the VERSION env var
                 edgeXSemver('push')
@@ -102,7 +104,7 @@ pipeline {
 
         // automatically bump experimental tag...more research needed
         stage('🧪 Bump Experimental Tag') {
-            when { expression { getGitBranchName() =~ /^master$/ } }
+            when { expression { env.BRANCH_NAME =~ /^master$/ } }
             steps {
                 sshagent (credentials: ['edgex-jenkins-ssh']) {
                     sh 'echo y | ./scripts/update-named-tag.sh "v${OG_VERSION}" "experimental"'
@@ -121,12 +123,4 @@ pipeline {
             edgeXInfraPublish()
         }
     }
-}
-
-def getGitBranchName() {
-    sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
-}
-
-def getGitCommit() {
-    sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 }
