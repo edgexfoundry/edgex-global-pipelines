@@ -27,12 +27,16 @@ pipeline {
         timeout(360)
     }
 
+    environment {
+        SEMVER_BRANCH = 'master'
+    }
+
     stages {
         stage('Prep') {
             steps {
                 script {
                     //edgex.releaseInfo() this can be uncommented once this moves to stable
-                    edgeXSetupEnvironment()
+                    //edgeXSetupEnvironment([GIT_BRANCH: env.BRANCH_NAME])
                     edgeXSemver 'init'
 
                     env.OG_VERSION = env.VERSION
