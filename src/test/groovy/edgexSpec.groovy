@@ -6,6 +6,12 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     def edgeX = null
     def environment = [:]
 
+    public static class TestException extends RuntimeException {
+        public TestException(String _message) { 
+            super( _message );
+        }
+    }
+
     def setup() {
         edgeX = loadPipelineScriptForTest('vars/edgex.groovy')
         edgeX.getBinding().setVariable('env', environment)
@@ -446,6 +452,148 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.getPreviousCommit('RegularCommitSha') == expectedResult
         where:
             expectedResult = 'SomePreviousCommit'
+    }
+
+    def "Test getBranchName [Should] return the current branch name" () {
+        setup:
+            explicitlyMockPipelineStep('getCommitMessage')
+
+            getPipelineMock('sh')([
+                    returnStdout: true,
+                    script: 'git rev-parse --abbrev-ref HEAD'
+            ]) >> {
+                'MyBranch'
+            }
+
+        expect:
+            edgeX.getBranchName() == expectedResult
+        where:
+            expectedResult = 'MyBranch'
+    }
+
+    def "Test getCommitMessage [Should] return the commit message [When] the commit sha is passed in" () {
+        setup:
+            explicitlyMockPipelineStep('getCommitMessage')
+
+            getPipelineMock('sh')([
+                    returnStdout: true,
+                    script: 'git log --format=format:%s -1 MyCommitSha'
+            ]) >> {
+                'MyCommitMessage'
+            }
+
+        expect:
+            edgeX.getCommitMessage('MyCommitSha') == expectedResult
+        where:
+            expectedResult = 'MyCommitMessage'
+    }
+
+    // isBuildCommit should return true for strings that match the "build(...): ..." pattern only
+    def "Test isBuildCommit [Should] return expected [When] called" () {
+        setup:
+            explicitlyMockPipelineStep('error')
+        expect:
+            edgeX.isBuildCommit(value) == expectedResult
+        where:
+            value << [
+                'release(geneva): Release Device Grove C service (1.2.0) and Testing frameworks (1.2.1)',
+                'Merge pull request #46 from lranjbar/geneva-release',
+                'release(geneva dot): Release App Service Configurable to latest track',
+                'build(geneva): [1.0.0,stable] Stage Artifacts for App Service Configurable',
+                'build(hanoi): [1.2.0,dev] Stage Artifacts for edgex-go',
+                'Merge pull request #46 from lranjbar/build(hanoi): release'
+            ]
+            expectedResult << [
+                false,
+                false,
+                false,
+                true,
+                true,
+                false
+            ]
+    }
+
+    def "Test parseBuildCommit [Should] return expected [When] called" () {
+        setup:
+            explicitlyMockPipelineStep('error')
+        expect:
+                edgeX.parseBuildCommit(value) == expectedResult
+        where:
+            value << [
+                'build(geneva): [1.0.0,stable] Stage Artifacts for App Service Configurable',
+                'build(hanoi): [1.2.0,rc] Stage Artifacts for edgex-go',
+                'build(hanoi): [1.2.0-dev.1,dev] Stage Artifacts for edgex-go'
+            ]
+            expectedResult << [
+                [version:'1.0.0', namedTag:'stable'],
+                [version:'1.2.0', namedTag:'rc'],
+                [version:'1.2.0-dev.1', namedTag:'dev']
+            ]
+    }
+
+    def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
+        setup:
+            explicitlyMockPipelineStep('error')
+        when:
+            try {
+                edgeX.parseBuildCommit('release(geneva): Release Device Grove C service (1.2.0) and Testing frameworks (1.2.1)')
+            }
+            catch(TestException exception) {
+            }
+        then:
+            1 * getPipelineMock('error').call('[edgex.parseBuildCommit]: No matches found.')
+    }
+
+    def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
+        setup:
+            explicitlyMockPipelineStep('error')
+        when:
+            try {
+                edgeX.parseBuildCommit('Merge pull request #46 from lranjbar/geneva-release')
+            }
+            catch(TestException exception) {
+            }
+        then:
+            1 * getPipelineMock('error').call('[edgex.parseBuildCommit]: No matches found.')
+    }
+
+    def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
+        setup:
+            explicitlyMockPipelineStep('error')
+        when:
+            try {
+                edgeX.parseBuildCommit('release(geneva dot): Release App Service Configurable to latest track')
+            }
+            catch(TestException exception) {
+            }
+        then:
+            1 * getPipelineMock('error').call('[edgex.parseBuildCommit]: No matches found.')
+    }
+
+    def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
+        setup:
+            explicitlyMockPipelineStep('error')
+        when:
+            try {
+                edgeX.parseBuildCommit('Merge pull request #46 from lranjbar/build(hanoi): release')
+            }
+            catch(TestException exception) {
+            }
+        then:
+            1 * getPipelineMock('error').call('[edgex.parseBuildCommit]: No matches found.')
+    }
+
+    def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
+        setup:
+            explicitlyMockPipelineStep('error')
+        when:
+            try {
+                edgeX.parseBuildCommit('build(hanoi): [1.2.0-dev.1,1.0.0] Stage Artifacts for edgex-go')
+            }
+            catch(TestException exception) {
+            }
+        then:
+            1 * getPipelineMock('error').call('[edgex.parseBuildCommit]: No matches found.')
     }
 
     def "Test getTmpDir [Should] return a directory name [When] called" () {

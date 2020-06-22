@@ -14,6 +14,9 @@
 // limitations under the License.
 //
 
+// remove once stable tag is moved to include the edgeXUpdateNamedTag changes
+@Library("edgex-global-pipelines@experimental") _
+
 pipeline {
     agent {
         label 'centos7-docker-4c-2g'
@@ -110,8 +113,8 @@ pipeline {
         stage('🧪 Bump Experimental Tag') {
             when { expression { env.BRANCH_NAME =~ /^master$/ } }
             steps {
-                sshagent (credentials: ['edgex-jenkins-ssh']) {
-                    sh 'echo y | ./scripts/update-named-tag.sh "v${OG_VERSION}" "experimental"'
+                script {
+                    edgeXUpdateNamedTag(env.OG_VERSION, 'experimental')
                 }
             }
         }

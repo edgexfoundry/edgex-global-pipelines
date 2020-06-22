@@ -259,7 +259,9 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
                 'GIT_COMMIT': 'MyGitCommit',
                 'VERSION': 'MyVersion',
                 'SEMVER_BRANCH': 'MySemverBranch',
-                'DOCKER_CUSTOM_TAGS': 'MyDockerCustomTags MyOtherDockerCustomTag'
+                'DOCKER_CUSTOM_TAGS': 'MyDockerCustomTags MyOtherDockerCustomTag',
+                'BUILD_EXPERIMENTAL_DOCKER_IMAGE': 'true',
+                'BUILD_STABLE_DOCKER_IMAGE': 'true'
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
         expect:
@@ -271,11 +273,13 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             'MyVersion',
             'MyGitCommit-MyVersion',
             'MySemverBranch',
+            'experimental',
+            'stable',
             'MyDockerCustomTags',
             'MyOtherDockerCustomTag'
         ]
     }
-
+    
     def "Test replaceDockerLabel [Should] return expected [When] called" () {
         setup:
         expect:

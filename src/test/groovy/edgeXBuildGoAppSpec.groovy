@@ -26,13 +26,11 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'ARCH': 'MyArch',
                 'DOCKER_REGISTRY': 'MyDockerRegistry',
                 'http_proxy': 'MyHttpProxy',
-                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage'
+                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage',
+                'DOCKER_BUILD_FILE_PATH': 'MyDockerBuildFilePath',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
-            edgeXBuildGoApp.getBinding().setVariable('ARCH', 'MyArch')
-            edgeXBuildGoApp.getBinding().setVariable('DOCKER_BASE_IMAGE', 'MyDockerBaseImage')
-            edgeXBuildGoApp.getBinding().setVariable('DOCKER_BUILD_FILE_PATH', 'MyDockerBuildFilePath')
-            edgeXBuildGoApp.getBinding().setVariable('DOCKER_BUILD_CONTEXT', 'MyDockerBuildContext')
         when:
             edgeXBuildGoApp.prepBaseBuildImage()
         then:
@@ -47,13 +45,11 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'ARCH': 'arm64',
                 'DOCKER_REGISTRY': 'nexus3.edgexfoundry.org',
                 'http_proxy': 'MyHttpProxy',
-                'DOCKER_BASE_IMAGE': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine'
+                'DOCKER_BASE_IMAGE': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
+                'DOCKER_BUILD_FILE_PATH': 'MyDockerBuildFilePath',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
-            edgeXBuildGoApp.getBinding().setVariable('ARCH', 'arm64')
-            edgeXBuildGoApp.getBinding().setVariable('DOCKER_BASE_IMAGE', 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine')
-            edgeXBuildGoApp.getBinding().setVariable('DOCKER_BUILD_FILE_PATH', 'MyDockerBuildFilePath')
-            edgeXBuildGoApp.getBinding().setVariable('DOCKER_BUILD_CONTEXT', 'MyDockerBuildContext')
         when:
             edgeXBuildGoApp.prepBaseBuildImage()
         then:
@@ -148,6 +144,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_NEXUS_REPO: 'staging',
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
+                    BUILD_EXPERIMENTAL_DOCKER_IMAGE: false, 
+                    BUILD_STABLE_DOCKER_IMAGE: false,
                     SEMVER_BUMP_LEVEL: 'pre',
                     GOPROXY: 'https://nexus3.edgexfoundry.org/repository/go-proxy/',
                     SNAP_CHANNEL: 'latest/edge',
@@ -173,6 +171,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     dockerNamespace: 'MyDockerNameSpace',
                     dockerImageName: 'MyDockerImageName',
                     dockerNexusRepo: 'MyNexusRepo',
+                    buildExperimentalDockerImage: true,
                     semverBump: 'patch',
                     goProxy: 'https://www.example.com/repository/go-proxy/',
                     useAlpineBase: true,
@@ -196,6 +195,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_NEXUS_REPO: 'MyNexusRepo',
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
+                    BUILD_EXPERIMENTAL_DOCKER_IMAGE: true, 
+                    BUILD_STABLE_DOCKER_IMAGE: false,
                     SEMVER_BUMP_LEVEL: 'patch',
                     GOPROXY: 'https://www.example.com/repository/go-proxy/',
                     SNAP_CHANNEL: 'edge',
