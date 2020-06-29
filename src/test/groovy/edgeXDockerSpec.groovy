@@ -342,10 +342,10 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             getPipelineMock('readJSON').call(file: './87883221c4438cff2ac9a3eb4ee8867ae92ae00401fa33dcda33bef47ddc50ec.json') >> layerManifestJsonBefore
         when:
             finalJson = edgeXDocker.relabel(
-                    'nexus3.edgexfoundry.org:10004/docker-device-mqtt-go:4f542d150f63fd84c4c4e03c791e07fdb7c9aef4',
-                    'docker-device-mqtt-go:promoting',
-                    [version: '1.2.1'],
-                    false
+                'nexus3.edgexfoundry.org:10004/docker-device-mqtt-go:4f542d150f63fd84c4c4e03c791e07fdb7c9aef4',
+                'docker-device-mqtt-go:promoting',
+                [version: '1.2.1'],
+                false
             )
         then:
             0 * getPipelineMock('sh').call('docker pull nexus3.edgexfoundry.org:10004/docker-device-mqtt-go:4f542d150f63fd84c4c4e03c791e07fdb7c9aef4')
@@ -436,5 +436,252 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('docker-device-mqtt-go-arm64.push').call('1.33.3')
             1 * getPipelineMock('docker-device-mqtt-go-arm64.push').call('4f542d150f63fd84c4c4e03c791e07fdb7c9aef4-1.33.3')
             1 * getPipelineMock('docker-device-mqtt-go-arm64.push').call('master')
+    }
+
+    def "Test generateDockerComposeForBuild [Should] return expected [When] called with labels" () {
+        setup:
+
+        expect:
+            def dockers = [
+                [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
+                [image: 'image-2-go', dockerfile: 'cmd/image-2/Dockerfile']
+            ]
+
+            def labels = [
+                'git_sha': '4f542d150f63fd84c4c4e03c791e07fdb7c9aef4',
+                'version': '1.21.0'
+            ]
+
+            edgeXDocker.generateDockerComposeForBuild(dockers, labels) == expectedResult
+        where:
+            expectedResult = '''
+version: '3.7'
+services:
+
+  image-1-go:
+    build:
+      context: .
+      dockerfile: cmd/image-1/Dockerfile
+      labels:
+        - git_sha=4f542d150f63fd84c4c4e03c791e07fdb7c9aef4
+        - version=1.21.0
+      args:
+        - BUILDER_BASE
+    image: docker-image-1-go
+
+  image-2-go:
+    build:
+      context: .
+      dockerfile: cmd/image-2/Dockerfile
+      labels:
+        - git_sha=4f542d150f63fd84c4c4e03c791e07fdb7c9aef4
+        - version=1.21.0
+      args:
+        - BUILDER_BASE
+    image: docker-image-2-go
+'''
+    }
+
+    def "Test generateDockerComposeForBuild [Should] return expected [When] called without labels" () {
+        setup:
+
+        expect:
+            def dockers = [
+                [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
+                [image: 'image-2-go', dockerfile: 'cmd/image-2/Dockerfile']
+            ]
+
+            edgeXDocker.generateDockerComposeForBuild(dockers, null) == expectedResult
+        where:
+            expectedResult = '''
+version: '3.7'
+services:
+
+  image-1-go:
+    build:
+      context: .
+      dockerfile: cmd/image-1/Dockerfile
+      
+      args:
+        - BUILDER_BASE
+    image: docker-image-1-go
+
+  image-2-go:
+    build:
+      context: .
+      dockerfile: cmd/image-2/Dockerfile
+      
+      args:
+        - BUILDER_BASE
+    image: docker-image-2-go
+'''
+    }
+
+    def "Test generateServiceYaml [Should] return expected [When] called with labels" () {
+        setup:
+
+        expect:
+            def labels = [
+                'label_1': 'First-Label',
+                'label_2': 'Second-Label'
+            ]
+            edgeXDocker.generateServiceYaml('image-1-go', 'prefix-', 'cmd/image-1/Dockerfile', labels) == expectedResult
+        where:
+            expectedResult = '''
+  image-1-go:
+    build:
+      context: .
+      dockerfile: cmd/image-1/Dockerfile
+      labels:
+        - label_1=First-Label
+        - label_2=Second-Label
+      args:
+        - BUILDER_BASE
+    image: prefix-image-1-go'''
+    }
+
+    def "Test buildInParallel [Should] build expected docker images [When] called for amd64" () {
+        setup:
+            explicitlyMockPipelineStep('withEnv')
+            explicitlyMockPipelineStep('writeFile')
+
+            def environmentVariables = [
+                'GIT_COMMIT': '4f542d150f63fd84c4c4e03c791e07fdb7c9aef4',
+                'VERSION': '1.33.3',
+                'ARCH': 'x86_64'
+            ]
+            edgeXDocker.getBinding().setVariable('env', environmentVariables)
+
+            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest')
+
+            getPipelineMock('sh')([
+                returnStatus: true,
+                script: 'docker-compose build --help | grep parallel'
+            ]) >> {
+                0
+            }
+        when:
+            edgeXDocker.buildInParallel([
+                [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
+                [image: 'image-2-go', dockerfile: 'cmd/image-2/Dockerfile']
+            ], 'ci-base-image')
+        then:
+            1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
+                _arguments[0][0] == 'BUILDER_BASE=ci-base-image'
+            }
+
+            1 * getPipelineMock("sh").call('docker-compose -f ./docker-compose-build.yml build --parallel')
+
+            1 * getPipelineMock("writeFile").call(['file': './docker-compose-build.yml', 'text': '''
+version: '3.7'
+services:
+
+  image-1-go:
+    build:
+      context: .
+      dockerfile: cmd/image-1/Dockerfile
+      labels:
+        - git_sha=4f542d150f63fd84c4c4e03c791e07fdb7c9aef4
+        - arch=x86_64
+        - version=1.33.3
+      args:
+        - BUILDER_BASE
+    image: docker-image-1-go
+
+  image-2-go:
+    build:
+      context: .
+      dockerfile: cmd/image-2/Dockerfile
+      labels:
+        - git_sha=4f542d150f63fd84c4c4e03c791e07fdb7c9aef4
+        - arch=x86_64
+        - version=1.33.3
+      args:
+        - BUILDER_BASE
+    image: docker-image-2-go
+'''])
+    }
+
+    def "Test buildInParallel [Should] build expected docker images [When] called for arm64" () {
+        setup:
+            explicitlyMockPipelineStep('withEnv')
+            explicitlyMockPipelineStep('writeFile')
+
+            def environmentVariables = [
+                'GIT_COMMIT': '4f542d150f63fd84c4c4e03c791e07fdb7c9aef4',
+                'VERSION': '1.33.3',
+                'ARCH': 'arm64'
+            ]
+            edgeXDocker.getBinding().setVariable('env', environmentVariables)
+
+            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:latest") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:latest')
+
+            getPipelineMock('sh')([
+                returnStatus: true,
+                script: 'docker-compose build --help | grep parallel'
+            ]) >> {
+                0
+            }
+        when:
+            edgeXDocker.buildInParallel([
+                [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
+                [image: 'image-2-go', dockerfile: 'cmd/image-2/Dockerfile']
+            ], 'ci-base-image-arm64')
+        then:
+            1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
+                _arguments[0][0] == 'BUILDER_BASE=ci-base-image-arm64'
+            }
+
+            1 * getPipelineMock("sh").call('docker-compose -f ./docker-compose-build.yml build --parallel')
+
+            1 * getPipelineMock("writeFile").call(['file': './docker-compose-build.yml', 'text': '''
+version: '3.7'
+services:
+
+  image-1-go:
+    build:
+      context: .
+      dockerfile: cmd/image-1/Dockerfile
+      labels:
+        - git_sha=4f542d150f63fd84c4c4e03c791e07fdb7c9aef4
+        - arch=arm64
+        - version=1.33.3
+      args:
+        - BUILDER_BASE
+    image: docker-image-1-go-arm64
+
+  image-2-go:
+    build:
+      context: .
+      dockerfile: cmd/image-2/Dockerfile
+      labels:
+        - git_sha=4f542d150f63fd84c4c4e03c791e07fdb7c9aef4
+        - arch=arm64
+        - version=1.33.3
+      args:
+        - BUILDER_BASE
+    image: docker-image-2-go-arm64
+'''])
+    }
+
+    def "Test buildInParallel [Should] throw error [When] docker-compose does not support parallel" () {
+        setup:
+            explicitlyMockPipelineStep('error')
+
+            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest')
+
+            getPipelineMock('sh')([
+                returnStatus: true,
+                script: 'docker-compose build --help | grep parallel'
+            ]) >> {
+                1
+            }
+        when:
+            edgeXDocker.buildInParallel([
+                [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
+                [image: 'image-2-go', dockerfile: 'cmd/image-2/Dockerfile']
+            ], 'ci-base-image')
+        then:
+            1 * getPipelineMock('error').call('[edgeXDocker] --parallel build is not supported in this version of docker-compose')
     }
 }

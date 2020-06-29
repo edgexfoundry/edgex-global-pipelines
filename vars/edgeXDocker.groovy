@@ -64,6 +64,72 @@ def build(dockerImageName, baseImage = null) {
     docker.build(finalImageName(dockerImageName), "-f ${DOCKER_FILE_PATH} ${buildArgString} ${labelString} ${DOCKER_BUILD_CONTEXT}")
 }
 
+def buildInParallel(dockerImages, baseImage = null) {
+    //check if docker-compose --parallel is available
+    def composeImage = env.ARCH == 'arm64'
+        ? 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:latest'
+        : 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest'
+
+    def parallelSupported = -1
+
+    docker.image(composeImage).inside {
+        parallelSupported = sh(script: 'docker-compose build --help | grep parallel', returnStatus: true)
+    }
+
+    if(parallelSupported == 0) {
+        def labels = [
+            git_sha: env.GIT_COMMIT,
+            arch: env.ARCH
+        ]
+
+        if(env.VERSION) {
+            labels << [version: env.VERSION]
+        }
+
+        // generate ephemeral docker-compose based on docker image name and dockerfile
+        def dockerCompose = generateDockerComposeForBuild(dockerImages, labels, env.ARCH)
+
+        // write ephemeral docker-compose file
+        writeFile(file: './docker-compose-build.yml', text: dockerCompose)
+
+        // always set builder base in case it is not setup in the user's Jenkinsfile
+        def envVars = baseImage ? ["BUILDER_BASE=${baseImage}"] : []
+
+        withEnv(envVars) {
+            docker.image(composeImage).inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged') {
+                sh 'docker-compose -f ./docker-compose-build.yml build --parallel'
+            }
+
+            sh 'docker images | grep docker' //debug
+        }
+    } else {
+        error '[edgeXDocker] --parallel build is not supported in this version of docker-compose'
+    }
+}
+
+def generateDockerComposeForBuild(services, labels, arch = null) {
+"""
+version: '3.7'
+services:
+${services.collect { generateServiceYaml(it.image, 'docker-', it.dockerfile, labels, arch) }.join('\n') }
+"""
+}
+
+def generateServiceYaml(serviceName, imageNamePrefix, dockerFile, labels, arch = null) {
+    def labelStr = labels ? 'labels:\n' + labels.collect { k,v -> "        - ${k}=${v}"}.join('\n') : ''
+    def imageNameSuffix = arch && arch == 'arm64' ? "-${arch}" : ''
+"""
+  ${serviceName}:
+    build:
+      context: .
+      dockerfile: ${dockerFile}
+      ${labelStr}
+      args:
+        - BUILDER_BASE
+    image: ${imageNamePrefix}${serviceName}${imageNameSuffix}"""
+}
+
+
 // overload dockerImage to be a String or a Map
 def push(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {
     def taggedImages = []
