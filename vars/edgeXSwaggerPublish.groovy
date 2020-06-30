@@ -15,32 +15,37 @@
 //
 
 /*
-
-edgeXSwaggerPublish(releaseYaml)
+NOTE: APIKEY needs to be a pointer to a file with the key. This will need to be set locally from your environment or from Jenkins
+edgeXSwaggerPublish(optional owner, apiFolder)
 /*
-   Usage: edgeXSwaggerPublish() # defaults to EdgeXFoundry1
-   Usage: edgeXSwaggerPublish('custom-owner')
+   Usage: edgeXSwaggerPublish(apiFolders: 'api/openapi/v1 api/openapi/v2') Defaults to owner:EdgeXFoundry1
+   Usage: edgeXSwaggerPublish(apiFolders: 'api/openapi/v1') Defaults to owner:EdgeXFoundry1
+   Usage: edgeXSwaggerPublish(owner: 'customOwner', apiFolders:'api/openapi/v1')
+   Usage: edgeXSwaggerPublish(owner: 'customOwner', apiFolders:'api/openapi/v1 api/openapi/v2')
 */
 
-def call(owner = 'EdgeXFoundry1') {
+def call(Map config = [:]) {
+    def owner               = config.owner ?: 'EdgeXFoundry1'
+    def apiFolders          = config.apiFolders ?: null
+    def swaggerCredentialId = config.swaggerCredentialId ?: 'swaggerhub-api-key'
+    def dryRun              = edgex.isDryRun()
+
+    if (apiFolders == null){
+        error("[edgeXSwaggerPublish]: No list of API Folders given")
+    }
+    
     try{
-        println("[edgeXSwaggerPublish]: Retrieving edgex-global-pipeline resource shell scripts. - DRY_RUN: ${env.DRY_RUN}")
-        retreieveResourceScripts(["toSwaggerHub.sh", "edgex-publish-swagger.sh"])
-        def dryRun = edgex.isDryRun()
-        withEnv(["SWAGGER_DRY_RUN=${dryRun}"]) {
-            sh "./edgex-publish-swagger.sh ${owner}"
+        println("[edgeXSwaggerPublish]: Setting up Environment and Executing Publish. - DRY_RUN: ${dryRun}")
+        withEnv(["SWAGGER_DRY_RUN=${dryRun}",
+                "OWNER=${owner}",
+                "API_FOLDERS=${apiFolders}"
+        ]) {
+            configFileProvider([configFile(fileId: swaggerCredentialId, variable: 'APIKEY')]) {
+                sh(script: libraryResource('edgex-publish-swagger.sh'))
+            }
         }
     }
     catch(Exception ex) {
         error("[edgeXSwaggerPublish]: ERROR occurred publishing to SwaggerHub: ${ex}")
-    }
-}
-
-def retreieveResourceScripts(files){ 
-    files.each{ file ->
-        print("[edgeXSwaggerPublish] Retrieving: ${file}")
-        def textDestination = libraryResource(file)
-        writeFile(file: "./${file}", text: textDestination)
-        sh "chmod +x ./${file}"
     }
 }

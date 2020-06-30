@@ -15,28 +15,43 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
         explicitlyMockPipelineStep('withEnv')
     }
 
-    def "Test edgeXSwaggerPublish [Should] call shell script with expected arguments [When] no owner is provided" () {
+    def "Test edgeXSwaggerPublish [Should] should fail [When] no API Folder paths are provided" () {
         when:
             edgeXSwaggerPublish()
         then:
-            1 * getPipelineMock('sh').call('./edgex-publish-swagger.sh EdgeXFoundry1')
+            1 * getPipelineMock("error.call").call('[edgeXSwaggerPublish]: No list of API Folders given')
+    }
+
+    def "Test edgeXSwaggerPublish [Should] call shell script with expected arguments [When] no owner is provided" () {
+        when:
+            getPipelineMock('isDryRun')() >> true
+            edgeXSwaggerPublish(apiFolders:'api/v1')
+        then:
+            1 * getPipelineMock("libraryResource").call('edgex-publish-swagger.sh')
+            1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
+                def envArgs = [
+                    'SWAGGER_DRY_RUN=true',
+                    'OWNER=EdgeXFoundry1',
+                    'API_FOLDERS=api/v1'
+                ]
+                assert envArgs == _arguments[0][0]
+            }
     }
 
     def "Test edgeXSwaggerPublish [Should] call shell script with expected arguments [When] owner is provided" () {
         when:
-            edgeXSwaggerPublish('Moby')
+            getPipelineMock('isDryRun')() >> false
+            edgeXSwaggerPublish(owner: 'Moby', apiFolders:'api/openapi/v1 api/openapi/v2')
         then:
-            1 * getPipelineMock('sh').call('./edgex-publish-swagger.sh Moby')
-    }
-    
-    def "Test retreieveResourceScripts [Should] retrieve files from global pipeline library [When] files are provided" () {
-        when:
-            edgeXSwaggerPublish.retreieveResourceScripts(["toSwaggerHub.sh", "edgex-publish-swagger.sh"])
-        then:
-            1 * getPipelineMock('libraryResource').call('toSwaggerHub.sh')
-            1 * getPipelineMock('libraryResource').call('edgex-publish-swagger.sh')
-            1 * getPipelineMock('writeFile.call').call(['file':'./toSwaggerHub.sh', 'text':null])
-            1 * getPipelineMock('writeFile.call').call(['file':'./edgex-publish-swagger.sh', 'text':null])
+            1 * getPipelineMock("libraryResource").call('edgex-publish-swagger.sh')
+            1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
+                def envArgs = [
+                    'SWAGGER_DRY_RUN=false',
+                    'OWNER=Moby',
+                    'API_FOLDERS=api/openapi/v1 api/openapi/v2'
+                ]
+                assert envArgs == _arguments[0][0]
+            }
     }
 
     def "Test edgeXSwaggerPublish [Should] should execute shell script correctly [When] DRY_RUN is true" () {
@@ -46,11 +61,13 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
             def environmentVariables = ['DRY_RUN': 'true']
             edgeXSwaggerPublish.getBinding().setVariable('env', environmentVariables)
         when:
-            edgeXSwaggerPublish()
+            edgeXSwaggerPublish(apiFolders: 'api/openapi/v1 api/openapi/v2 custom_api')
         then:
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
                 def envArgs = [
-                    'SWAGGER_DRY_RUN=true'
+                    'SWAGGER_DRY_RUN=true',
+                    'OWNER=EdgeXFoundry1',
+                    'API_FOLDERS=api/openapi/v1 api/openapi/v2 custom_api'
                 ]
                 assert envArgs == _arguments[0][0]
             }
