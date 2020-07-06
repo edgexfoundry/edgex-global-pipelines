@@ -64,7 +64,7 @@ def build(dockerImageName, baseImage = null) {
     docker.build(finalImageName(dockerImageName), "-f ${DOCKER_FILE_PATH} ${buildArgString} ${labelString} ${DOCKER_BUILD_CONTEXT}")
 }
 
-def buildInParallel(dockerImages, baseImage = null) {
+def buildInParallel(dockerImages, imageNamePrefix, baseImage = null) {
     //check if docker-compose --parallel is available
     def composeImage = env.ARCH == 'arm64'
         ? 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:latest'
@@ -72,7 +72,7 @@ def buildInParallel(dockerImages, baseImage = null) {
 
     def parallelSupported = -1
 
-    docker.image(composeImage).inside {
+    docker.image(composeImage).inside('--entrypoint=') {
         parallelSupported = sh(script: 'docker-compose build --help | grep parallel', returnStatus: true)
     }
 
@@ -87,7 +87,7 @@ def buildInParallel(dockerImages, baseImage = null) {
         }
 
         // generate ephemeral docker-compose based on docker image name and dockerfile
-        def dockerCompose = generateDockerComposeForBuild(dockerImages, labels, env.ARCH)
+        def dockerCompose = generateDockerComposeForBuild(dockerImages, labels, imageNamePrefix, env.ARCH)
 
         // write ephemeral docker-compose file
         writeFile(file: './docker-compose-build.yml', text: dockerCompose)
@@ -96,7 +96,7 @@ def buildInParallel(dockerImages, baseImage = null) {
         def envVars = baseImage ? ["BUILDER_BASE=${baseImage}"] : []
 
         withEnv(envVars) {
-            docker.image(composeImage).inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged') {
+            docker.image(composeImage).inside('-u 0:0 --entrypoint= -v /var/run/docker.sock:/var/run/docker.sock --privileged') {
                 sh 'docker-compose -f ./docker-compose-build.yml build --parallel'
             }
 
@@ -107,15 +107,19 @@ def buildInParallel(dockerImages, baseImage = null) {
     }
 }
 
-def generateDockerComposeForBuild(services, labels, arch = null) {
+def generateDockerComposeForBuild(services, labels, imageNamePrefix = '', arch = null) {
 """
 version: '3.7'
 services:
-${services.collect { generateServiceYaml(it.image, 'docker-', it.dockerfile, labels, arch) }.join('\n') }
+${services.collect { generateServiceYaml(it.image, imageNamePrefix, it.dockerfile, labels, arch) }.join('\n') }
 """
 }
 
 def generateServiceYaml(serviceName, imageNamePrefix, dockerFile, labels, arch = null) {
+    if(imageNamePrefix == null) {
+        imageNamePrefix = ''
+    }
+
     def labelStr = labels ? 'labels:\n' + labels.collect { k,v -> "        - ${k}=${v}"}.join('\n') : ''
     def imageNameSuffix = arch && arch == 'arm64' ? "-${arch}" : ''
 """
@@ -179,6 +183,28 @@ ${tags.join('\n')}
     println "taggedImages:\n${taggedImages.collect {"  - ${it}"}.join('\n')}" //debug
 
     taggedImages
+}
+
+/*
+   dockerImages = [
+       [image: 'docker-example', dockerfile: '/path/to/dockerfile'],
+       ...
+   ]
+*/
+def pushAll(dockerImages, latest = true, nexusRepo = 'staging') {
+    def pushedImages = []
+
+    for(int i = 0; i < dockerImages.size(); i++) {
+        def imgDetails = dockerImages[i]
+        def taggedImages = push(imgDetails.image, latest, nexusRepo)
+
+        // grab the first tag for Clair scan later
+        if(taggedImages) {
+            pushedImages << taggedImages.first()
+        }
+    }
+
+    pushedImages
 }
 
 def getDockerTags(latest = true, customTags = env.DOCKER_CUSTOM_TAGS) {

@@ -6,7 +6,6 @@ public class EdgeXClairSpec extends JenkinsPipelineSpecification {
     def edgeXClair = null
 
     def setup() {
-
         edgeXClair = loadPipelineScriptForTest('vars/edgeXClair.groovy')
         explicitlyMockPipelineVariable('out')
     }
@@ -90,6 +89,33 @@ KlarOutput
             }
             1 * getPipelineMock('sh').call([script:'/klar MyImage | tee', returnStdout:true]) >> 'KlarOutput\n'
             1 * getPipelineMock('readJSON').call([text:'KlarOutput'])
+    }
+
+    def "Test scan [Should] echo expected commands with expected arguments [When] called when DRY_RUN is true" () {
+        setup:
+            explicitlyMockPipelineStep('withEnv')
+            explicitlyMockPipelineStep('readJSON')
+            getPipelineMock('docker.image')('MyKlarImage') >> explicitlyMockPipelineVariable('DockerImageMock')
+
+            def environmentVariables = [
+                'DRY_RUN': 'true'
+            ]
+            edgeXClair.getBinding().setVariable('env', environmentVariables)
+        when:
+            edgeXClair.scan('MyImage', 'MyServer', 'MyKlarImage', 'json')
+        then:
+            1 * getPipelineMock('DockerImageMock.inside').call(_) >> { _arguments ->
+                def dockerArgs = '--entrypoint='
+                assert dockerArgs == _arguments[0][0]
+            }
+            1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
+                def envArgs = [
+                    'CLAIR_ADDR=MyServer',
+                    'FORMAT_OUTPUT=json'
+                ]
+                assert envArgs == _arguments[0][0]
+            }
+            1 * getPipelineMock("sh").call('echo /klar MyImage')
     }
 
     def "Test scan [Should] return expected result [When] called with json outputFormat and readJSON throws an exception" () {

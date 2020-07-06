@@ -203,3 +203,25 @@ def parseBuildCommit(commit) {
 def getTmpDir(pattern = 'ci-XXXXX') {
     sh(script: "mktemp -d -t ${pattern}", returnStdout: true).trim()
 }
+
+def getGoLangBaseImage(version, alpineBased) {
+    def baseImage
+
+    if(alpineBased) {
+        def goBaseImages = [
+            '1.11': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.11.13-alpine',
+            '1.12': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
+            '1.13': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine'
+        ]
+
+        baseImage = goBaseImages[version]
+
+        if(!baseImage) {
+            baseImage = "golang:${version}-alpine"
+        }
+    } else {
+        baseImage = "golang:${version}"
+    }
+
+    baseImage
+}
