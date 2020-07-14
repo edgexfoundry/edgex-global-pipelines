@@ -98,7 +98,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        taggedAMD64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
+                                        taggedAMD64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}", env.DOCKER_PUSH_LATEST == 'true', "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -161,7 +161,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        taggedARM64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", true, "${DOCKER_NEXUS_REPO}")
+                                        taggedARM64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", env.DOCKER_PUSH_LATEST == 'true', "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -291,6 +291,7 @@ def toEnvironment(config) {
     def _dockerNamespace       = config.dockerNamespace ?: ''
     def _dockerImageName       = config.dockerImageName ?: "docker-${_projectName}"
     def _dockerTags            = config.dockerTags ?: []
+    def _dockerPushLatest      = edgex.defaultTrue(config.dockerPushLatest)
     def _dockerNexusRepo       = config.dockerNexusRepo ?: 'staging'
     def _pushImage             = edgex.defaultTrue(config.pushImage)
     def _archiveImage          = edgex.defaultFalse(config.archiveImage)
@@ -307,6 +308,7 @@ def toEnvironment(config) {
         DOCKER_IMAGE_NAME: _dockerImageName,
         DOCKER_REGISTRY_NAMESPACE: _dockerNamespace,
         DOCKER_NEXUS_REPO: _dockerNexusRepo,
+        DOCKER_PUSH_LATEST: _dockerPushLatest,
         PUSH_DOCKER_IMAGE: _pushImage,
         ARCHIVE_IMAGE: _archiveImage,
         ARCHIVE_NAME: _archiveName,

@@ -4,6 +4,7 @@ import spock.lang.Ignore
 public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
 
     def edgeXBuildDocker = null
+    def edgex = null
     def environment = [:]
 
     public static class TestException extends RuntimeException {
@@ -14,9 +15,11 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
 
     def setup() {
         edgeXBuildDocker = loadPipelineScriptForTest('vars/edgeXBuildDocker.groovy')
+        edgex = loadPipelineScriptForTest('vars/edgex.groovy')
         edgeXBuildDocker.getBinding().setVariable('env', environment)
-        edgeXBuildDocker.getBinding().setVariable('edgex', {})
+        edgeXBuildDocker.getBinding().setVariable('edgex', edgex)
         explicitlyMockPipelineVariable('out')
+        explicitlyMockPipelineStep('echo')
     }
 
     def "Test validate [Should] raise error [When] config has no project" () {
@@ -34,17 +37,6 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
 
     def "Test toEnvironment [Should] return expected map [When] called" () {
         setup:
-            explicitlyMockPipelineStep('defaultFalse')
-            explicitlyMockPipelineStep('defaultTrue')
-            explicitlyMockPipelineStep('bannerMessage')
-            explicitlyMockPipelineStep('printMap')
-
-            getPipelineMock('defaultFalse')(null) >> {
-                false
-            }
-            getPipelineMock('defaultTrue')(null) >> {
-                true
-            }
 
         expect:
             edgeXBuildDocker.toEnvironment(config) == expectedResult
@@ -62,7 +54,10 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
                 ], [
                     project: 'MyProject',
                     releaseBranchOverride: 'golang'
-
+                ], [
+                    project: 'MyProject',
+                    releaseBranchOverride: 'golang',
+                    dockerPushLatest: false
                 ]
             ]
             expectedResult << [
@@ -75,6 +70,7 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
                     DOCKER_IMAGE_NAME: 'docker-MyProject',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'MyDockerNexusRepo',
+                    DOCKER_PUSH_LATEST: true,
                     PUSH_DOCKER_IMAGE: true,
                     ARCHIVE_IMAGE: false,
                     ARCHIVE_NAME: 'MyProject-archive.tar.gz',
@@ -88,6 +84,7 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
                     DOCKER_IMAGE_NAME: 'docker-MyProject',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
+                    DOCKER_PUSH_LATEST: true,
                     PUSH_DOCKER_IMAGE: true,
                     ARCHIVE_IMAGE: false,
                     ARCHIVE_NAME: 'MyProject-archive.tar.gz',
@@ -103,6 +100,22 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
                     DOCKER_IMAGE_NAME: 'docker-MyProject',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
+                    DOCKER_PUSH_LATEST: true,
+                    PUSH_DOCKER_IMAGE: true,
+                    ARCHIVE_IMAGE: false,
+                    ARCHIVE_NAME: 'MyProject-archive.tar.gz',
+                    SEMVER_BUMP_LEVEL: 'pre',
+                    RELEASE_BRANCH_OVERRIDE: 'golang'
+                ], [
+                    MAVEN_SETTINGS: 'MyProject-settings',
+                    PROJECT: 'MyProject',
+                    USE_SEMVER: false,
+                    DOCKER_FILE_PATH: 'Dockerfile',
+                    DOCKER_BUILD_CONTEXT: '.',
+                    DOCKER_IMAGE_NAME: 'docker-MyProject',
+                    DOCKER_REGISTRY_NAMESPACE: '',
+                    DOCKER_NEXUS_REPO: 'staging',
+                    DOCKER_PUSH_LATEST: false,
                     PUSH_DOCKER_IMAGE: true,
                     ARCHIVE_IMAGE: false,
                     ARCHIVE_NAME: 'MyProject-archive.tar.gz',
