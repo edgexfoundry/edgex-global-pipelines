@@ -345,7 +345,7 @@ def call(config) {
     }
 }
 
-def testAndVerify(testScript, codeCov = true) {
+def testAndVerify(codeCov = true) {
     edgex.bannerMessage "[edgeXBuildGoParallel] Running Tests and Build..."
 
     // make test raml_verify
