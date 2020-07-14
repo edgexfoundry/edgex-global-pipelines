@@ -90,6 +90,7 @@ def call(config) {
                             stage('Test') {
                                 steps {
                                     script {
+                                        // docker.sock bind mount needed due to `make raml_verify` launching a docker image
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock -e GOTESTFLAGS=') {
                                             sh 'go version' // debug
                                             testAndVerify()
@@ -122,13 +123,15 @@ def call(config) {
 
                                         // dockerImagesToBuild.collect would work here, but would make it harder to understand
                                         dockerImagesToBuild.each { imgDetails ->
-                                            def taggedImages = edgeXDocker.push(imgDetails.image, true, env.DOCKER_NEXUS_REPO)
+                                            def taggedImages = edgeXDocker.push(imgDetails.image, false, env.DOCKER_NEXUS_REPO)
 
                                             // grab the first tag for Clair scan later
                                             if(taggedImages) {
                                                 taggedAMD64Images << taggedImages.first()
                                             }
                                         }
+
+                                        println "taggedAMD64Images: ${taggedAMD64Images}"
                                     }
                                 }
                             }
@@ -154,7 +157,7 @@ def call(config) {
                         }
                     }
 
-                    stage('arm64') {
+                    /*stage('arm64') {
                         when {
                             beforeAgent true
                             expression { edgex.nodeExists(config, 'arm64') }
@@ -184,6 +187,7 @@ def call(config) {
                             stage('Test') {
                                 steps {
                                     script {
+                                        // docker.sock bind mount needed due to `make raml_verify` launching a docker image
                                         docker.image("ci-base-image-${ARCH}").inside('-u 0:0  -v /var/run/docker.sock:/var/run/docker.sock -e GOTESTFLAGS=') {
                                             sh 'go version' // debug
                                             testAndVerify()
@@ -216,13 +220,14 @@ def call(config) {
 
                                         // dockerImagesToBuild.collect would work here, but would make it harder to understand
                                         dockerImagesToBuild.each { imgDetails ->
-                                            def taggedImages = edgeXDocker.push(imgDetails.image, true, env.DOCKER_NEXUS_REPO)
+                                            def taggedImages = edgeXDocker.push(imgDetails.image, false, env.DOCKER_NEXUS_REPO)
 
                                             // grab the first tag for Clair scan later
                                             if(taggedImages) {
                                                 taggedARM64Images << taggedImages.first()
                                             }
                                         }
+                                        println "taggedARM64Images: ${taggedARM64Images}"
                                     }
                                 }
                             }
@@ -244,9 +249,9 @@ def call(config) {
                                         )
                                     }
                                 }
-                            }*/
+                            }*
                         }
-                    }
+                    }*/
                 }
             }
 
@@ -343,15 +348,19 @@ def call(config) {
 def testAndVerify(testScript, codeCov = true) {
     edgex.bannerMessage "[edgeXBuildGoParallel] Running Tests and Build..."
 
+    // make test raml_verify
     sh env.TEST_SCRIPT
 
     if(codeCov) {
+        sh 'ls -al .'
+        sh 'chown 1000:1000 **/*coverage.out' //need to fix perms of coverage.out since this runs in a container as user 0
         stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
     }
 
     // carry over from edgex-go, where they used to go build to verify all the
-    // code will build before the docker images are built
+    // code before the docker images are built
 
+    // make build
     sh env.BUILD_SCRIPT
 }
 

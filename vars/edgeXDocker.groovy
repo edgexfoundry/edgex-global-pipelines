@@ -170,7 +170,7 @@ ${tags.join('\n')}
 
     docker.withRegistry(registry) {
         tags.each {
-            image.push(it)
+            //image.push(it)
             finalImage.tag = it
             taggedImages << "${toImageStr(finalImage)}"
         }

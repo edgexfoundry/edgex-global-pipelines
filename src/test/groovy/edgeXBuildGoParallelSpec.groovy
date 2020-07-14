@@ -13,7 +13,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
     }
 
     def setup() {
-        edgeXBuildGoApp = loadPipelineScriptForTest('vars/edgeXBuildGoApp.groovy')
+        edgeXBuildGoApp = loadPipelineScriptForTest('vars/edgeXBuildGoParallel.groovy')
         edgex = loadPipelineScriptForTest('vars/edgex.groovy')
         edgeXBuildGoApp.getBinding().setVariable('edgex', edgex)
 
@@ -73,48 +73,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             }
         then:
             1 * getPipelineMock('error').call(_ as String)
-    }
-
-    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and true alpine flag" () {
-        setup:
-        expect:
-            edgeXBuildGoApp.getGoLangBaseImage(version, true) == expectedResult
-        where:
-            version << [
-                '1.11',
-                '1.12',
-                '1.13',
-                '1.01',
-                'MyVersion'
-            ]
-            expectedResult << [
-                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.11.13-alpine',
-                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
-                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine',
-                'golang:1.01-alpine',
-                'golang:MyVersion-alpine'
-            ]
-    }
-
-    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and false alpine flag" () {
-        setup:
-        expect:
-            edgeXBuildGoApp.getGoLangBaseImage(version, false) == expectedResult
-        where:
-            version << [
-                '1.11',
-                '1.12',
-                '1.13',
-                '1.01',
-                'MyVersion'
-            ]
-            expectedResult << [
-                'golang:1.11',
-                'golang:1.12',
-                'golang:1.13',
-                'golang:1.01',
-                'golang:MyVersion'
-            ]
     }
 
     def "Test toEnvironment [Should] return expected map of default values [When] sandbox environment" () {
