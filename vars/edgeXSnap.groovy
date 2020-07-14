@@ -31,11 +31,12 @@ snapStoreLoginSettings, the name of the Jenkins settings file with login details
 
 def call(config = [:]) {
     def _arch = env.ARCH ?: 'amd64'
-    def _snapBuilderImage = config.snapBuilderImage ?: "${DOCKER_REGISTRY}:10003/edgex-devops/edgex-snap-builder:latest"
+    def _snapBuilderVersion = config.snapBuilderVersion ?: 'latest'
+    def _snapBuilderImage = config.snapBuilderImage ?: "${DOCKER_REGISTRY}:10003/edgex-devops/edgex-snap-builder:${_snapBuilderVersion}"
 
     // TODO: find a better way to do this
     if(_arch == 'arm64') {
-        _snapBuilderImage = "${DOCKER_REGISTRY}:10003/edgex-devops/edgex-snap-builder-${_arch}:latest"
+        _snapBuilderImage = "${DOCKER_REGISTRY}:10003/edgex-devops/edgex-snap-builder-${_arch}:${_snapBuilderVersion}"
     }
 
     def _snapBase     = config.snapBase ?: env.WORKSPACE
