@@ -157,7 +157,7 @@ def call(config) {
                         }
                     }
 
-                    /*stage('arm64') {
+                    stage('arm64') {
                         when {
                             beforeAgent true
                             expression { edgex.nodeExists(config, 'arm64') }
@@ -249,9 +249,9 @@ def call(config) {
                                         )
                                     }
                                 }
-                            }*
+                            }*/
                         }
-                    }*/
+                    }
                 }
             }
 
