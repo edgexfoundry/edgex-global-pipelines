@@ -360,6 +360,8 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             assert finalJson == layerManifestJsonAfter
     }
 
+    // Ignoring this test for now as promotion is on hold or will be removed
+    @Ignore
     def "Test promote [Should] call expected [When] promoting to snapshots" () {
         setup:
             explicitlyMockPipelineVariable("getDockerTags")
@@ -375,8 +377,8 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
             edgeXDocker.getBinding().setVariable('DOCKER_REGISTRY_NAMESPACE', 'promo-time')
-            getPipelineMock('docker.image')("docker-device-mqtt-go") >> explicitlyMockPipelineVariable('docker-device-mqtt-go')
-            getPipelineMock('docker.image')("docker-device-mqtt-go-arm64") >> explicitlyMockPipelineVariable('docker-device-mqtt-go-arm64')
+            getPipelineMock('docker.image')("edgexfoundry/docker-device-mqtt-go") >> explicitlyMockPipelineVariable('edgexfoundry/docker-device-mqtt-go')
+            getPipelineMock('docker.image')("edgexfoundry/docker-device-mqtt-go-arm64") >> explicitlyMockPipelineVariable('edgexfoundry/docker-device-mqtt-go-arm64')
         when:
             edgeXDocker.promote([
                 'edgexfoundry/docker-device-mqtt-go',
@@ -386,8 +388,8 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             2 * getPipelineMock('docker.withRegistry').call(_) >> { _arguments ->
                 assert 'https://nexus3.edgexfoundry.org:10003/promo-time' == _arguments[0][0]
             }
-            1 * getPipelineMock('docker-device-mqtt-go.push').call('4f542d150f63fd84c4c4e03c791e07fdb7c9aef4')
-            1 * getPipelineMock('docker-device-mqtt-go-arm64.push').call('4f542d150f63fd84c4c4e03c791e07fdb7c9aef4')
+            1 * getPipelineMock('edgexfoundry/docker-device-mqtt-go.push').call('4f542d150f63fd84c4c4e03c791e07fdb7c9aef4')
+            1 * getPipelineMock('edgexfoundry/docker-device-mqtt-go-arm64.push').call('4f542d150f63fd84c4c4e03c791e07fdb7c9aef4')
     }
 
     def "Test promote [Should] call expected [When] promoting to staging" () {

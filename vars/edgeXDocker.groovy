@@ -157,7 +157,7 @@ def push(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {
         finalImage.host = "${defaultRegistry}:${nexusPort}"
     }
 
-    def image = docker.image(finalImage.image)
+    def image = docker.image(finalImageName(finalImage.image))
 
     println """[edgeXDocker.push] Tagging docker image ${finalImage.image} with the following tags:
 ${tags.join('\n')}
