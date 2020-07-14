@@ -353,7 +353,7 @@ def testAndVerify(codeCov = true) {
 
     if(codeCov) {
         sh 'ls -al .'
-        sh 'chown 1000:1000 **/*coverage.out' //need to fix perms of coverage.out since this runs in a container as user 0
+        sh 'chown 1001:1001 **/*coverage.out' //need to fix perms of coverage.out since this runs in a container as user 0
         stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
     }
 
