@@ -554,7 +554,7 @@ services:
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
 
-            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest')
+            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:096526f1b019795818746a30d244e95847e3d969") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:096526f1b019795818746a30d244e95847e3d969')
 
             getPipelineMock('sh')([
                 returnStatus: true,
@@ -616,7 +616,7 @@ services:
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
 
-            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:latest") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:latest')
+            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:096526f1b019795818746a30d244e95847e3d969") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:096526f1b019795818746a30d244e95847e3d969')
 
             getPipelineMock('sh')([
                 returnStatus: true,
@@ -670,7 +670,7 @@ services:
         setup:
             explicitlyMockPipelineStep('error')
 
-            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest')
+            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:096526f1b019795818746a30d244e95847e3d969") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:096526f1b019795818746a30d244e95847e3d969')
 
             getPipelineMock('sh')([
                 returnStatus: true,

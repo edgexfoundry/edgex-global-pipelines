@@ -72,7 +72,7 @@ def buildInParallel(dockerImages, baseImage = null) {
 
     def parallelSupported = -1
 
-    docker.image(composeImage).inside {
+    docker.image(composeImage).inside('--entrypoint=') {
         parallelSupported = sh(script: 'docker-compose build --help | grep parallel', returnStatus: true)
     }
 
@@ -96,7 +96,7 @@ def buildInParallel(dockerImages, baseImage = null) {
         def envVars = baseImage ? ["BUILDER_BASE=${baseImage}"] : []
 
         withEnv(envVars) {
-            docker.image(composeImage).inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged') {
+            docker.image(composeImage).inside('-u 0:0 --entrypoint= -v /var/run/docker.sock:/var/run/docker.sock --privileged') {
                 sh 'docker-compose -f ./docker-compose-build.yml build --parallel'
             }
 
