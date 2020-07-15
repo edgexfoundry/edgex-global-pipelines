@@ -91,7 +91,7 @@ def call(config) {
                                 steps {
                                     script {
                                         // docker.sock bind mount needed due to `make raml_verify` launching a docker image
-                                        docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock -e GOTESTFLAGS=') {
+                                        docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock -e GOTESTFLAGS=') {
                                             sh 'go version' // debug
                                             testAndVerify()
                                         }
@@ -188,7 +188,7 @@ def call(config) {
                                 steps {
                                     script {
                                         // docker.sock bind mount needed due to `make raml_verify` launching a docker image
-                                        docker.image("ci-base-image-${ARCH}").inside('-u 0:0  -v /var/run/docker.sock:/var/run/docker.sock -e GOTESTFLAGS=') {
+                                        docker.image("ci-base-image-${ARCH}").inside('-u 0:0  --privileged  -v /var/run/docker.sock:/var/run/docker.sock -e GOTESTFLAGS=') {
                                             sh 'go version' // debug
                                             testAndVerify()
                                         }
