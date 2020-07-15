@@ -91,6 +91,7 @@ def call(config) {
                                 steps {
                                     script {
                                         // docker.sock bind mount needed due to `make raml_verify` launching a docker image
+                                        //docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: 
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock -e GOTESTFLAGS=') {
                                             sh 'go version' // debug
                                             testAndVerify()
@@ -353,7 +354,7 @@ def testAndVerify(codeCov = true) {
 
     if(codeCov) {
         sh 'ls -al .'
-        sh 'chown 1001:1001 **/*coverage.out' //need to fix perms of coverage.out since this runs in a container as user 0
+        sh 'chown 1001:1001 coverage.out' //need to fix perms of coverage.out since this runs in a container as user 0
         stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
     }
 
