@@ -281,7 +281,6 @@ def call(config) {
                 }
             }
 
-            // When scanning the clair image, the FQDN is needed
             stage('Clair Scan') {
                 when {
                     allOf {
@@ -303,6 +302,13 @@ def call(config) {
                             }
                         }
                     }
+                }
+            }
+
+            stage('Publish Swagger') {
+                when { expression { edgex.isReleaseStream() } }
+                steps {
+                    edgeXSwaggerPublish() // default: apiFolders: 'api/openapi/v1 api/openapi/v2'
                 }
             }
 
