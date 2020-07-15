@@ -14,8 +14,7 @@
 // limitations under the License.
 //
 
-def call(command = null, credentials = 'edgex-jenkins-ssh', debug = true) {
-    def gitSemverVersion = 'latest'
+def call(command = null, semverVersion = '', gitSemverVersion = 'latest', credentials = 'edgex-jenkins-ssh', debug = true) {
     def semverImage = "nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:${gitSemverVersion}"
     def envVars = [
         'SSH_KNOWN_HOSTS=/etc/ssh/ssh_known_hosts'
@@ -24,7 +23,6 @@ def call(command = null, credentials = 'edgex-jenkins-ssh', debug = true) {
        'git',
        'semver'
     ]
-    def semverVersion
 
     if(!command) {
         docker.image(semverImage).inside {
@@ -36,6 +34,14 @@ def call(command = null, credentials = 'edgex-jenkins-ssh', debug = true) {
             envVars << 'SEMVER_DEBUG=on'
         }
         semverCommand << command
+
+        // If semverVersion is passed in override the version from the .semver directory
+        if (command == 'init' && semverVersion) {
+            semverCommand << "-ver=${semverVersion}"
+            semverCommand << "-force"
+
+        }
+
         docker.image(semverImage).inside('-v /etc/ssh:/etc/ssh') {
             withEnv(envVars) {
                 if((env.GITSEMVER_HEAD_TAG) && (command != 'init')) {
@@ -48,7 +54,11 @@ def call(command = null, credentials = 'edgex-jenkins-ssh', debug = true) {
                     executeSSH(credentials, semverCommand.join(' '))
                 }
             }
-            semverVersion = sh(script: 'git semver', returnStdout: true).trim()
+
+            // If no version is passed in then get the next version from git semver
+            if(!semverVersion) {
+                semverVersion = sh(script: 'git semver', returnStdout: true).trim()
+            }
         }
     }
 

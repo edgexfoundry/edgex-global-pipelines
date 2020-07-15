@@ -175,6 +175,31 @@ def getPreviousCommit(commit) {
     previousCommit
 }
 
+def getBranchName() {
+    sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+}
+
+// Get the commit message from the commit sha
+def getCommitMessage(commit) {
+    sh(script: "git log --format=format:%s -1 ${commit}", returnStdout: true).trim()
+}
+
+// Return true when the commit message follows the pattern "build(...): [semanticVersion,namedTag] ... "
+def isBuildCommit(commit) {    
+    return !!(commit =~ /^build\(.+\): \[(?<semver>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)\,(?<namedTag>\w+)\].+$/)
+}
+
+// Return the paramters for the build [semanticVersion,namedTag]
+def parseBuildCommit(commit) {
+    try {
+        def matcher =  (commit =~ /^build\(.+\): \[(?<semver>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)\,(?<namedTag>\w+)\].+$/)
+        matcher.matches()
+        return [version: matcher.group('semver'), namedTag: matcher.group('namedTag')]
+    } catch (Exception e) {
+        error("[edgex.parseBuildCommit]: No matches found.")
+    }
+}
+
 def getTmpDir(pattern = 'ci-XXXXX') {
     sh(script: "mktemp -d -t ${pattern}", returnStdout: true).trim()
 }

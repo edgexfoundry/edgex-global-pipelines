@@ -49,7 +49,7 @@ def build(dockerImageName, baseImage = null) {
 
     def labels = ['', "'git_sha=${GIT_COMMIT}'", "'arch=${buildArgArch}'"]
 
-    // in case VERSION is not set (i.e. use semver = fallse)
+    // in case VERSION is not set (i.e. use semver = false)
     if(env.VERSION) {
         labels << "'version=${VERSION}'"
     }
@@ -199,6 +199,14 @@ def getDockerTags(latest = true, customTags = env.DOCKER_CUSTOM_TAGS) {
 
     if(env.SEMVER_BRANCH) {
         allTags << env.SEMVER_BRANCH
+    }
+
+    if(env.BUILD_EXPERIMENTAL_DOCKER_IMAGE == 'true') {
+        allTags << 'experimental'
+    }
+
+    if(env.BUILD_STABLE_DOCKER_IMAGE == 'true') {
+        allTags << 'stable'
     }
 
     if(customTags) {

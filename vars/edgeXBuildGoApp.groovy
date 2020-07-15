@@ -43,7 +43,6 @@ def call(config) {
         triggers {
             issueCommentTrigger('.*^recheck$.*')
         }
-
         stages {
             stage('Prepare') {
                 steps {
@@ -55,7 +54,32 @@ def call(config) {
             stage('Semver Prep') {
                 when { environment name: 'USE_SEMVER', value: 'true' }
                 steps {
-                    edgeXSemver 'init' // <-- Generates a VERSION file and .semver directory
+                    script {
+                        def _commitMsg = edgex.getCommitMessage(env.GIT_COMMIT)
+                        echo("GIT_COMMIT: ${env.GIT_COMMIT}, Commit Message: ${_commitMsg}")
+                        def _buildVersion = ''
+                        def _namedTag = ''
+                        def _parsedCommitMsg = [:]
+
+                        if(edgex.isBuildCommit(_commitMsg)) {
+                            _parsedCommitMsg = edgex.parseBuildCommit(_commitMsg)
+                            _buildVersion = _parsedCommitMsg.version
+                            _namedTag = _parsedCommitMsg.namedTag
+                            echo("This is a build commit.")
+                            echo("buildVersion: [${_buildVersion}], namedTag: [${_namedTag}]")
+
+                            env.NAMED_TAG = _namedTag
+                            env.BUILD_STABLE_DOCKER_IMAGE = true
+                            edgeXSemver('init', _buildVersion)  // <-- Generates a VERSION file and .semver directory
+                        }
+                        else {
+                            echo("This is not a build commit.")
+                            edgeXSemver 'init' // <-- Generates a VERSION file and .semver directory
+                            env.BUILD_STABLE_DOCKER_IMAGE = false
+                        }
+                        env.OG_VERSION = env.VERSION
+                        echo("Archived original version: [${env.OG_VERSION}]")
+                    }
                 }
             }
 
@@ -91,7 +115,7 @@ def call(config) {
                             stage('Test') {
                                 steps {
                                     script {
-                                        docker.image("ci-base-image-${ARCH}").inside('-u 0:0') {
+                                        docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
                                             sh 'go version'
                                             sh "${TEST_SCRIPT}"
                                             stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
@@ -104,7 +128,7 @@ def call(config) {
                                 when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
                                 steps {
                                     script {
-                                        edgeXDocker.build("${DOCKER_IMAGE_NAME}", "ci-base-image-${ARCH}")
+                                        edgeXDocker.build("${env.DOCKER_IMAGE_NAME}", "ci-base-image-${env.ARCH}")
                                     }
                                 }
                             }
@@ -121,7 +145,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        taggedAMD64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
+                                        taggedAMD64Images = edgeXDocker.push("${env.DOCKER_IMAGE_NAME}", true, "${env.DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -175,7 +199,7 @@ def call(config) {
                             stage('Test') {
                                 steps {
                                     script {
-                                        docker.image("ci-base-image-${ARCH}").inside('-u 0:0') {
+                                        docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
                                             sh 'go version'
                                             sh "${TEST_SCRIPT}"
                                             stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
@@ -188,7 +212,7 @@ def call(config) {
                                 when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
                                 steps {
                                     script {
-                                        edgeXDocker.build("${DOCKER_IMAGE_NAME}-${ARCH}", "ci-base-image-${ARCH}")
+                                        edgeXDocker.build("${env.DOCKER_IMAGE_NAME}-${env.ARCH}", "ci-base-image-${env.ARCH}")
                                     }
                                 }
                             }
@@ -205,7 +229,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        taggedARM64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", true, "${DOCKER_NEXUS_REPO}")
+                                        taggedARM64Images = edgeXDocker.push("${env.DOCKER_IMAGE_NAME}-${env.ARCH}", true, "${env.DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -239,7 +263,7 @@ def call(config) {
                 when { environment name: 'SILO', value: 'production' }
                 steps {
                     unstash 'coverage-report'
-                    edgeXCodecov "${PROJECT}-codecov-token"
+                    edgeXCodecov "${env.PROJECT}-codecov-token"
                 }
             }
 
@@ -294,8 +318,34 @@ def call(config) {
                             edgeXSemver 'push'
                         }
                     }
+                    stage('Bump Experimental Tag') {
+                        when {
+                            allOf {
+                                environment name: 'BUILD_EXPERIMENTAL_DOCKER_IMAGE', value: 'true'
+                                expression { env.SEMVER_BRANCH =~ /^master$/ }
+                            }
+                        }
+                        steps {
+                            script {
+                                edgeXUpdateNamedTag(env.OG_VERSION, 'experimental')
+                            }
+                        }
+                    }
+                    stage('Bump Stable (Named) Tag') {
+                        when {
+                            allOf {
+                                environment name: 'BUILD_STABLE_DOCKER_IMAGE', value: 'true'
+                                expression { env.SEMVER_BRANCH =~ /^master$/ }
+                            }
+                        }
+                        steps {
+                            script {
+                                edgeXUpdateNamedTag(env.OG_VERSION, env.NAMED_TAG)
+                            }
+                        }
+                    }
                 }
-            }
+            }   
         }
 
         post {
@@ -316,7 +366,7 @@ def prepBaseBuildImage() {
     def baseImage = env.DOCKER_BASE_IMAGE
 
     if(env.ARCH == 'arm64' && baseImage.contains(env.DOCKER_REGISTRY)) {
-        baseImage = "${DOCKER_BASE_IMAGE}".replace('edgex-golang-base', "edgex-golang-base-${ARCH}")
+        baseImage = "${env.DOCKER_BASE_IMAGE}".replace('edgex-golang-base', "edgex-golang-base-${env.ARCH}")
     }
 
     edgex.bannerMessage "[edgeXBuildGoApp] Building Code With image [${baseImage}]"
@@ -329,8 +379,8 @@ def prepBaseBuildImage() {
     def buildArgString = buildArgs.join(' --build-arg ')
 
     docker.build(
-        "ci-base-image-${ARCH}",
-        "-f ${DOCKER_BUILD_FILE_PATH} ${buildArgString} ${DOCKER_BUILD_CONTEXT}"
+        "ci-base-image-${env.ARCH}",
+        "-f ${env.DOCKER_BUILD_FILE_PATH} ${buildArgString} ${env.DOCKER_BUILD_CONTEXT}"
     )
 }
 
@@ -374,6 +424,7 @@ def toEnvironment(config) {
     def _testScript    = config.testScript ?: 'make test'
     def _buildScript   = config.buildScript ?: 'make build'
     def _goVersion     = config.goVersion ?: '1.12'
+    def _goProxy       = config.goProxy ?: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
     def _useAlpine     = edgex.defaultTrue(config.useAlpineBase)
 
     def _dockerBaseImage     = getGoLangBaseImage(_goVersion, _useAlpine)
@@ -383,13 +434,16 @@ def toEnvironment(config) {
     def _dockerNamespace     = config.dockerNamespace ?: '' //default for edgex is empty string
     def _dockerImageName     = config.dockerImageName ?: "docker-${_projectName}"
     def _dockerNexusRepo     = config.dockerNexusRepo ?: 'staging'
-    def _buildImage           = edgex.defaultTrue(config.buildImage)
+    def _buildImage          = edgex.defaultTrue(config.buildImage)
     def _pushImage           = edgex.defaultTrue(config.pushImage)
     def _semverBump          = config.semverBump ?: 'pre'
-    def _goProxy             = config.goProxy ?: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
+    def _semverVersion       = config.semverVersion ?: '' // default to empty string because it is a falsey value
     def _snapChannel         = config.snapChannel ?: 'latest/edge'
     def _buildSnap           = edgex.defaultFalse(config.buildSnap)
 
+    def _buildExperimentalDockerImage  = edgex.defaultFalse(config.buildExperimentalDockerImage)
+    def _buildStableDockerImage        = false
+    
     // no image to build, no image to push
     if(!_buildImage) {
         _pushImage = false
@@ -402,6 +456,7 @@ def toEnvironment(config) {
         TEST_SCRIPT: _testScript,
         BUILD_SCRIPT: _buildScript,
         GO_VERSION: _goVersion,
+        GOPROXY: _goProxy,
         DOCKER_BASE_IMAGE: _dockerBaseImage,
         DOCKER_FILE_PATH: _dockerFilePath,
         DOCKER_BUILD_FILE_PATH: _dockerBuildFilePath,
@@ -411,8 +466,9 @@ def toEnvironment(config) {
         DOCKER_NEXUS_REPO: _dockerNexusRepo,
         BUILD_DOCKER_IMAGE: _buildImage,
         PUSH_DOCKER_IMAGE: _pushImage,
+        BUILD_EXPERIMENTAL_DOCKER_IMAGE: _buildExperimentalDockerImage,
+        BUILD_STABLE_DOCKER_IMAGE: _buildStableDockerImage,
         SEMVER_BUMP_LEVEL: _semverBump,
-        GOPROXY: _goProxy,
         SNAP_CHANNEL: _snapChannel,
         BUILD_SNAP: _buildSnap
     ]
