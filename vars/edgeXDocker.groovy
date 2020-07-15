@@ -67,8 +67,8 @@ def build(dockerImageName, baseImage = null) {
 def buildInParallel(dockerImages, baseImage = null) {
     //check if docker-compose --parallel is available
     def composeImage = env.ARCH == 'arm64'
-        ? 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:latest'
-        : 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest'
+        ? 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:096526f1b019795818746a30d244e95847e3d969'
+        : 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:096526f1b019795818746a30d244e95847e3d969'
 
     def parallelSupported = -1
 
