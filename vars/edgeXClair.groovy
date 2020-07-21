@@ -53,22 +53,27 @@ def scan(image, server, klarImage, outputFormat) {
     def output
     docker.image(klarImage).inside('--entrypoint=') {
         withEnv(["CLAIR_ADDR=${server}", "FORMAT_OUTPUT=${outputFormat}"]) {
-            // piping the output to tee so that exitcode is always 0 for now
-            output = sh(script: "/klar ${image} | tee", returnStdout: true).trim()
-            
-            // parse json.
-            if(outputFormat == 'json') {
-                if(output) {
-                    try {
-                        output = readJSON(text: output)
-                    } catch(Exception ex) {
-                        println "[edgexClair] Unable to parse JSON"
-                        println output
-                        // could not parse json. Just assume no results.
+            // TODO: edgex.isDryRun() does not work during unit testing here for some reason
+            if(env.DRY_RUN && (env.DRY_RUN == '1' || env.DRY_RUN == 'true')) {
+                sh "echo /klar ${image}"
+            } else {
+                // piping the output to tee so that exitcode is always 0 for now
+                output = sh(script: "/klar ${image} | tee", returnStdout: true).trim()
+
+                // parse json.
+                if(outputFormat == 'json') {
+                    if(output) {
+                        try {
+                            output = readJSON(text: output)
+                        } catch(Exception ex) {
+                            println "[edgexClair] Unable to parse JSON"
+                            println output
+                            // could not parse json. Just assume no results.
+                            output = [ LayerCount: 0, Vulnerabilities: [:]]
+                        }
+                    } else {
                         output = [ LayerCount: 0, Vulnerabilities: [:]]
                     }
-                } else {
-                    output = [ LayerCount: 0, Vulnerabilities: [:]]
                 }
             }
         }

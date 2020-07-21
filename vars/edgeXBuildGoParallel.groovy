@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 Intel Corporation
+// Copyright (c) 2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
 // limitations under the License.
 //
 
-def taggedAMD64Images
-def taggedARM64Images
+def taggedAMD64Images = []
+def taggedARM64Images = []
+def dockerImagesToBuild
 
 def call(config) {
-    edgex.bannerMessage "[edgeXBuildGoApp] RAW Config: ${config}"
+    edgex.bannerMessage "[edgeXBuildGoParallel] RAW Config: ${config}"
 
     validate(config)
     edgex.setupNodes(config)
@@ -31,70 +32,47 @@ def call(config) {
         agent {
             node {
                 label edgex.mainNode(config)
+                customWorkspace "/w/workspace/${config.project}/${env.BUILD_ID}"
             }
         }
         options {
             timestamps()
             preserveStashes()
-            quietPeriod(5) // wait a few seconds before starting to aggregate builds...??
+            quietPeriod(5)
             durabilityHint 'PERFORMANCE_OPTIMIZED'
             timeout(360)
         }
         triggers {
             issueCommentTrigger('.*^recheck$.*')
         }
+
         stages {
             stage('Prepare') {
                 steps {
-                    script { edgex.releaseInfo() }
-                    edgeXSetupEnvironment(_envVarMap)
+                    script {
+                        edgex.releaseInfo()
+                        edgeXSetupEnvironment(_envVarMap)
+
+                        // Generate list docker images to build
+                        dockerImagesToBuild = getDockersFromFilesystem(env.DOCKER_FILE_GLOB, env.DOCKER_IMAGE_NAME_PREFIX, env.DOCKER_IMAGE_NAME_SUFFIX)
+                    }
                 }
             }
 
             stage('Semver Prep') {
                 when { environment name: 'USE_SEMVER', value: 'true' }
                 steps {
-                    script {
-                        def _commitMsg = edgex.getCommitMessage(env.GIT_COMMIT)
-                        echo("GIT_COMMIT: ${env.GIT_COMMIT}, Commit Message: ${_commitMsg}")
-                        def _buildVersion = ''
-                        def _namedTag = ''
-                        def _parsedCommitMsg = [:]
-
-                        if(edgex.isBuildCommit(_commitMsg)) {
-                            _parsedCommitMsg = edgex.parseBuildCommit(_commitMsg)
-                            _buildVersion = _parsedCommitMsg.version
-                            _namedTag = _parsedCommitMsg.namedTag
-                            echo("This is a build commit.")
-                            echo("buildVersion: [${_buildVersion}], namedTag: [${_namedTag}]")
-
-                            env.NAMED_TAG = _namedTag
-                            env.BUILD_STABLE_DOCKER_IMAGE = true
-                            edgeXSemver('init', _buildVersion)  // <-- Generates a VERSION file and .semver directory
-                        }
-                        else {
-                            echo("This is not a build commit.")
-                            edgeXSemver 'init' // <-- Generates a VERSION file and .semver directory
-                            env.BUILD_STABLE_DOCKER_IMAGE = false
-                        }
-                        env.OG_VERSION = env.VERSION
-                        echo("Archived original version: [${env.OG_VERSION}]")
-                    }
+                    edgeXSemver 'init' // <-- Generates a VERSION file and .semver directory
                 }
             }
 
             stage('Build') {
                 parallel {
                     stage('amd64') {
+                        // should be running on the initial "mainNode"
                         when {
                             beforeAgent true
                             expression { edgex.nodeExists(config, 'amd64') }
-                        }
-                        agent { // comment out to reuse mainNode
-                            node {
-                                label edgex.getNode(config, 'amd64')
-                                customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
-                            }
                         }
                         environment {
                             ARCH = 'x86_64'
@@ -103,10 +81,7 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
-                                        // should this be in it's own stage?
-                                        if(env.USE_SEMVER == 'true') {
-                                            unstash 'semver'
-                                        }
+                                        // builds ci-base-image used to cache dependencies and system libs
                                         prepBaseBuildImage()
                                     }
                                 }
@@ -115,20 +90,23 @@ def call(config) {
                             stage('Test') {
                                 steps {
                                     script {
-                                        docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
+                                        // docker.sock bind mount needed due to `make raml_verify` launching a docker image
+                                        // docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: 
+                                        docker.image("ci-base-image-${env.ARCH}")
+                                            .inside('-u 0:0 -e GOTESTFLAGS= -v /var/run/docker.sock:/var/run/docker.sock --privileged')
+                                        {
                                             sh 'go version'
-                                            sh "${TEST_SCRIPT}"
-                                            stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
+                                            testAndVerify()
                                         }
                                     }
                                 }
                             }
 
-                            stage('Build') {
+                            stage('Docker Build') {
                                 when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
                                 steps {
                                     script {
-                                        edgeXDocker.build("${env.DOCKER_IMAGE_NAME}", "ci-base-image-${env.ARCH}")
+                                        edgeXDocker.buildInParallel(dockerImagesToBuild, null, "ci-base-image-${env.ARCH}")
                                     }
                                 }
                             }
@@ -145,11 +123,13 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        taggedAMD64Images = edgeXDocker.push("${env.DOCKER_IMAGE_NAME}", true, "${env.DOCKER_NEXUS_REPO}")
+                                        taggedAMD64Images = edgeXDocker.pushAll(dockerImagesToBuild, false, env.DOCKER_NEXUS_REPO)
                                     }
                                 }
                             }
 
+                            /* Do not want to confuse...Leaving out Snap on inital release
+                               of this pipeline as edgex-go already has a dedicated snap pipeline
                             stage('Snap') {
                                 when {
                                     allOf {
@@ -165,7 +145,7 @@ def call(config) {
                                         )
                                     }
                                 }
-                            }
+                            }*/
                         }
                     }
 
@@ -177,7 +157,7 @@ def call(config) {
                         agent {
                             node {
                                 label edgex.getNode(config, 'arm64')
-                                customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                                customWorkspace "/w/workspace/${config.project}/${env.BUILD_ID}"
                             }
                         }
                         environment {
@@ -199,20 +179,23 @@ def call(config) {
                             stage('Test') {
                                 steps {
                                     script {
-                                        docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
+                                        // docker.sock bind mount needed due to `make raml_verify` launching a docker image
+                                        //docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: 
+                                        docker.image("ci-base-image-${env.ARCH}")
+                                            .inside('-u 0:0 -e GOTESTFLAGS= -v /var/run/docker.sock:/var/run/docker.sock --privileged')
+                                        {
                                             sh 'go version'
-                                            sh "${TEST_SCRIPT}"
-                                            stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
+                                            testAndVerify()
                                         }
                                     }
                                 }
                             }
 
-                            stage('Build') {
+                            stage('Docker Build') {
                                 when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
                                 steps {
                                     script {
-                                        edgeXDocker.build("${env.DOCKER_IMAGE_NAME}-${env.ARCH}", "ci-base-image-${env.ARCH}")
+                                        edgeXDocker.buildInParallel(dockerImagesToBuild, null, "ci-base-image-${env.ARCH}")
                                     }
                                 }
                             }
@@ -229,11 +212,13 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        taggedARM64Images = edgeXDocker.push("${env.DOCKER_IMAGE_NAME}-${env.ARCH}", true, "${env.DOCKER_NEXUS_REPO}")
+                                        taggedARM64Images = edgeXDocker.pushAll(dockerImagesToBuild, false, env.DOCKER_NEXUS_REPO)
                                     }
                                 }
                             }
 
+                            /* Do not want to confuse...Leaving out Snap on inital release
+                               of this pipeline as edgex-go already has a dedicated snap pipeline
                             stage('Snap') {
                                 when {
                                     allOf {
@@ -249,7 +234,7 @@ def call(config) {
                                         )
                                     }
                                 }
-                            }
+                            }*/
                         }
                     }
                 }
@@ -258,9 +243,14 @@ def call(config) {
             //////////////////////////////////////////////////////////////////
             // We should be back on the mainAgent here.
 
-            // CodeCov should only run once, no need to run per arch only
+            // CodeCov should only run once during each PR build
             stage('CodeCov') {
-                when { environment name: 'SILO', value: 'production' }
+                when {
+                    allOf {
+                        environment name: 'SILO', value: 'production'
+                        expression { !edgex.isReleaseStream() }
+                    }
+                }
                 steps {
                     unstash 'coverage-report'
                     edgeXCodecov "${env.PROJECT}-codecov-token"
@@ -275,7 +265,6 @@ def call(config) {
                 }
             }
 
-            // When scanning the clair image, the FQDN is needed
             stage('Clair Scan') {
                 when {
                     allOf {
@@ -287,10 +276,14 @@ def call(config) {
                 steps {
                     script {
                         if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
-                            edgeXClair(taggedAMD64Images.first())
+                            taggedAMD64Images.each {
+                                edgeXClair(it)
+                            }
                         }
                         if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
-                            edgeXClair(taggedARM64Images.first())
+                            taggedARM64Images.each {
+                                edgeXClair(it)
+                            }
                         }
                     }
                 }
@@ -330,34 +323,8 @@ def call(config) {
                             edgeXSemver 'push'
                         }
                     }
-                    stage('Bump Experimental Tag') {
-                        when {
-                            allOf {
-                                environment name: 'BUILD_EXPERIMENTAL_DOCKER_IMAGE', value: 'true'
-                                expression { env.SEMVER_BRANCH =~ /^master$/ }
-                            }
-                        }
-                        steps {
-                            script {
-                                edgeXUpdateNamedTag(env.OG_VERSION, 'experimental')
-                            }
-                        }
-                    }
-                    stage('Bump Stable (Named) Tag') {
-                        when {
-                            allOf {
-                                environment name: 'BUILD_STABLE_DOCKER_IMAGE', value: 'true'
-                                expression { env.SEMVER_BRANCH =~ /^master$/ }
-                            }
-                        }
-                        steps {
-                            script {
-                                edgeXUpdateNamedTag(env.OG_VERSION, env.NAMED_TAG)
-                            }
-                        }
-                    }
                 }
-            }   
+            }
         }
 
         post {
@@ -374,14 +341,35 @@ def call(config) {
     }
 }
 
+def testAndVerify(codeCov = true) {
+    edgex.bannerMessage "[edgeXBuildGoParallel] Running Tests and Build..."
+
+    // make test raml_verify
+    sh env.TEST_SCRIPT
+
+    if(codeCov) {
+        sh 'ls -al .'
+        // need to fix perms of coverage.out since this runs in a container as user 0
+        sh '[ -e "coverage.out" ] && chown 1001:1001 coverage.out'
+        stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
+    }
+
+    // carry over from edgex-go, where they used to go build to verify all the
+    // code before the docker images are built
+
+    // make build
+    sh env.BUILD_SCRIPT
+}
+
 def prepBaseBuildImage() {
+    // this would be something like golang:1.13 or a pre-built devops managed image from ci-build-images
     def baseImage = env.DOCKER_BASE_IMAGE
 
     if(env.ARCH == 'arm64' && baseImage.contains(env.DOCKER_REGISTRY)) {
         baseImage = "${env.DOCKER_BASE_IMAGE}".replace('edgex-golang-base', "edgex-golang-base-${env.ARCH}")
     }
 
-    edgex.bannerMessage "[edgeXBuildGoApp] Building Code With image [${baseImage}]"
+    edgex.bannerMessage "[edgeXBuildGoParallel] Building Code With image [${baseImage}]"
 
     def buildArgs = ['', "BASE=${baseImage}"]
     if(env.http_proxy) {
@@ -398,7 +386,7 @@ def prepBaseBuildImage() {
 
 def validate(config) {
     if(!config.project) {
-        error('[edgeXBuildGoApp] The parameter "project" is required. This is typically the project name.')
+        error('[edgeXBuildGoParallel] The parameter "project" is required. This is typically the project name.')
     }
 }
 
@@ -410,32 +398,33 @@ def toEnvironment(config) {
         _mavenSettings = 'sandbox-settings'
     }
 
-    def _useSemver     = edgex.defaultTrue(config.semver)
-    def _testScript    = config.testScript ?: 'make test'
-    def _buildScript   = config.buildScript ?: 'make build'
-    def _goVersion     = config.goVersion ?: '1.12'
-    def _goProxy       = config.goProxy ?: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
-    def _useAlpine     = edgex.defaultTrue(config.useAlpineBase)
+    def _useSemver       = edgex.defaultTrue(config.semver)
+    def _testScript      = config.testScript ?: 'make test'
+    def _buildScript     = config.buildScript ?: 'make build'
+    def _goVersion       = config.goVersion ?: '1.13'
+    def _useAlpine       = edgex.defaultTrue(config.useAlpineBase)
+    def _dockerBaseImage = edgex.getGoLangBaseImage(_goVersion, _useAlpine)
 
-    def _dockerBaseImage     = edgex.getGoLangBaseImage(_goVersion, _useAlpine)
-    def _dockerFilePath      = config.dockerFilePath ?: 'Dockerfile'
-    def _dockerBuildFilePath = config.dockerBuildFilePath ?: 'Dockerfile.build'
-    def _dockerBuildContext  = config.dockerBuildContext ?: '.'
-    def _dockerNamespace     = config.dockerNamespace ?: '' //default for edgex is empty string
-    def _dockerImageName     = config.dockerImageName ?: "docker-${_projectName}"
-    def _dockerNexusRepo     = config.dockerNexusRepo ?: 'staging'
-    def _buildImage          = edgex.defaultTrue(config.buildImage)
-    def _pushImage           = edgex.defaultTrue(config.pushImage)
-    def _semverBump          = config.semverBump ?: 'pre'
-    def _semverVersion       = config.semverVersion ?: '' // default to empty string because it is a falsey value
-    def _snapChannel         = config.snapChannel ?: 'latest/edge'
-    def _buildSnap           = edgex.defaultFalse(config.buildSnap)
-    def _publishSwaggerDocs  = edgex.defaultFalse(config.publishSwaggerDocs)
-    def _swaggerApiFolders   = config.swaggerApiFolders ?: ['api/openapi/v1']
+    def _dockerFileGlob        = config.dockerFileGlobPath ?: 'cmd/**/Dockerfile'
+    def _dockerImageNamePrefix = config.dockerImageNamePrefix ?: "docker-"
+    def _dockerImageNameSuffix = config.dockerImageNameSuffix ?: "-go"
+    def _dockerBuildFilePath   = config.dockerBuildFilePath ?: 'Dockerfile.build'
+    def _dockerBuildContext    = config.dockerBuildContext ?: '.'
+    def _dockerNamespace       = config.dockerNamespace ?: '' //default for edgex is empty string
+    def _dockerNexusRepo       = config.dockerNexusRepo ?: 'staging'
+    def _buildImage            = edgex.defaultTrue(config.buildImage)
+    def _pushImage             = edgex.defaultTrue(config.pushImage)
+    def _semverBump            = config.semverBump ?: 'pre'
+    def _goProxy               = config.goProxy ?: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
+    def _publishSwaggerDocs    = edgex.defaultFalse(config.publishSwaggerDocs)
+    def _swaggerApiFolders     = config.swaggerApiFolders ?: ['api/openapi/v1', 'api/openapi/v2']
 
-    def _buildExperimentalDockerImage  = edgex.defaultFalse(config.buildExperimentalDockerImage)
-    def _buildStableDockerImage        = false
-    
+    // commenting these out for now as edgex-go has a nightly snap build
+    // maybe we can integrate in the future if we can get the build time
+    // down
+    // def _snapChannel           = config.snapChannel ?: 'latest/edge'
+    // def _buildSnap             = edgex.defaultFalse(config.buildSnap)
+
     // no image to build, no image to push
     if(!_buildImage) {
         _pushImage = false
@@ -448,27 +437,41 @@ def toEnvironment(config) {
         TEST_SCRIPT: _testScript,
         BUILD_SCRIPT: _buildScript,
         GO_VERSION: _goVersion,
-        GOPROXY: _goProxy,
         DOCKER_BASE_IMAGE: _dockerBaseImage,
-        DOCKER_FILE_PATH: _dockerFilePath,
+        DOCKER_FILE_GLOB: _dockerFileGlob,
+        DOCKER_IMAGE_NAME_PREFIX: _dockerImageNamePrefix,
+        DOCKER_IMAGE_NAME_SUFFIX: _dockerImageNameSuffix,
         DOCKER_BUILD_FILE_PATH: _dockerBuildFilePath,
         DOCKER_BUILD_CONTEXT: _dockerBuildContext,
-        DOCKER_IMAGE_NAME: _dockerImageName,
         DOCKER_REGISTRY_NAMESPACE: _dockerNamespace,
         DOCKER_NEXUS_REPO: _dockerNexusRepo,
         BUILD_DOCKER_IMAGE: _buildImage,
         PUSH_DOCKER_IMAGE: _pushImage,
-        BUILD_EXPERIMENTAL_DOCKER_IMAGE: _buildExperimentalDockerImage,
-        BUILD_STABLE_DOCKER_IMAGE: _buildStableDockerImage,
         SEMVER_BUMP_LEVEL: _semverBump,
-        SNAP_CHANNEL: _snapChannel,
-        BUILD_SNAP: _buildSnap,
+        GOPROXY: _goProxy,
         PUBLISH_SWAGGER_DOCS: _publishSwaggerDocs,
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' ')
+        /*SNAP_CHANNEL: _snapChannel,
+        BUILD_SNAP: _buildSnap*/
     ]
 
-    edgex.bannerMessage "[edgeXBuildGoApp] Pipeline Parameters:"
+    edgex.bannerMessage "[edgeXBuildGoParallel] Pipeline Parameters:"
     edgex.printMap envMap
 
     envMap
+}
+
+def getDockersFromFilesystem(dockerFileGlob, imageNamePrefix, imageNameSuffix) {
+    def dockerFiles = sh(script: "for file in `ls ${dockerFileGlob}`; do echo \"\$(dirname \"\$file\" | cut -d/ -f2),\${file}\"; done", returnStdout: true).trim()
+
+    def dockers = dockerFiles.split('\n').collect {
+        def imageSplit  = it.split(",")
+        def serviceName = imageSplit[0]
+        def dockerFile  = imageSplit[1]
+        [ image: "${imageNamePrefix}${serviceName}${imageNameSuffix}", dockerfile: dockerFile ]
+    }
+
+    println "Generate Dockers from filesystem: ${dockers}"
+
+    dockers
 }

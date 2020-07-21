@@ -132,7 +132,88 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('docker.withRegistry').call(_) >> { _arguments ->
                 assert 'https://MyDockerRegistry:10002' == _arguments[0][0]
             }
-    }  
+    }
+
+    def "Test pushAll [Should] call push to correct registry and port [When] nexusRepo is staging when latest is true" () {
+        setup:
+            def environmentVariables = [
+                'GIT_COMMIT': 'MyGitCommit',
+                'VERSION': 'MyVersion',
+                'SEMVER_BRANCH': 'MySemverBranch',
+                'DOCKER_REGISTRY': 'MyDockerRegistry'
+            ]
+            edgeXDocker.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('MyDockerImageName-1') >> explicitlyMockPipelineVariable('DockerImageMock-1')
+            getPipelineMock('docker.image')('MyDockerImageName-2') >> explicitlyMockPipelineVariable('DockerImageMock-2')
+            getPipelineMock('docker.image')('MyDockerImageName-3') >> explicitlyMockPipelineVariable('DockerImageMock-3')
+        when:
+            edgeXDocker.pushAll([
+                [ image: 'MyDockerImageName-1', dockerfile: 'cmd/MyDockerfile' ],
+                [ image: 'MyDockerImageName-2', dockerfile: 'cmd/MyDockerfile' ],
+                [ image: 'MyDockerImageName-3', dockerfile: 'cmd/MyDockerfile' ],
+            ], true, 'staging')
+        then:
+            1 * getPipelineMock('DockerImageMock-1.push').call('MyGitCommit')
+            1 * getPipelineMock('DockerImageMock-1.push').call('latest')
+            1 * getPipelineMock('DockerImageMock-1.push').call('MySemverBranch')
+            1 * getPipelineMock('DockerImageMock-1.push').call('MyGitCommit-MyVersion')
+            1 * getPipelineMock('DockerImageMock-1.push').call('MyVersion')
+
+            1 * getPipelineMock('DockerImageMock-2.push').call('MyGitCommit')
+            1 * getPipelineMock('DockerImageMock-2.push').call('latest')
+            1 * getPipelineMock('DockerImageMock-2.push').call('MySemverBranch')
+            1 * getPipelineMock('DockerImageMock-2.push').call('MyGitCommit-MyVersion')
+            1 * getPipelineMock('DockerImageMock-2.push').call('MyVersion')
+
+            1 * getPipelineMock('DockerImageMock-3.push').call('MyGitCommit')
+            1 * getPipelineMock('DockerImageMock-3.push').call('latest')
+            1 * getPipelineMock('DockerImageMock-3.push').call('MySemverBranch')
+            1 * getPipelineMock('DockerImageMock-3.push').call('MyGitCommit-MyVersion')
+            1 * getPipelineMock('DockerImageMock-3.push').call('MyVersion')
+
+            3 * getPipelineMock('docker.withRegistry').call(_) >> { _arguments ->
+                assert 'https://MyDockerRegistry:10004' == _arguments[0][0]
+            }
+    }
+
+    def "Test pushAll [Should] call push to correct registry and port [When] nexusRepo is staging and latest flag is false" () {
+        setup:
+            def environmentVariables = [
+                'GIT_COMMIT': 'MyGitCommit',
+                'VERSION': 'MyVersion',
+                'SEMVER_BRANCH': 'MySemverBranch',
+                'DOCKER_REGISTRY': 'MyDockerRegistry'
+            ]
+            edgeXDocker.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('MyDockerImageName-1') >> explicitlyMockPipelineVariable('DockerImageMock-1')
+            getPipelineMock('docker.image')('MyDockerImageName-2') >> explicitlyMockPipelineVariable('DockerImageMock-2')
+            getPipelineMock('docker.image')('MyDockerImageName-3') >> explicitlyMockPipelineVariable('DockerImageMock-3')
+        when:
+            edgeXDocker.pushAll([
+                    [ image: 'MyDockerImageName-1', dockerfile: 'cmd/MyDockerfile' ],
+                    [ image: 'MyDockerImageName-2', dockerfile: 'cmd/MyDockerfile' ],
+                    [ image: 'MyDockerImageName-3', dockerfile: 'cmd/MyDockerfile' ],
+            ], false, 'staging')
+        then:
+            1 * getPipelineMock('DockerImageMock-1.push').call('MyGitCommit')
+            1 * getPipelineMock('DockerImageMock-1.push').call('MySemverBranch')
+            1 * getPipelineMock('DockerImageMock-1.push').call('MyGitCommit-MyVersion')
+            1 * getPipelineMock('DockerImageMock-1.push').call('MyVersion')
+
+            1 * getPipelineMock('DockerImageMock-2.push').call('MyGitCommit')
+            1 * getPipelineMock('DockerImageMock-2.push').call('MySemverBranch')
+            1 * getPipelineMock('DockerImageMock-2.push').call('MyGitCommit-MyVersion')
+            1 * getPipelineMock('DockerImageMock-2.push').call('MyVersion')
+
+            1 * getPipelineMock('DockerImageMock-3.push').call('MyGitCommit')
+            1 * getPipelineMock('DockerImageMock-3.push').call('MySemverBranch')
+            1 * getPipelineMock('DockerImageMock-3.push').call('MyGitCommit-MyVersion')
+            1 * getPipelineMock('DockerImageMock-3.push').call('MyVersion')
+
+            3 * getPipelineMock('docker.withRegistry').call(_) >> { _arguments ->
+                assert 'https://MyDockerRegistry:10004' == _arguments[0][0]
+            }
+    }
 
     def "Test finalImageName [Should] return expected [When] DOCKER_REGISTRY_NAMESPACE" () {
         setup:
@@ -458,7 +539,7 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
                 'version': '1.21.0'
             ]
 
-            edgeXDocker.generateDockerComposeForBuild(dockers, labels) == expectedResult
+            edgeXDocker.generateDockerComposeForBuild(dockers, labels, 'docker-') == expectedResult
         where:
             expectedResult = '''
 version: '3.7'
@@ -497,7 +578,7 @@ services:
                 [image: 'image-2-go', dockerfile: 'cmd/image-2/Dockerfile']
             ]
 
-            edgeXDocker.generateDockerComposeForBuild(dockers, null) == expectedResult
+            edgeXDocker.generateDockerComposeForBuild(dockers, null, 'prefix-') == expectedResult
         where:
             expectedResult = '''
 version: '3.7'
@@ -510,7 +591,7 @@ services:
       
       args:
         - BUILDER_BASE
-    image: docker-image-1-go
+    image: prefix-image-1-go
 
   image-2-go:
     build:
@@ -519,7 +600,7 @@ services:
       
       args:
         - BUILDER_BASE
-    image: docker-image-2-go
+    image: prefix-image-2-go
 '''
     }
 
@@ -570,7 +651,7 @@ services:
             edgeXDocker.buildInParallel([
                 [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
                 [image: 'image-2-go', dockerfile: 'cmd/image-2/Dockerfile']
-            ], 'ci-base-image')
+            ], 'docker-', 'ci-base-image')
         then:
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
                 _arguments[0][0] == 'BUILDER_BASE=ci-base-image'
@@ -632,7 +713,7 @@ services:
             edgeXDocker.buildInParallel([
                 [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
                 [image: 'image-2-go', dockerfile: 'cmd/image-2/Dockerfile']
-            ], 'ci-base-image-arm64')
+            ], 'docker-', 'ci-base-image-arm64')
         then:
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
                 _arguments[0][0] == 'BUILDER_BASE=ci-base-image-arm64'
@@ -686,7 +767,7 @@ services:
             edgeXDocker.buildInParallel([
                 [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
                 [image: 'image-2-go', dockerfile: 'cmd/image-2/Dockerfile']
-            ], 'ci-base-image')
+            ], 'docker-', 'ci-base-image')
         then:
             1 * getPipelineMock('error').call('[edgeXDocker] --parallel build is not supported in this version of docker-compose')
     }

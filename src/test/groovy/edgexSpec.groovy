@@ -614,4 +614,46 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
     }
 
+    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and true alpine flag" () {
+        setup:
+        expect:
+            edgeX.getGoLangBaseImage(version, true) == expectedResult
+        where:
+            version << [
+                '1.11',
+                '1.12',
+                '1.13',
+                '1.01',
+                'MyVersion'
+            ]
+            expectedResult << [
+                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.11.13-alpine',
+                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
+                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine',
+                'golang:1.01-alpine',
+                'golang:MyVersion-alpine'
+            ]
+    }
+
+    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and false alpine flag" () {
+        setup:
+        expect:
+            edgeX.getGoLangBaseImage(version, false) == expectedResult
+        where:
+            version << [
+                '1.11',
+                '1.12',
+                '1.13',
+                '1.01',
+                'MyVersion'
+            ]
+            expectedResult << [
+                'golang:1.11',
+                'golang:1.12',
+                'golang:1.13',
+                'golang:1.01',
+                'golang:MyVersion'
+            ]
+    }
+
 }
