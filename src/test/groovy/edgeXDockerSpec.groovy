@@ -215,6 +215,49 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             }
     }
 
+    def "Test pushAll [Should] call push to correct registry and port for ARM64 [When] nexusRepo is staging when latest is true" () {
+        setup:
+            def environmentVariables = [
+                'ARCH': 'arm64',
+                'GIT_COMMIT': 'MyGitCommit',
+                'VERSION': 'MyVersion',
+                'SEMVER_BRANCH': 'MySemverBranch',
+                'DOCKER_REGISTRY': 'MyDockerRegistry'
+            ]
+            edgeXDocker.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('MyDockerImageName-1-arm64') >> explicitlyMockPipelineVariable('DockerImageMock-1-arm64')
+            getPipelineMock('docker.image')('MyDockerImageName-2-arm64') >> explicitlyMockPipelineVariable('DockerImageMock-2-arm64')
+            getPipelineMock('docker.image')('MyDockerImageName-3-arm64') >> explicitlyMockPipelineVariable('DockerImageMock-3-arm64')
+        when:
+            edgeXDocker.pushAll([
+                [ image: 'MyDockerImageName-1', dockerfile: 'cmd/MyDockerfile' ],
+                [ image: 'MyDockerImageName-2', dockerfile: 'cmd/MyDockerfile' ],
+                [ image: 'MyDockerImageName-3', dockerfile: 'cmd/MyDockerfile' ],
+            ], true, 'staging', 'arm64')
+        then:
+            1 * getPipelineMock('DockerImageMock-1-arm64.push').call('MyGitCommit')
+            1 * getPipelineMock('DockerImageMock-1-arm64.push').call('latest')
+            1 * getPipelineMock('DockerImageMock-1-arm64.push').call('MySemverBranch')
+            1 * getPipelineMock('DockerImageMock-1-arm64.push').call('MyGitCommit-MyVersion')
+            1 * getPipelineMock('DockerImageMock-1-arm64.push').call('MyVersion')
+
+            1 * getPipelineMock('DockerImageMock-2-arm64.push').call('MyGitCommit')
+            1 * getPipelineMock('DockerImageMock-2-arm64.push').call('latest')
+            1 * getPipelineMock('DockerImageMock-2-arm64.push').call('MySemverBranch')
+            1 * getPipelineMock('DockerImageMock-2-arm64.push').call('MyGitCommit-MyVersion')
+            1 * getPipelineMock('DockerImageMock-2-arm64.push').call('MyVersion')
+
+            1 * getPipelineMock('DockerImageMock-3-arm64.push').call('MyGitCommit')
+            1 * getPipelineMock('DockerImageMock-3-arm64.push').call('latest')
+            1 * getPipelineMock('DockerImageMock-3-arm64.push').call('MySemverBranch')
+            1 * getPipelineMock('DockerImageMock-3-arm64.push').call('MyGitCommit-MyVersion')
+            1 * getPipelineMock('DockerImageMock-3-arm64.push').call('MyVersion')
+
+            3 * getPipelineMock('docker.withRegistry').call(_) >> { _arguments ->
+                assert 'https://MyDockerRegistry:10004' == _arguments[0][0]
+            }
+    }
+
     def "Test finalImageName [Should] return expected [When] DOCKER_REGISTRY_NAMESPACE" () {
         setup:
             def environmentVariables = [

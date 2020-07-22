@@ -123,7 +123,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        taggedAMD64Images = edgeXDocker.pushAll(dockerImagesToBuild, false, env.DOCKER_NEXUS_REPO)
+                                        taggedAMD64Images = edgeXDocker.pushAll(dockerImagesToBuild, false, env.DOCKER_NEXUS_REPO, env.ARCH)
                                     }
                                 }
                             }
@@ -212,7 +212,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        taggedARM64Images = edgeXDocker.pushAll(dockerImagesToBuild, false, env.DOCKER_NEXUS_REPO)
+                                        taggedARM64Images = edgeXDocker.pushAll(dockerImagesToBuild, false, env.DOCKER_NEXUS_REPO, env.ARCH)
                                     }
                                 }
                             }
