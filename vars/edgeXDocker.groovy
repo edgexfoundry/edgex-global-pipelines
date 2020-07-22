@@ -191,12 +191,17 @@ ${tags.join('\n')}
        ...
    ]
 */
-def pushAll(dockerImages, latest = true, nexusRepo = 'staging') {
+def pushAll(dockerImages, latest = true, nexusRepo = 'staging', arch = null) {
     def pushedImages = []
 
     for(int i = 0; i < dockerImages.size(); i++) {
         def imgDetails = dockerImages[i]
-        def taggedImages = push(imgDetails.image, latest, nexusRepo)
+        
+        // TODO: Need to standardize this. Maybe the caller should do this?? Not sure.
+        def imageNameSuffix = arch && arch == 'arm64' ? "-${arch}" : ''
+        def imageName = "${imgDetails.image}${imageNameSuffix}"
+
+        def taggedImages = push(imageName, latest, nexusRepo)
 
         // grab the first tag for Clair scan later
         if(taggedImages) {
