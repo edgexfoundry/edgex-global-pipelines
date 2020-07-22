@@ -113,6 +113,9 @@ def call(config) {
                             }
 
                             stage('Test') {
+                                when {
+                                    expression { !edgex.isReleaseStream() }
+                                }
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
@@ -197,6 +200,9 @@ def call(config) {
                             }
 
                             stage('Test') {
+                                when {
+                                    expression { !edgex.isReleaseStream() }
+                                }
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
