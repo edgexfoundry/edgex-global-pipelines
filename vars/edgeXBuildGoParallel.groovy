@@ -88,6 +88,9 @@ def call(config) {
                             }
 
                             stage('Test') {
+                                when {
+                                    expression { !edgex.isReleaseStream() }
+                                }
                                 steps {
                                     script {
                                         // docker.sock bind mount needed due to `make raml_verify` launching a docker image
@@ -177,6 +180,9 @@ def call(config) {
                             }
 
                             stage('Test') {
+                                when {
+                                    expression { !edgex.isReleaseStream() }
+                                }
                                 steps {
                                     script {
                                         // docker.sock bind mount needed due to `make raml_verify` launching a docker image
