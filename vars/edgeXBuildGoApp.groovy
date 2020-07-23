@@ -266,7 +266,12 @@ def call(config) {
 
             // CodeCov should only run once, no need to run per arch only
             stage('CodeCov') {
-                when { environment name: 'SILO', value: 'production' }
+                when {
+                    allOf {
+                        environment name: 'SILO', value: 'production'
+                        expression { !edgex.isReleaseStream() }
+                    }
+                }
                 steps {
                     unstash 'coverage-report'
                     edgeXCodecov "${env.PROJECT}-codecov-token"
