@@ -5,40 +5,47 @@ public class EdgeXClairSpec extends JenkinsPipelineSpecification {
 
     def edgeXClair = null
 
+    public static class TestException extends RuntimeException {
+        public TestException(String _message) {
+            super( _message );
+        }
+    }
+
     def setup() {
         edgeXClair = loadPipelineScriptForTest('vars/edgeXClair.groovy')
         explicitlyMockPipelineVariable('out')
     }
 
-    def "Test edgeXClair [Should] throw exception [When] no image is provided" () {
+    def "Test edgeXClair [Should] raise error [When] no image is provided" () {
         setup:
-            explicitlyMockPipelineStep('error')
+            // NOTE - docker and shstill needs to be stubbed because error below is caught but execution will continue
+            getPipelineMock('docker.image')(_) >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(_) >> ''
         when:
-            edgeXClair(null)
+            try {
+                edgeXClair('')
+            }
+            catch(TestException exception) {
+            }
         then:
-            thrown Exception
+            1 * getPipelineMock('error').call("edgeXClair scanner requires docker image to scan: [edgeXClair('dockerImage:tag')]")
     }
 
     def "Test edgeXClair [Should] write Clair report with expected html and archiveArtifacts [When] called" () {
         setup:
             def environmentVariables = [
-                'DOCKER_REGISTRY': 'MyDockerRegistry'
+                'DOCKER_REGISTRY': 'MyDockerRegistry',
+                'WORKSPACE': 'MyWorkspace'
             ]
             edgeXClair.getBinding().setVariable('env', environmentVariables)
-            edgeXClair.getBinding().setVariable('WORKSPACE', 'MyWorkspace')
 
-            // TODO: figure out how to mock other methods
+            // TODO: facilitate unit testsing by mocking internal function calls
             // getPipelineMock('scan')('MyDockerImage:MyTag', 'clair-alb-414217221.us-west-2.elb.amazonaws.com:6060', 'MyDockerRegistry:10003/edgex-klar:latest', 'json') >> 'KlarJsonResults'
             // getPipelineMock('scan')('MyDockerImage:MyTag', 'clair-alb-414217221.us-west-2.elb.amazonaws.com:6060', 'MyDockerRegistry:10003/edgex-klar:latest', 'html') >> 'KlarHtmlResults'
 
-            explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineStep('readJSON')
             getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-devops/edgex-klar:latest') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock('sh').call([script:'/klar MyDockerImage:MyTag | tee', returnStdout:true]) >> 'KlarOutput\n'
             getPipelineMock('readJSON').call([text:'KlarOutput']) >> 'KlarJsonOutput'
-
-            explicitlyMockPipelineStep('writeFile')
-
         when:
             edgeXClair('MyDockerImage:MyTag')
         then:
@@ -70,8 +77,6 @@ KlarOutput
 
     def "Test scan [Should] call expected commands with expected arguments [When] called with json outputFormat" () {
         setup:
-            explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineStep('readJSON')
             getPipelineMock('docker.image')('MyKlarImage') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXClair.scan('MyImage', 'MyServer', 'MyKlarImage', 'json')
@@ -93,8 +98,6 @@ KlarOutput
 
     def "Test scan [Should] echo expected commands with expected arguments [When] called when DRY_RUN is true" () {
         setup:
-            explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineStep('readJSON')
             getPipelineMock('docker.image')('MyKlarImage') >> explicitlyMockPipelineVariable('DockerImageMock')
 
             def environmentVariables = [
@@ -120,8 +123,6 @@ KlarOutput
 
     def "Test scan [Should] return expected result [When] called with json outputFormat and readJSON throws an exception" () {
         setup:
-            explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineStep('readJSON')
             getPipelineMock('docker.image')('MyKlarImage') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock('sh').call([script:'/klar MyImage | tee', returnStdout:true]) >> 'KlarOutput\n'
             getPipelineMock('readJSON').call([text:'KlarOutput']) >> {
@@ -133,7 +134,6 @@ KlarOutput
 
     def "Test scan [Should] return expected result [When] called with json outputFormat and klar command returns nothing" () {
         setup:
-            explicitlyMockPipelineStep('withEnv')
             getPipelineMock('docker.image')('MyKlarImage') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock('sh').call([script:'/klar MyImage | tee', returnStdout:true]) >> '\n'
         expect:
@@ -142,7 +142,6 @@ KlarOutput
 
     def "Test scan [Should] return expected result [When] called with non-json outputFormat" () {
         setup:
-            explicitlyMockPipelineStep('withEnv')
             getPipelineMock('docker.image')('MyKlarImage') >> explicitlyMockPipelineVariable('DockerImageMock')
             getPipelineMock('sh').call([script:'/klar MyImage | tee', returnStdout:true]) >> 'KlarOutput\n'
         expect:

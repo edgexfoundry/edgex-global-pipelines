@@ -48,7 +48,7 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
         docker.image(semverImage).inside('-v /etc/ssh:/etc/ssh') {
             withEnv(envVars) {
                 if((env.GITSEMVER_HEAD_TAG) && (command != 'init')) {
-                    println "Ignoring command ${command} because GITSEMVER_HEAD_TAG is already set to '${env.GITSEMVER_HEAD_TAG}'"
+                    println "[edgeXSemver]: ignoring command ${command} because GITSEMVER_HEAD_TAG is already set to '${env.GITSEMVER_HEAD_TAG}'"
                 }
                 else {
                     if(command == 'init') {
@@ -65,12 +65,12 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
         }
     }
 
-    env.setProperty('VERSION', semverVersion)
+    env.VERSION = semverVersion
 
     if(command == 'init') {
         writeFile file: 'VERSION', text: semverVersion
         stash name: 'semver', includes: '.semver/**,VERSION', useDefaultExcludes: false
-        echo "[edgeXSemver] initialized semver on version ${semverVersion}"
+        echo "[edgeXSemver]: initialized semver on version ${semverVersion}"
     }
 
     semverVersion
@@ -86,23 +86,17 @@ def executeSSH(credentials, command) {
 def setHeadTagEnv(credentials) {
     // set environment variable GITSEMVER_HEAD_TAG to value of tag at HEAD
     if(env.GITSEMVER_HEAD_TAG) {
-        println "envvar GITSEMVER_HEAD_TAG is already set to '${env.GITSEMVER_HEAD_TAG}'"
+        println "[edgeXSemver]: envvar GITSEMVER_HEAD_TAG is already set to '${env.GITSEMVER_HEAD_TAG}'"
         return
     }
     try {
         sshagent (credentials: [credentials]) {
             def tag = sh(script: 'git describe --exact-match --tags HEAD', returnStdout: true).trim()
-            println "Setting envvar GITSEMVER_HEAD_TAG value to \'${tag}\'"
-            env.setProperty('GITSEMVER_HEAD_TAG', tag)
+            println "[edgeXSemver]: setting envvar GITSEMVER_HEAD_TAG value to \'${tag}\'"
+            env.GITSEMVER_HEAD_TAG = tag
         }
     }
     catch(error) {
-        println "[WARNING]: exception occurred checking if HEAD is tagged: ${error}\nThis usually means this commit has not been tagged."
+        println "[edgeXSemver]: exception occurred checking if HEAD is tagged: ${error}\nThis usually means this commit has not been tagged."
     }
-}
-
-def isHeadTagEnv(credentials='edgex-jenkins-ssh') {
-    // return true if HEAD is tagged false otherwise
-    setHeadTagEnv(credentials)
-    return env.GITSEMVER_HEAD_TAG ? true : false
 }

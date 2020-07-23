@@ -11,24 +11,19 @@ public class EdgeXInfraShipLogsSpec extends JenkinsPipelineSpecification {
         explicitlyMockPipelineVariable('out')
     }
 
-    def "Test edgeXInfraShipLogs [Should] throw exception [When] logSettingsFile is null" () {
-        setup:
-        when:
-            edgeXInfraShipLogs({logSettingsFile = null})
-        then:
-            thrown Exception
-    }
-
     def "Test edgeXInfraShipLogs [Should] call expected shell scripts with expected arguments [When] called" () {
         setup:
             def environmentVariables = [
                 'DOCKER_REGISTRY': 'MyDockerRegistry',
-                'ghprbPullId': true
+                'ghprbPullId': true, 
+                'LOGS_SERVER': 'MyLogServer',
+                'SILO': 'MySilo',
+                'JENKINS_HOSTNAME': 'MyJenkinsHostname',
+                'JOB_NAME': 'MyJobName',
+                'BUILD_NUMBER': 'MyBuildNumber'
             ]
             edgeXInfraShipLogs.getBinding().setVariable('env', environmentVariables)
-            explicitlyMockPipelineStep('echo')
-            explicitlyMockPipelineStep('withEnv')
-            getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-lftools-log-publisher:alpine') >> explicitlyMockPipelineVariable('DockerImageMock')
+
             getPipelineMock("libraryResource")('global-jjb-shell/create-netrc.sh') >> {
                 return 'create-netrc'
             }
@@ -39,14 +34,10 @@ public class EdgeXInfraShipLogsSpec extends JenkinsPipelineSpecification {
                 return 'logs-clear-credentials'
             }
             edgeXInfraShipLogs.getBinding().setVariable('currentBuild', [:])
-            edgeXInfraShipLogs.getBinding().setVariable('LOGS_SERVER', 'MyLogServer')
-            edgeXInfraShipLogs.getBinding().setVariable('SILO', 'MySilo')
-            edgeXInfraShipLogs.getBinding().setVariable('JENKINS_HOSTNAME', 'MyJenkinsHostname')
-            edgeXInfraShipLogs.getBinding().setVariable('JOB_NAME', 'MyJobName')
-            edgeXInfraShipLogs.getBinding().setVariable('BUILD_NUMBER', 'MyBuildNumber')
         when:
             edgeXInfraShipLogs()
         then:
+            1 * getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-lftools-log-publisher:alpine') >> explicitlyMockPipelineVariable('DockerImageMock')
             1 * getPipelineMock('DockerImageMock.inside').call(_) >> { _arguments ->
                 def dockerArgs = '--privileged -u 0:0 -v /var/log/sa:/var/log/sa'
                 assert dockerArgs == _arguments[0][0]

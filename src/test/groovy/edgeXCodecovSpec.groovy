@@ -14,10 +14,10 @@ public class EdgeXCodecovSpec extends JenkinsPipelineSpecification {
     def "Test edgeXCodecov [Should] call Codecov token shell script with expected arguments [When] no tokenFile is provided" () {
         setup:
                 def environmentVariables = [
-                'PROJECT': 'MyProject'
+                'PROJECT': 'MyProject',
+                'CODECOV_TOKEN': 'MyCodecovToken'
             ]
             edgeXCodecov.getBinding().setVariable('env', environmentVariables)
-            edgeXCodecov.getBinding().setVariable('CODECOV_TOKEN', 'MyCodecovToken')
         when:
             edgeXCodecov()
         then:

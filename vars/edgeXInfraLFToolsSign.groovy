@@ -31,24 +31,12 @@ def call(Map config = [:]) {
         def _version = config.version ?: ''
         // def _manifest = config.manifest ?: ''
 
-        if(!_sigulConfig) {
-            throw new Exception('Sigul config file id (sigulConfig) is required for signing operations.')
-        }
-
-        if(!_sigulPassword) {
-            throw new Exception('Sigul password id (sigulPassword) is required for signing operations.')
-        }
-
-        if(!_sigulPKI) {
-            throw new Exception('Sigul PKI file id (sigulPKI) is required for signing operations.')
-        }
-
         if(_command == 'dir' && !_directory) {
-            throw new Exception('Directory location (directory) is required to sign files in a directory.')
+            error('Directory location (directory) is required to sign files in a directory.')
         }
 
         if(_command == 'git-tag' && !_version) {
-            throw new Exception('Version number (version) is required to sign a git teg.')
+            error('Version number (version) is required to sign a git teg.')
         }
 
         // TODO: Test signing containers in Fuji or later release
@@ -57,7 +45,7 @@ def call(Map config = [:]) {
         // }
 
         if(!_command) {
-            throw new Exception("Invalid command (command: ${_command}) provided for the edgeXInfraLFToolsSign function. (Valid values: dir, git-tag)")
+            error("Invalid command (command: ${_command}) provided for the edgeXInfraLFToolsSign function. (Valid values: dir, git-tag)")
         } else {
             def lftoolsImage = "nexus3.edgexfoundry.org:10003/edgex-lftools:${_lftoolsImageVersion}"
             
@@ -91,7 +79,7 @@ def call(Map config = [:]) {
                     } else {
                         echo 'Running global-jjb/shell/sigul-configuration-cleanup.sh'
                         sh(script: libraryResource('global-jjb-shell/sigul-configuration-cleanup.sh'))
-                        throw new Exception("Invalid command (command: ${_command}) provided for the edgeXInfraLFToolsSign function. (Valid values: dir, git-tag)")
+                        error("Invalid command (command: ${_command}) provided for the edgeXInfraLFToolsSign function. (Valid values: dir, git-tag)")
                     }
 
                     echo 'Running global-jjb/shell/sigul-configuration-cleanup.sh'

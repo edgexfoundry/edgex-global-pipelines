@@ -18,8 +18,6 @@ public class EdgeXDockerLoginSpec extends JenkinsPipelineSpecification {
 
     def "Test call [Should] raise error [When] config has no settingsFile" () {
         setup:
-            explicitlyMockPipelineStep('error')
-            explicitlyMockPipelineStep('withEnv')
         when:
             try {
                 edgeXDockerLogin()
@@ -32,8 +30,6 @@ public class EdgeXDockerLoginSpec extends JenkinsPipelineSpecification {
 
     def "Test call [Should] raise error [When] config has dockerRegistry but no dockerRegistryPorts" () {
         setup:
-            explicitlyMockPipelineStep('error')
-            explicitlyMockPipelineStep('withEnv')
         when:
             try {
                 def config = [
@@ -50,8 +46,6 @@ public class EdgeXDockerLoginSpec extends JenkinsPipelineSpecification {
 
     def "Test call [Should] raise error [When] config has dockerRegistryPorts but no dockerRegistry" () {
         setup:
-            explicitlyMockPipelineStep('error')
-            explicitlyMockPipelineStep('withEnv')
         when:
             try {
                 def config = [
@@ -68,8 +62,6 @@ public class EdgeXDockerLoginSpec extends JenkinsPipelineSpecification {
 
     def "Test call [Should] call expected [When] called" () {
         setup:
-            explicitlyMockPipelineStep('error')
-            explicitlyMockPipelineStep('withEnv')
         when:
             try {
                 def config = [

@@ -6,16 +6,15 @@ import spock.lang.*
 public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
 
     def edgeXDocker = null
-    def environment = [:]
     def layerManifestJsonBefore
     def layerManifestJsonAfter
     def finalJson
 
     def setup() {
         edgeXDocker = loadPipelineScriptForTest('vars/edgeXDocker.groovy')
-        edgeXDocker.getBinding().setVariable('env', environment)
-        edgeXDocker.getBinding().setVariable('edgex', {})
+
         explicitlyMockPipelineVariable('out')
+        explicitlyMockPipelineVariable('edgex')
 
         // mock Docker layer manifest json for relabeling
         layerManifestJsonBefore = ["architecture":"amd64","config":["Hostname":"","Domainname":"","User":"","AttachStdin":false,"AttachStdout":false,"AttachStderr":false,"ExposedPorts":["49982/tcp":[]],"Tty":false,"OpenStdin":false,"StdinOnce":false,"Env":["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin","APP_PORT=49982"],"Cmd":null,"ArgsEscaped":true,"Image":"sha256:b7da8951d19af6e43e3943b2005ddaa91e756f12608832736307c80ae86893c6","Volumes":null,"WorkingDir":"","Entrypoint":["/device-mqtt","--cp=consul://edgex-core-consul:8500","--registry","--confdir=/res"],"OnBuild":null,"Labels":["arch":"amd64","copyright":"Copyright (c) 2020: IoTech Ltd","git_sha":"4f542d150f63fd84c4c4e03c791e07fdb7c9aef4","license":"SPDX-License-Identifier: Apache-2.0","version":"1.2.0-dev.6"]],"container":"c4b1ea5a909bbe0130214f49692c84c69dc24c5fbda0e279a490ac593eb25e8b","container_config":["Hostname":"c4b1ea5a909b","Domainname":"","User":"","AttachStdin":false,"AttachStdout":false,"AttachStderr":false,"ExposedPorts":["49982/tcp":[]],"Tty":false,"OpenStdin":false,"StdinOnce":false,"Env":["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin","APP_PORT=49982"],"Cmd":["/bin/sh","-c","#(nop) ","LABEL version=1.2.0-dev.6"],"ArgsEscaped":true,"Image":"sha256:b7da8951d19af6e43e3943b2005ddaa91e756f12608832736307c80ae86893c6","Volumes":null,"WorkingDir":"","Entrypoint":["/device-mqtt","--cp=consul://edgex-core-consul:8500","--registry","--confdir=/res"],"OnBuild":null,"Labels":["arch":"amd64","copyright":"Copyright (c) 2020: IoTech Ltd","git_sha":"4f542d150f63fd84c4c4e03c791e07fdb7c9aef4","license":"SPDX-License-Identifier: Apache-2.0","version":"1.2.0-dev.6"]],"created":"2020-05-13T15:00:33.187912771Z","docker_version":"18.06.1-ce","history":[["created":"2020-04-24T01:05:03.608058404Z","created_by":"/bin/sh -c #(nop) ADD file:b91adb67b670d3a6ff9463e48b7def903ed516be66fc4282d22c53e41512be49 in / "],["created":"2020-04-24T01:05:03.92860976Z","created_by":"/bin/sh -c #(nop)  CMD [\"/bin/sh\"]","empty_layer":true],["created":"2020-05-13T15:00:31.171074256Z","created_by":"/bin/sh -c #(nop)  ENV APP_PORT=49982","empty_layer":true],["created":"2020-05-13T15:00:31.350986142Z","created_by":"/bin/sh -c #(nop)  EXPOSE 49982","empty_layer":true],["created":"2020-05-13T15:00:31.846385353Z","created_by":"/bin/sh -c #(nop) COPY dir:04470546df63ad3205f5effa68ee102c754852f4ba651455a5bb5abf320cb3d0 in / "],["created":"2020-05-13T15:00:32.044628408Z","created_by":"/bin/sh -c #(nop) COPY file:b94ba7cd5544d88c31accc4efe75d2d15cf8bc01c20910ef606c805cc984075a in / "],["created":"2020-05-13T15:00:32.276438532Z","created_by":"/bin/sh -c #(nop) COPY file:6773549d7da6173ed8787ad12523b982c658e584dd952d6e81d711fabc33f962 in / "],["created":"2020-05-13T15:00:32.436122217Z","created_by":"/bin/sh -c #(nop)  LABEL license=SPDX-License-Identifier: Apache-2.0 copyright=Copyright (c) 2020: IoTech Ltd","empty_layer":true],["created":"2020-05-13T15:00:32.641016434Z","created_by":"/bin/sh -c #(nop)  ENTRYPOINT [\"/device-mqtt\" \"--cp=consul://edgex-core-consul:8500\" \"--registry\" \"--confdir=/res\"]","empty_layer":true],["created":"2020-05-13T15:00:32.814519093Z","created_by":"/bin/sh -c #(nop)  LABEL arch=amd64","empty_layer":true],["created":"2020-05-13T15:00:33.013443391Z","created_by":"/bin/sh -c #(nop)  LABEL git_sha=4f542d150f63fd84c4c4e03c791e07fdb7c9aef4","empty_layer":true],["created":"2020-05-13T15:00:33.187912771Z","created_by":"/bin/sh -c #(nop)  LABEL version=1.2.0-dev.6","empty_layer":true]],"os":"linux","rootfs":["type":"layers","diff_ids":["sha256:3e207b409db364b595ba862cdc12be96dcdad8e36c59a03b7b3b61c946a5741a","sha256:c1edd3b3fa08e7c472be0a1114d3cce619ffc955ab4d82b5ee93ddd5d0c622b4","sha256:6586dd444b1a9882fa163436f377948347b6f9e3b02fd7aa5aeb2bff9ae884d9","sha256:e991526dc478bc5c1039461a8679787985231d38641e4ba17407c87c9b7fb38c"]]]
@@ -25,18 +24,17 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
     def "Test build [Should] call docker build with expected arguments [When] no BUILD_SCRIPT DOCKER_BUILD_ARGS" () {
         setup:
             def environmentVariables = [
-                'ARCH': 'MyArch'
+                'ARCH': 'MyArch',
+                'GIT_COMMIT': 'MyGitCommit',
+                'ARCH': 'MyArch',
+                'DOCKER_FILE_PATH': 'MyDockerFilePath',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
-            edgeXDocker.getBinding().setVariable('GIT_COMMIT', 'MyGitCommit')
-            edgeXDocker.getBinding().setVariable('ARCH', 'MyArch')
-            edgeXDocker.getBinding().setVariable('DOCKER_FILE_PATH', 'MyDockerFilePath')
-            edgeXDocker.getBinding().setVariable('DOCKER_BUILD_CONTEXT', 'MyDockerBuildContext')
-
         when:
             edgeXDocker.build('MyDockerImageName')
         then:
-            1 * getPipelineMock("docker.build").call(['MyDockerImageName', "-f MyDockerFilePath  --build-arg ARCH=MyArch  --label 'git_sha=MyGitCommit' --label 'arch=MyArch' MyDockerBuildContext"])
+            1 * getPipelineMock('docker.build').call(['MyDockerImageName', "-f MyDockerFilePath  --build-arg ARCH=MyArch  --label 'git_sha=MyGitCommit' --label 'arch=MyArch' MyDockerBuildContext"])
     }
 
     def "Test build [Should] call docker build with expected arguments [When] BUILD_SCRIPT DOCKER_BUILD_ARGS" () {
@@ -46,19 +44,16 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_ARGS': 'MyArg1,MyArg2,MyArg3',
                 'http_proxy': 'MyHttpProxy',
                 'VERSION': 'MyVersion',
-                'ARCH': 'MyArch'
+                'ARCH': 'MyArch', 
+                'GIT_COMMIT': 'MyGitCommit',
+                'DOCKER_FILE_PATH': 'MyDockerFilePath',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
-            edgeXDocker.getBinding().setVariable('GIT_COMMIT', 'MyGitCommit')
-            edgeXDocker.getBinding().setVariable('ARCH', 'MyArch')
-            edgeXDocker.getBinding().setVariable('DOCKER_FILE_PATH', 'MyDockerFilePath')
-            edgeXDocker.getBinding().setVariable('DOCKER_BUILD_CONTEXT', 'MyDockerBuildContext')
-            edgeXDocker.getBinding().setVariable('BUILD_SCRIPT', 'MyBuildScript')
-            edgeXDocker.getBinding().setVariable('VERSION', 'MyVersion')
         when:
             edgeXDocker.build('MyDockerImageName')
         then:
-            1 * getPipelineMock("docker.build").call(['MyDockerImageName', "-f MyDockerFilePath  --build-arg MAKE='MyBuildScript' --build-arg ARCH=MyArch --build-arg http_proxy --build-arg https_proxy --build-arg MyArg1 --build-arg MyArg2 --build-arg MyArg3  --label 'git_sha=MyGitCommit' --label 'arch=MyArch' --label 'version=MyVersion' MyDockerBuildContext"])
+            1 * getPipelineMock('docker.build').call(['MyDockerImageName', "-f MyDockerFilePath  --build-arg MAKE='MyBuildScript' --build-arg ARCH=MyArch --build-arg http_proxy --build-arg https_proxy --build-arg MyArg1 --build-arg MyArg2 --build-arg MyArg3  --label 'git_sha=MyGitCommit' --label 'arch=MyArch' --label 'version=MyVersion' MyDockerBuildContext"])
     }
 
     def "Test push [Should] call image push with expected arguments [When] VERSION SEMVER_BRANCH DOCKER_CUSTOM_TAGS" () {
@@ -264,7 +259,6 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
                 'DOCKER_REGISTRY_NAMESPACE': 'MyDockerRegistryNamespace'
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
-            edgeXDocker.getBinding().setVariable('DOCKER_REGISTRY_NAMESPACE', 'MyDockerRegistryNamespace')
         expect:
             edgeXDocker.finalImageName('MyImageName') == expectedResult
         where:
@@ -279,7 +273,6 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
                 'DOCKER_REGISTRY_NAMESPACE': '/'
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
-            edgeXDocker.getBinding().setVariable('DOCKER_REGISTRY_NAMESPACE', 'MyDockerRegistryNamespace')
         expect:
             edgeXDocker.finalImageName('MyImageName') == expectedResult
         where:
@@ -433,10 +426,7 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
 
     def "Test relabel [Should] call expected [When] pullImage is true" () {
         setup:
-            explicitlyMockPipelineStep('dir')
-            explicitlyMockPipelineStep('getTmpDir')
-            explicitlyMockPipelineStep('getDockerConfigJson')
-            getPipelineMock('getTmpDir')() >> 'ci-abc12'
+            getPipelineMock('edgex.getTmpDir').call() >> 'ci-abc12'
 
             getPipelineMock('readJSON').call(file: './manifest.json') >> [ Config: ['87883221c4438cff2ac9a3eb4ee8867ae92ae00401fa33dcda33bef47ddc50ec.json'] ]
             getPipelineMock('readJSON').call(file: './87883221c4438cff2ac9a3eb4ee8867ae92ae00401fa33dcda33bef47ddc50ec.json') >> layerManifestJsonBefore
@@ -461,10 +451,7 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
 
     def "Test relabel [Should] call expected [When] pullImage is false" () {
         setup:
-            explicitlyMockPipelineStep('dir')
-            explicitlyMockPipelineStep('getTmpDir')
-            explicitlyMockPipelineStep('getDockerConfigJson')
-            getPipelineMock('getTmpDir')() >> 'ci-abc12'
+            getPipelineMock('edgex.getTmpDir').call() >> 'ci-abc12'
 
             getPipelineMock('readJSON').call(file: './manifest.json') >> [ Config: ['87883221c4438cff2ac9a3eb4ee8867ae92ae00401fa33dcda33bef47ddc50ec.json'] ]
             getPipelineMock('readJSON').call(file: './87883221c4438cff2ac9a3eb4ee8867ae92ae00401fa33dcda33bef47ddc50ec.json') >> layerManifestJsonBefore
@@ -493,8 +480,6 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
     def "Test promote [Should] call expected [When] promoting to snapshots" () {
         setup:
             explicitlyMockPipelineVariable("getDockerTags")
-            explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineStep('push')
             def environmentVariables = [
                 'GIT_COMMIT': '4f542d150f63fd84c4c4e03c791e07fdb7c9aef4',
                 'VERSION': null,
@@ -504,7 +489,6 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
                 'DOCKER_PROMOTION_NAMESPACE': 'promo-time'
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
-            edgeXDocker.getBinding().setVariable('DOCKER_REGISTRY_NAMESPACE', 'promo-time')
             getPipelineMock('docker.image')("edgexfoundry/docker-device-mqtt-go") >> explicitlyMockPipelineVariable('edgexfoundry/docker-device-mqtt-go')
             getPipelineMock('docker.image')("edgexfoundry/docker-device-mqtt-go-arm64") >> explicitlyMockPipelineVariable('edgexfoundry/docker-device-mqtt-go-arm64')
         when:
@@ -522,16 +506,7 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
 
     def "Test promote [Should] call expected [When] promoting to staging" () {
         setup:
-            explicitlyMockPipelineVariable("getDockerTags")
-            explicitlyMockPipelineVariable("getPreviousCommit")
-
-            explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineStep('push')
-
-            explicitlyMockPipelineStep('dir')
-            explicitlyMockPipelineStep('getTmpDir')
-            explicitlyMockPipelineStep('getDockerConfigJson')
-            getPipelineMock('getTmpDir')() >> 'ci-abc12'
+            getPipelineMock('edgex.getTmpDir').call() >> 'ci-abc12'
 
             getPipelineMock('readJSON').call(file: './manifest.json') >> [ Config: ['87883221c4438cff2ac9a3eb4ee8867ae92ae00401fa33dcda33bef47ddc50ec.json'] ]
             getPipelineMock('readJSON').call(file: './87883221c4438cff2ac9a3eb4ee8867ae92ae00401fa33dcda33bef47ddc50ec.json') >> layerManifestJsonBefore
@@ -672,9 +647,6 @@ services:
 
     def "Test buildInParallel [Should] build expected docker images [When] called for amd64" () {
         setup:
-            explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineStep('writeFile')
-
             def environmentVariables = [
                 'GIT_COMMIT': '4f542d150f63fd84c4c4e03c791e07fdb7c9aef4',
                 'VERSION': '1.33.3',
@@ -734,9 +706,6 @@ services:
 
     def "Test buildInParallel [Should] build expected docker images [When] called for arm64" () {
         setup:
-            explicitlyMockPipelineStep('withEnv')
-            explicitlyMockPipelineStep('writeFile')
-
             def environmentVariables = [
                 'GIT_COMMIT': '4f542d150f63fd84c4c4e03c791e07fdb7c9aef4',
                 'VERSION': '1.33.3',
@@ -796,8 +765,6 @@ services:
 
     def "Test buildInParallel [Should] throw error [When] docker-compose does not support parallel" () {
         setup:
-            explicitlyMockPipelineStep('error')
-
             getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest')
 
             getPipelineMock('sh')([

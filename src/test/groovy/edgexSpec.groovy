@@ -4,7 +4,6 @@ import spock.lang.Ignore
 public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def edgeX = null
-    def environment = [:]
 
     public static class TestException extends RuntimeException {
         public TestException(String _message) { 
@@ -14,13 +13,15 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def setup() {
         edgeX = loadPipelineScriptForTest('vars/edgex.groovy')
-        edgeX.getBinding().setVariable('env', environment)
         explicitlyMockPipelineVariable('out')
     }
 
     def "Test isReleaseStream [Should] return expected [When] called in production" () {
         setup:
-            edgeX.getBinding().setVariable('env', [SILO: 'production'])
+            def environmentVariables = [
+                'SILO': 'production'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
 
         expect:
             edgeX.isReleaseStream('master') == true
@@ -36,7 +37,10 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test isReleaseStream [Should] return expected [When] called in non-production" () {
         setup:
-            edgeX.getBinding().setVariable('env', [SILO: 'sandbox'])
+            def environmentVariables = [
+                'SILO': 'sandbox'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
 
         expect:
             edgeX.isReleaseStream('master') == false
@@ -52,7 +56,10 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test isReleaseStream [Should] return expected [When] called without branchName in production" () {
         setup:
-            edgeX.getBinding().setVariable('env', [GIT_BRANCH: 'us5375'])
+            def environmentVariables = [
+                'GIT_BRANCH': 'us5375'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
 
         expect:
             edgeX.isReleaseStream() == expectedResult
@@ -274,17 +281,15 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test bannerMessage [Should] call expected [When] called" () {
         setup:
-            explicitlyMockPipelineVariable('echo')
         when:
             edgeX.bannerMessage('hello world')
         then:
-            1 * getPipelineMock('echo.call').call(
+            1 * getPipelineMock('echo').call(
                 '=========================================================\n hello world\n=========================================================')
     }
 
     def "Test printMap [Should] call expected [When] called" () {
         setup:
-            explicitlyMockPipelineVariable('echo')
         when:
             def map = [
                 name: 'the beatles',
@@ -294,7 +299,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
             edgeX.printMap(map)
         then:
-            1 * getPipelineMock('echo.call').call('     name: the beatles\n    color: blue\nisDefault: false\n    count: 101')
+            1 * getPipelineMock('echo').call('     name: the beatles\n    color: blue\nisDefault: false\n    count: 101')
     }
 
     def "Test defaultTrue [Should] return expected [When] called" () {
@@ -335,10 +340,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     def "Test releaseInfo [Should] run releaseinfo.sh shell script with [When] called" () {
         setup:
             explicitlyMockPipelineVariable('usernamePassword')
-            explicitlyMockPipelineVariable('withEnv')
             explicitlyMockPipelineVariable('bannerMessage')
-            explicitlyMockPipelineVariable('echo')
-
         when:
             edgeX.releaseInfo()
         then:
@@ -347,6 +349,10 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test isDryRun [Should] return false [When] DRY_RUN has false values" () {
         setup:
+            def environmentVariables = [
+                'DRY_RUN': ''
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
             def values = [
                 '0',
                 'false',
@@ -354,13 +360,17 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
         expect:
             values.each { value ->
-                edgeX.getBinding().setVariable('env', ['DRY_RUN': value])
+                edgeX.getBinding().setVariable(env.DRY_RUN, value)
                 edgeX.isDryRun() == false
             }
     }
 
     def "Test isDryRun [Should] return true [When] DRY_RUN has true values" () {
         setup:
+            def environmentVariables = [
+                'DRY_RUN': ''
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
             def values = [
                 null,
                 '1',
@@ -368,7 +378,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
         expect:
             values.each { value ->
-                edgeX.getBinding().setVariable('env', ['DRY_RUN': value])
+                edgeX.getBinding().setVariable(env.DRY_RUN, value)
                 edgeX.isDryRun() == true
             }
     }
@@ -416,7 +426,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test getPreviousCommit [Should] the previous commit [When] doing a merge commit" () {
         setup:
-            explicitlyMockPipelineStep('isMergeCommit')
+            explicitlyMockPipelineVariable('isMergeCommit')
 
             // mock isMergeCommit
             getPipelineMock('sh')([
@@ -441,7 +451,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test getPreviousCommit [Should] the previous commit [When] doing a regular/squash commit" () {
         setup:
-            explicitlyMockPipelineStep('isMergeCommit')
+            explicitlyMockPipelineVariable('isMergeCommit')
 
             getPipelineMock('sh')([
                     returnStdout: true,
@@ -458,7 +468,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test getBranchName [Should] return the current branch name" () {
         setup:
-            explicitlyMockPipelineStep('getCommitMessage')
+            explicitlyMockPipelineVariable('getCommitMessage')
 
             getPipelineMock('sh')([
                     returnStdout: true,
@@ -475,7 +485,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test getCommitMessage [Should] return the commit message [When] the commit sha is passed in" () {
         setup:
-            explicitlyMockPipelineStep('getCommitMessage')
+            explicitlyMockPipelineVariable('getCommitMessage')
 
             getPipelineMock('sh')([
                     returnStdout: true,
@@ -493,7 +503,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     // isBuildCommit should return true for strings that match the "build(...): ..." pattern only
     def "Test isBuildCommit [Should] return expected [When] called" () {
         setup:
-            explicitlyMockPipelineStep('error')
         expect:
             edgeX.isBuildCommit(value) == expectedResult
         where:
@@ -517,7 +526,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test parseBuildCommit [Should] return expected [When] called" () {
         setup:
-            explicitlyMockPipelineStep('error')
         expect:
                 edgeX.parseBuildCommit(value) == expectedResult
         where:
@@ -535,7 +543,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeX.parseBuildCommit('release(geneva): Release Device Grove C service (1.2.0) and Testing frameworks (1.2.1)')
@@ -548,7 +555,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeX.parseBuildCommit('Merge pull request #46 from lranjbar/geneva-release')
@@ -561,7 +567,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeX.parseBuildCommit('release(geneva dot): Release App Service Configurable to latest track')
@@ -574,7 +579,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeX.parseBuildCommit('Merge pull request #46 from lranjbar/build(hanoi): release')
@@ -587,7 +591,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeX.parseBuildCommit('build(hanoi): [1.2.0-dev.1,1.0.0] Stage Artifacts for edgex-go')

@@ -4,8 +4,6 @@ import spock.lang.Ignore
 public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
 
     def edgeXBuildDocker = null
-    def edgex = null
-    def environment = [:]
 
     public static class TestException extends RuntimeException {
         public TestException(String _message) { 
@@ -15,16 +13,12 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
 
     def setup() {
         edgeXBuildDocker = loadPipelineScriptForTest('vars/edgeXBuildDocker.groovy')
-        edgex = loadPipelineScriptForTest('vars/edgex.groovy')
-        edgeXBuildDocker.getBinding().setVariable('env', environment)
-        edgeXBuildDocker.getBinding().setVariable('edgex', edgex)
-        explicitlyMockPipelineVariable('out')
-        explicitlyMockPipelineStep('echo')
+
+        explicitlyMockPipelineVariable('edgex')
     }
 
     def "Test validate [Should] raise error [When] config has no project" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeXBuildDocker.validate([:])
@@ -37,7 +31,10 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
 
     def "Test toEnvironment [Should] return expected map [When] called" () {
         setup:
-
+            getPipelineMock('edgex.defaultTrue').call(true) >> true
+            getPipelineMock('edgex.defaultTrue').call(false) >> false
+            getPipelineMock('edgex.defaultTrue').call(null) >> true
+            getPipelineMock('edgex.defaultFalse').call(_) >> false
         expect:
             edgeXBuildDocker.toEnvironment(config) == expectedResult
         where:
