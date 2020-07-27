@@ -442,7 +442,7 @@ def toEnvironment(config) {
     def _snapChannel         = config.snapChannel ?: 'latest/edge'
     def _buildSnap           = edgex.defaultFalse(config.buildSnap)
     def _publishSwaggerDocs  = edgex.defaultFalse(config.publishSwaggerDocs)
-    def _swaggerApiFolders   = config.swaggerApiFolders ?: ['api/openapi/v1']
+    def _swaggerApiFolders   = config.swaggerApiFolders ?: ['openapi/v1']
 
     def _buildExperimentalDockerImage  = edgex.defaultFalse(config.buildExperimentalDockerImage)
     def _buildStableDockerImage        = false

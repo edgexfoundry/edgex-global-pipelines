@@ -109,7 +109,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     SNAP_CHANNEL: 'latest/edge',
                     BUILD_SNAP: false,
                     PUBLISH_SWAGGER_DOCS: false,
-                    SWAGGER_API_FOLDERS: 'api/openapi/v1'
+                    SWAGGER_API_FOLDERS: 'openapi/v1'
                 ]
             ]
     }
