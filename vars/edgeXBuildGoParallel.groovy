@@ -423,7 +423,7 @@ def toEnvironment(config) {
     def _semverBump            = config.semverBump ?: 'pre'
     def _goProxy               = config.goProxy ?: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
     def _publishSwaggerDocs    = edgex.defaultFalse(config.publishSwaggerDocs)
-    def _swaggerApiFolders     = config.swaggerApiFolders ?: ['api/openapi/v1', 'api/openapi/v2']
+    def _swaggerApiFolders     = config.swaggerApiFolders ?: ['openapi/v1', 'openapi/v2']
 
     // commenting these out for now as edgex-go has a nightly snap build
     // maybe we can integrate in the future if we can get the build time

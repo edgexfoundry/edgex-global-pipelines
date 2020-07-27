@@ -18,10 +18,10 @@
 NOTE: APIKEY needs to be a pointer to a file with the key. This will need to be set locally from your environment or from Jenkins
 edgeXSwaggerPublish(optional owner, apiFolder)
 /*
-   Usage: edgeXSwaggerPublish(apiFolders: 'api/openapi/v1 api/openapi/v2') Defaults to owner:EdgeXFoundry1
-   Usage: edgeXSwaggerPublish(apiFolders: 'api/openapi/v1') Defaults to owner:EdgeXFoundry1
-   Usage: edgeXSwaggerPublish(owner: 'customOwner', apiFolders:'api/openapi/v1')
-   Usage: edgeXSwaggerPublish(owner: 'customOwner', apiFolders:'api/openapi/v1 api/openapi/v2')
+   Usage: edgeXSwaggerPublish(apiFolders: 'openapi/v1 openapi/v2') Defaults to owner:EdgeXFoundry1
+   Usage: edgeXSwaggerPublish(apiFolders: 'openapi/v1') Defaults to owner:EdgeXFoundry1
+   Usage: edgeXSwaggerPublish(owner: 'customOwner', apiFolders:'openapi/v1')
+   Usage: edgeXSwaggerPublish(owner: 'customOwner', apiFolders:'openapi/v1 openapi/v2')
 */
 
 def call(Map config = [:]) {
