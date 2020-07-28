@@ -4,7 +4,6 @@ import spock.lang.Ignore
 public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
     
     def edgeXReleaseSnap = null
-    def edgeX = null
     def validReleaseInfo
     def validSnapInfo
 
@@ -16,9 +15,12 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
 
     def setup() {
         edgeXReleaseSnap = loadPipelineScriptForTest('vars/edgeXReleaseSnap.groovy')
-        edgeXReleaseSnap.getBinding().setVariable('edgex', {})
-        explicitlyMockPipelineStep('isDryRun')
+
         explicitlyMockPipelineVariable('out')
+
+        explicitlyMockPipelineVariable('edgex')
+        explicitlyMockPipelineVariable('edgeXSnap')
+
         validReleaseInfo = [
             'name': 'sample-service',
             'version': '1.2.3',
@@ -71,7 +73,6 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
 
     def "Test validate [Should] raise error [When] release info yaml does not have a name attribute" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'name'})
@@ -84,7 +85,6 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
 
     def "Test validate [Should] raise error [When] release info yaml does not have a version attribute" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'version'})
@@ -97,7 +97,6 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
 
     def "Test validate [Should] raise error [When] release info yaml does not have a snapChannels attribute" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'snapChannels'})
@@ -110,7 +109,6 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
 
     def "Test validate [Should] raise error [When] release info yaml does not have a releaseStream attribute" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'releaseStream'})
@@ -123,7 +121,6 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
 
     def "Test validate [Should] raise error [When] release info yaml does not have a repo attribute" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'repo'})
@@ -213,9 +210,8 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
 
     def "Test releaseSnap [Should] catch and raise error [When] exception occurs" () {
         setup:
-            explicitlyMockPipelineStep('error')
-            // TODO: figure out how to properly stub getSnapMetadata to set side-effect Exception
-            // explicitlyMockPipelineStep('getSnapMetadata')
+            // TODO: facilitate unit testsing by mocking internal function calls - stub getSnapMetadata to set side-effect Exception
+            // explicitlyMockPipelineVariable('getSnapMetadata')
             // getPipelineMock('getSnapMetadata').call(_) >> {
             //     throw new Exception('Get Snap Metadata Exception')
             // }
@@ -234,16 +230,13 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
 
     def "Test releaseSnap [Should] call expected [When] DRY_RUN is true" () {
         setup:
-            explicitlyMockPipelineStep('echo')
-            explicitlyMockPipelineStep('edgeXSnap')
-            explicitlyMockPipelineStep('withEnv')
             def environmentVariables = [
                 'WORKSPACE': '/w/thecars',
                 'DRY_RUN': 'true'
             ]
             def archList = []
             edgeXReleaseSnap.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('isDryRun')() >> true
+            getPipelineMock('edgex.isDryRun').call() >> true
             getPipelineMock('readYaml').call(file: '/w/thecars/snapcraft-sample-service.yaml') >> [
                 name: 'sample-service',
                 architectures: [
@@ -284,16 +277,13 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
 
     def "Test releaseSnap [Should] call expected [When] DRY_RUN is false" () {
         setup:
-            explicitlyMockPipelineStep('echo')
-            explicitlyMockPipelineStep('edgeXSnap')
-            explicitlyMockPipelineStep('withEnv')
             def environmentVariables = [
                 'WORKSPACE': '/w/thecars',
                 'DRY_RUN': 'false'
             ]
             def archList = []
             edgeXReleaseSnap.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('isDryRun')() >> false
+            getPipelineMock('edgex.isDryRun').call() >> false
             getPipelineMock('readYaml').call(file: '/w/thecars/snapcraft-sample-service.yaml') >> [
                 name: 'sample-service',
                 architectures: [
@@ -310,17 +300,17 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
                 script: "curl --fail -H 'Snap-Device-Series: 16' 'https://api.snapcraft.io/v2/snaps/info/sample-service?fields=name,revision'",
                 returnStdout: true]) >> ''
             getPipelineMock('readJSON').call(text: _) >> validSnapInfo
-            // URGH: was really hoping this would work based off how parseJson was mocked
-            // explicitlyMockPipelineStep('getSnapInfo')
+            // TODO: facilitate unit testsing by mocking internal function calls
+            // explicitlyMockPipelineVariable('getSnapInfo')
             // getPipelineMock('getSnapInfo')('sample-service') >> validSnapInfo
         when:
             edgeXReleaseSnap.releaseSnap(validReleaseInfo)
         then:
             1 * getPipelineMock('echo').call("[edgeXReleaseSnap]: architecture armhf is not supported")
-            1 * getPipelineMock('edgeXSnap').call([jobType: 'release', snapChannel: 'latest/stable', snapRevision: '2211', snapName: 'sample-service'])
-            1 * getPipelineMock('edgeXSnap').call([jobType: 'release', snapChannel: 'latest/stable', snapRevision: '2188', snapName: 'sample-service'])
-            1 * getPipelineMock('edgeXSnap').call([jobType: 'release', snapChannel: 'geneva/stable', snapRevision: '2211', snapName: 'sample-service'])
-            1 * getPipelineMock('edgeXSnap').call([jobType: 'release', snapChannel: 'geneva/stable', snapRevision: '2188', snapName: 'sample-service'])
+            1 * getPipelineMock('edgeXSnap.call')([jobType: 'release', snapChannel: 'latest/stable', snapRevision: '2211', snapName: 'sample-service'])
+            1 * getPipelineMock('edgeXSnap.call')([jobType: 'release', snapChannel: 'latest/stable', snapRevision: '2188', snapName: 'sample-service'])
+            1 * getPipelineMock('edgeXSnap.call')([jobType: 'release', snapChannel: 'geneva/stable', snapRevision: '2211', snapName: 'sample-service'])
+            1 * getPipelineMock('edgeXSnap.call')([jobType: 'release', snapChannel: 'geneva/stable', snapRevision: '2188', snapName: 'sample-service'])
             1 * getPipelineMock('echo').call("[edgeXReleaseSnap]: edgeXSnap(jobType: 'release', snapChannel: latest/stable, snapRevision: 2211, snapName: sample-service) - DRY_RUN: false")
             1 * getPipelineMock('echo').call("[edgeXReleaseSnap]: edgeXSnap(jobType: 'release', snapChannel: latest/stable, snapRevision: 2188, snapName: sample-service) - DRY_RUN: false")
             1 * getPipelineMock('echo').call("[edgeXReleaseSnap]: edgeXSnap(jobType: 'release', snapChannel: geneva/stable, snapRevision: 2211, snapName: sample-service) - DRY_RUN: false")
@@ -333,7 +323,6 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
 
     def "Test edgeXReleaseSnap [Should] echo repo is not snap enabled [When] release info yaml snap is false" () {
         setup:
-            explicitlyMockPipelineStep('echo')
         when:
             validReleaseInfo['snap'] = false
             edgeXReleaseSnap(validReleaseInfo)

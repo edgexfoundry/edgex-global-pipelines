@@ -25,9 +25,6 @@ def call(body) {
     }
 
     def _logSettingsFile = config.logSettingsFile ?: 'jenkins-log-archives-settings'
-    if(!_logSettingsFile) {
-        throw new Exception('Log settings file id (logSettingsFile) is required for LF log deploy script.')
-    }
 
     // running this inside the lftools container to avoid the 1-3 minute install of lftools
     docker.image("${env.DOCKER_REGISTRY}:10003/edgex-lftools-log-publisher:alpine").inside('--privileged -u 0:0 -v /var/log/sa:/var/log/sa') {
@@ -51,5 +48,5 @@ def call(body) {
     if(currentBuild.description.contains('PR #')) {
         currentBuild.description += "<br>"
     }
-    currentBuild.description += "Build logs: <a href=\"$LOGS_SERVER/$SILO/$JENKINS_HOSTNAME/$JOB_NAME/$BUILD_NUMBER\">$LOGS_SERVER/$SILO/$JENKINS_HOSTNAME/$JOB_NAME/$BUILD_NUMBER</a>"
+    currentBuild.description += "Build logs: <a href=\"${env.LOGS_SERVER}/${env.SILO}/${env.JENKINS_HOSTNAME}/${env.JOB_NAME}/${env.BUILD_NUMBER}\">${env.LOGS_SERVER}/${env.SILO}/${env.JENKINS_HOSTNAME}/${env.JOB_NAME}/${env.BUILD_NUMBER}</a>"
 }

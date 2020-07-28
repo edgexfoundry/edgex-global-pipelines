@@ -23,7 +23,7 @@ def call(image, Map options = [:]) {
     def server    = options.server    ?: 'clair-alb-414217221.us-west-2.elb.amazonaws.com:6060'
     
     if(!image) {
-        throw new Exception("edgeXClair scanner requires docker image to scan: [edgeXClair('dockerImage:tag')]")
+        error("edgeXClair scanner requires docker image to scan: [edgeXClair('dockerImage:tag')]")
     }
 
     // TODO: need to install pipeline utility plugin to convert json to map
@@ -35,11 +35,11 @@ def call(image, Map options = [:]) {
 
         def reportDir = 'clair-reports'
         
-        sh "mkdir -p ${WORKSPACE}/${reportDir}"
+        sh "mkdir -p ${env.WORKSPACE}/${reportDir}"
         
         def filename = "clair_results_${getImageName(image).replaceAll(':', '_')}.html"
         def html = tableHtml(image, table.replaceAll("\u001B\\[[;\\d]*m", ""))
-        println "Generated HTML Table Report. Writing to ${WORKSPACE}/${reportDir}/${filename}"
+        println "Generated HTML Table Report. Writing to ${env.WORKSPACE}/${reportDir}/${filename}"
         
         writeFile(file: "./${reportDir}/${filename}", text: html)
     

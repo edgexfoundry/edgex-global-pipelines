@@ -13,17 +13,13 @@ public class EdgeXUpdateNamedTagSpec extends JenkinsPipelineSpecification {
 
     def setup() {
         edgeXUpdateNamedTag = loadPipelineScriptForTest('vars/edgeXUpdateNamedTag.groovy')
-        edgeXUpdateNamedTag.getBinding().setVariable('edgex', {})
-        explicitlyMockPipelineStep('isDryRun')
-        explicitlyMockPipelineStep('sshagent')
-        explicitlyMockPipelineStep('writeFile')
+
+        explicitlyMockPipelineVariable('edgex')
     }
 
     def "Test edgeXUpdateNamedTag [Should] raise error [When] the original version [ogVersion] is not supplied" () {
         setup:
-            getPipelineMock('isDryRun')() >> true
-            explicitlyMockPipelineStep('error')
-            explicitlyMockPipelineStep('echo')
+            getPipelineMock('edgex.isDryRun').call() >> true
         when:
             try {
                 edgeXUpdateNamedTag()
@@ -36,9 +32,7 @@ public class EdgeXUpdateNamedTagSpec extends JenkinsPipelineSpecification {
 
     def "Test edgeXUpdateNamedTag [Should] raise error [When] the named version [namedVersion] is not supplied" () {
         setup:
-            getPipelineMock('isDryRun')() >> true
-            explicitlyMockPipelineStep('error')
-            explicitlyMockPipelineStep('echo')
+            getPipelineMock('edgex.isDryRun').call() >> true
         when:
             try {
                 edgeXUpdateNamedTag('0.0.0')
@@ -62,7 +56,6 @@ public class EdgeXUpdateNamedTagSpec extends JenkinsPipelineSpecification {
     def "Test edgeXUpdateNamedTag [Should] echo and sshagent with expected arguments [When] DRY_RUN is true" () {
         setup:
             getPipelineMock('isDryRun')() >> true
-            explicitlyMockPipelineVariable('echo')
         when:
             edgeXUpdateNamedTag('0.0.0', 'experimental')
         then:

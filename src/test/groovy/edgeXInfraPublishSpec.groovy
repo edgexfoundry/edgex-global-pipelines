@@ -6,23 +6,13 @@ public class EdgeXInfraPublishSpec extends JenkinsPipelineSpecification {
     def edgeXInfraPublish = null
 
     def setup() {
-
         edgeXInfraPublish = loadPipelineScriptForTest('vars/edgeXInfraPublish.groovy')
         explicitlyMockPipelineVariable('out')
-        explicitlyMockPipelineStep('edgeXInfraShipLogs')
-    }
-
-    def "Test edgeXInfraPublish [Should] throw exception [When] logSettingsFile is null" () {
-        setup:
-        when:
-            edgeXInfraPublish({logSettingsFile = null})
-        then:
-            thrown Exception
+        explicitlyMockPipelineVariable('edgeXInfraShipLogs')
     }
 
     def "Test edgeXInfraPublish [Should] call expected shell scripts with expected arguments [When] called" () {
         setup:
-            explicitlyMockPipelineStep('cleanWs')
             getPipelineMock("libraryResource")('global-jjb-shell/sysstat.sh') >> {
                 return 'sysstat'
             }

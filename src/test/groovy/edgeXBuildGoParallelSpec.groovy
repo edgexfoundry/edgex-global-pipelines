@@ -4,7 +4,6 @@ import spock.lang.Ignore
 public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
 
     def edgeXBuildGoParallel = null
-    def edgex = null
 
     public static class TestException extends RuntimeException {
         public TestException(String _message) { 
@@ -14,10 +13,14 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
 
     def setup() {
         edgeXBuildGoParallel = loadPipelineScriptForTest('vars/edgeXBuildGoParallel.groovy')
-        edgex = loadPipelineScriptForTest('vars/edgex.groovy')
-        edgeXBuildGoParallel.getBinding().setVariable('edgex', edgex)
 
-        explicitlyMockPipelineStep('echo')
+        explicitlyMockPipelineVariable('edgex')
+        getPipelineMock('edgex.defaultTrue').call(null) >> true
+        getPipelineMock('edgex.defaultFalse').call(null) >> false
+        getPipelineMock('edgex.defaultTrue').call(true) >> true
+        getPipelineMock('edgex.defaultFalse').call(true) >> true
+        getPipelineMock('edgex.defaultTrue').call(false) >> false
+        getPipelineMock('edgex.defaultFalse').call(false) >> false
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture" () {
@@ -60,7 +63,6 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
 
     def "Test validate [Should] raise error [When] config does not include a project parameter" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeXBuildGoParallel.validate([:])
@@ -77,6 +79,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                 'SILO': 'sandbox'
             ]
             edgeXBuildGoParallel.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine'
         expect:
             edgeXBuildGoParallel.toEnvironment(config) == expectedResult
         where:
@@ -116,6 +119,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
 
     def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config" () {
         setup:
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'golang:MyGoVersion-alpine'
         expect:
             edgeXBuildGoParallel.toEnvironment(config) == expectedResult
         where:

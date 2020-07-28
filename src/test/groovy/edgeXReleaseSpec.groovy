@@ -8,16 +8,20 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
     def setup() {
 
         edgeXRelease = loadPipelineScriptForTest('vars/edgeXRelease.groovy')
+
         explicitlyMockPipelineVariable('out')
-        edgeXRelease.getBinding().setVariable('edgex', {})
-        explicitlyMockPipelineStep('didChange')
+
+        explicitlyMockPipelineVariable('edgex')
+        explicitlyMockPipelineVariable('edgeXReleaseSnap')
+        explicitlyMockPipelineVariable('edgeXReleaseGitTag')
+        explicitlyMockPipelineVariable('edgeXReleaseDockerImage')
     }
 
     def "Test collectReleaseYamlFiles [Should] return instance of java.util.ArrayList of size 2 [When] called with no parameters and two changed files" () {
         setup:
             getPipelineMock('findFiles').call([glob:'release/*.yaml']) >> ['app-functions-sdk-go.yaml', 'edgex-go.yaml']
-            getPipelineMock('didChange').call('app-functions-sdk-go.yaml', 'release') >> true
-            getPipelineMock('didChange').call('edgex-go.yaml', 'release') >> true
+            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml', 'release') >> true
+            getPipelineMock('edgex.didChange').call('edgex-go.yaml', 'release') >> true
             getPipelineMock('readYaml').call([file:'app-functions-sdk-go.yaml']) >> [
                     name:'app-functions-sdk-go', 
                     version:'v1.2.0', 
@@ -83,8 +87,8 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
     def "Test collectReleaseYamlFiles [Should] return instance of java.util.ArrayList of size 1 [When] called with no parameters and one changed file" () {
         setup:
             getPipelineMock('findFiles').call([glob:'release/*.yaml']) >> ['app-functions-sdk-go.yaml', 'edgex-go.yaml']
-            getPipelineMock('didChange').call('app-functions-sdk-go.yaml', 'release') >> true
-            getPipelineMock('didChange').call('edgex-go.yaml', 'release') >> false
+            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml', 'release') >> true
+            getPipelineMock('edgex.didChange').call('edgex-go.yaml', 'release') >> false
             getPipelineMock('readYaml').call([file:'app-functions-sdk-go.yaml']) >> [
                     name:'app-functions-sdk-go', 
                     version:'v1.2.0', 
@@ -136,8 +140,8 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
     def "Test collectReleaseYamlFiles [Should] return instance of java.util.ArrayList of size 0 [When] called with no parameters and no changed files" () {
         setup:
             getPipelineMock('findFiles').call([glob:'release/*.yaml']) >> ['app-functions-sdk-go.yaml', 'edgex-go.yaml']
-            getPipelineMock('didChange').call('app-functions-sdk-go.yaml', 'release') >> false
-            getPipelineMock('didChange').call('edgex-go.yaml', 'release') >> false
+            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml', 'release') >> false
+            getPipelineMock('edgex.didChange').call('edgex-go.yaml', 'release') >> false
             getPipelineMock('readYaml').call([file:'app-functions-sdk-go.yaml']) >> [
                     name:'app-functions-sdk-go', 
                     version:'v1.2.0', 
@@ -214,8 +218,8 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
     def "Test collectReleaseYamlFiles [Should] return instance of java.util.ArrayList of size 2 [When] called with a filepath parameter and two changed files" () {
         setup:
             getPipelineMock('findFiles').call([glob:'fuji/*.yaml']) >> ['app-functions-sdk-go.yaml', 'edgex-go.yaml']
-            getPipelineMock('didChange').call('app-functions-sdk-go.yaml', 'release') >> true
-            getPipelineMock('didChange').call('edgex-go.yaml', 'release') >> true
+            getPipelineMock('edgex.didChange').call('app-functions-sdk-go.yaml', 'release') >> true
+            getPipelineMock('edgex.didChange').call('edgex-go.yaml', 'release') >> true
             getPipelineMock('readYaml').call([file:'app-functions-sdk-go.yaml']) >> [
                     name:'app-functions-sdk-go', 
                     version:'v1.2.0', 
@@ -280,9 +284,6 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
 
     def "Test parallelStepFactoryTransform [Should] call edgeXReleaseGitTag [When] called with gitTag: true" () {
         setup:
-            explicitlyMockPipelineStep('println')
-            explicitlyMockPipelineStep('edgeXReleaseGitTag')
-
             def step = 
                 [
                     name:'app-functions-sdk-go', 
@@ -302,14 +303,11 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
             edgeXRelease.parallelStepFactoryTransform(step).asWritable().toString()
 
         then:
-            1 * getPipelineMock("edgeXReleaseGitTag").call(['name':'app-functions-sdk-go', 'version':'v1.2.0', 'releaseName':'geneva', 'repo':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'gitTag':true, 'gitTagDestination':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'dockerImages':false, 'dockerSource':['https://nexus3.edgexfoundry.org/..', 'https://nexus3.edgexfoundry.org/..'], 'dockerDestination':['https://nexus3.edgexfoundry.org/..', 'https://hub.docker.com/..'], 'snap':false, 'snapDestination':'https://snapcraft.org/..', 'snapChannel':'geneva'])
+            1 * getPipelineMock("edgeXReleaseGitTag.call")(['name':'app-functions-sdk-go', 'version':'v1.2.0', 'releaseName':'geneva', 'repo':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'gitTag':true, 'gitTagDestination':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'dockerImages':false, 'dockerSource':['https://nexus3.edgexfoundry.org/..', 'https://nexus3.edgexfoundry.org/..'], 'dockerDestination':['https://nexus3.edgexfoundry.org/..', 'https://hub.docker.com/..'], 'snap':false, 'snapDestination':'https://snapcraft.org/..', 'snapChannel':'geneva'])
     }
 
     def "Test parallelStepFactoryTransform [Should] call edgeXReleaseSnap [When] called with snap: true" () {
         setup:
-            explicitlyMockPipelineStep('println')
-            explicitlyMockPipelineStep('edgeXReleaseSnap')
-
             def step = 
                 [
                     name:'app-functions-sdk-go', 
@@ -329,15 +327,11 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
             edgeXRelease.parallelStepFactoryTransform(step).asWritable().toString()
 
         then:
-            1 * getPipelineMock("edgeXReleaseSnap").call(['name':'app-functions-sdk-go', 'version':'v1.2.0', 'releaseName':'geneva', 'repo':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'gitTag':false, 'gitTagDestination':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'dockerImages':false, 'dockerSource':['https://nexus3.edgexfoundry.org/..', 'https://nexus3.edgexfoundry.org/..'], 'dockerDestination':['https://nexus3.edgexfoundry.org/..', 'https://hub.docker.com/..'], 'snap':true, 'snapDestination':'https://snapcraft.org/..', 'snapChannel':'geneva'])
+            1 * getPipelineMock("edgeXReleaseSnap.call")(['name':'app-functions-sdk-go', 'version':'v1.2.0', 'releaseName':'geneva', 'repo':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'gitTag':false, 'gitTagDestination':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'dockerImages':false, 'dockerSource':['https://nexus3.edgexfoundry.org/..', 'https://nexus3.edgexfoundry.org/..'], 'dockerDestination':['https://nexus3.edgexfoundry.org/..', 'https://hub.docker.com/..'], 'snap':true, 'snapDestination':'https://snapcraft.org/..', 'snapChannel':'geneva'])
     }
 
     def "Test parallelStepFactoryTransform [Should] call edgeXReleaseDockerImage [When] called with dockerImages: true" () {
         setup:
-            explicitlyMockPipelineStep('println')
-            explicitlyMockPipelineStep('edgeXReleaseDockerImage')
-            explicitlyMockPipelineStep('echo')
-
             def step = 
                 [
                     name:'app-functions-sdk-go', 

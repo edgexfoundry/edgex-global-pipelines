@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-// TODO: Simplify this
 def call(vars) {
     if(!vars) {
         vars = [:]
@@ -22,24 +21,23 @@ def call(vars) {
 
     def gitEnvVars = ['GIT_BRANCH', 'GIT_COMMIT']
     gitEnvVars.each { var ->
-        vars[var] = env.getProperty(var)
-    }
+        value = env[var]
+        vars[var] = value
 
-    if(vars != null) {
-        vars.each { k, v ->
-            env.setProperty(k, v)
-            
-            if(k == 'GIT_BRANCH') {
-                env.setProperty('SEMVER_BRANCH', v.replaceAll( /^origin\//, '' ))
-                env.setProperty('GIT_BRANCH_CLEAN', v.replaceAll('/', '_'))
-            }
-            
-            if(k == 'GIT_COMMIT') {
-                env.setProperty('SHORT_GIT_COMMIT', env.GIT_COMMIT.substring(0,7))
-            }
+        if(var == 'GIT_BRANCH') {
+            vars['SEMVER_BRANCH'] = value.replaceAll( /^origin\//, '' )
+            vars['GIT_BRANCH_CLEAN'] = value.replaceAll('/', '_')
+        }
+
+        if(var == 'GIT_COMMIT') {
+            vars['SHORT_GIT_COMMIT'] = value.substring(0, 7)
         }
     }
 
-    // set default semver suffix mode to development
-    env.setProperty('SEMVER_PRE_PREFIX', 'dev')
+    vars['SEMVER_PRE_PREFIX'] = 'dev'
+
+    vars.each { var, value ->
+        println "[edgeXSetupEnvironment]: set envvar ${var} = ${value}"
+        env[var] = value
+    }
 }

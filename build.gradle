@@ -56,29 +56,29 @@ dependencies {
   // so I added `withoutIcu` to all of them
 
   // Jenkins related
-  testImplementation "com.homeaway.devtools.jenkins:jenkins-spock:2.1.2", withoutIcu
+  testImplementation "com.homeaway.devtools.jenkins:jenkins-spock:2.1.4", withoutIcu
   testImplementation "javax.servlet:javax.servlet-api:3.1.0", withoutIcu
   testImplementation "org.jenkins-ci.main:jenkins-core:2.225", withoutIcu
   testImplementation "org.jenkins-ci.plugins.workflow:workflow-api:2.40@jar", withoutIcu
   testImplementation "org.jenkins-ci.plugins.workflow:workflow-step-api:2.22@jar", withoutIcu
   testImplementation "org.jenkins-ci.plugins.workflow:workflow-cps:2.78@jar", withoutIcu
   testImplementation "org.jenkins-ci.plugins.workflow:workflow-durable-task-step:2.35@jar", withoutIcu // provides the sh() pipeline step
+  testImplementation "org.jenkins-ci.plugins.workflow:workflow-basic-steps:2.20@jar", withoutIcu // provides the echo(), withEnv(), dir() pipeline step
   testImplementation "org.jenkins-ci.plugins:durable-task:1.33@jar", withoutIcu // transitive dependency for workflow-durable-task-step
   testImplementation "org.jenkins-ci.plugins.workflow:workflow-cps-global-lib:2.15@jar", withoutIcu // provides libraryResource() step
   testImplementation "org.jenkins-ci:symbol-annotation:1.10", withoutIcu
   testImplementation "org.jenkins-ci.plugins:slack:2.35@jar", withoutIcu // provides the slackSend() pipeline step
   testImplementation "org.jenkins-ci.plugins:pipeline-stage-step:2.3@jar", withoutIcu // provides stage() step
   testImplementation "org.jenkins-ci.plugins:ssh-agent:1.17@jar", withoutIcu // provides sshagent() step
+  testImplementation "org.jenkins-ci.plugins:credentials:2.3.12@jar", withoutIcu // provides credentials for ssh-agent
+  testImplementation "org.jenkins-ci.plugins:pipeline-utility-steps:2.6.1@jar", withoutIcu // provides readJson()
+  testImplementation "org.jenkins-ci.plugins:ws-cleanup:0.38@jar", withoutIcu // provides cleanWs()
+  testImplementation "org.jenkins-ci.plugins.workflow:workflow-scm-step:2.11@jar", withoutIcu // provides checkout()
   testImplementation "org.jenkins-ci.plugins:config-file-provider:3.6.2@jar", withoutIcu // provides the configFileProvider() pipeline step
   testImplementation "org.jenkins-ci.plugins:credentials-binding:1.20@jar", withoutIcu // provides withCredentials() step
-  testImplementation "org.jenkins-ci.plugins:pipeline-utility-steps:2.3.1@jar", withoutIcu // provides findFiles() step
   testImplementation "org.jenkins-ci.plugins:script-security:1.68@jar", withoutIcu
-
   testImplementation "org.jenkins-ci.plugins:docker-commons:1.15@jar"
   testImplementation "org.jenkins-ci.plugins:docker-workflow:1.21@jar"
-
-  testImplementation "org.springframework:spring-core:4.3.19.RELEASE", withoutIcu
-  testImplementation "org.springframework:spring-test:4.3.2.RELEASE", withoutIcu
 }
 
 test {

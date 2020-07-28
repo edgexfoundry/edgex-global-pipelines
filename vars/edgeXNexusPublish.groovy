@@ -67,7 +67,7 @@ def call(Map config = [:]) {
                     sh(script: libraryResource('global-jjb-shell/create-netrc.sh'))
 
                     zipFiles.each { file ->
-                        sh "lftools deploy nexus-zip $NEXUS_URL $NEXUS_REPO $NEXUS_PATH ${file}"
+                        sh "lftools deploy nexus-zip ${env.NEXUS_URL} ${env.NEXUS_REPO} ${env.NEXUS_PATH} ${file}"
                     }
                 }
             }

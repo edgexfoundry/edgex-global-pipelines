@@ -4,7 +4,6 @@ import spock.lang.Ignore
 public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
 
     def edgeXBuildGoApp = null
-    def edgex = null
 
     public static class TestException extends RuntimeException {
         public TestException(String _message) { 
@@ -14,10 +13,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
 
     def setup() {
         edgeXBuildGoApp = loadPipelineScriptForTest('vars/edgeXBuildGoApp.groovy')
-        edgex = loadPipelineScriptForTest('vars/edgex.groovy')
-        edgeXBuildGoApp.getBinding().setVariable('edgex', edgex)
 
-        explicitlyMockPipelineStep('echo')
+        explicitlyMockPipelineVariable('edgex')
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture" () {
@@ -60,7 +57,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
 
     def "Test validate [Should] raise error [When] config does not include a project parameter" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeXBuildGoApp.validate([:])
@@ -77,6 +73,9 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'SILO': 'sandbox'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('edgex.defaultTrue').call(_) >> true
+            getPipelineMock('edgex.defaultFalse').call(_) >> false
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine'
         expect:
             edgeXBuildGoApp.toEnvironment(config) == expectedResult
         where:
@@ -92,8 +91,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     USE_SEMVER: true,
                     TEST_SCRIPT: 'make test',
                     BUILD_SCRIPT: 'make build',
-                    GO_VERSION: '1.12',
-                    DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
+                    GO_VERSION: '1.13',
+                    DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine',
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
@@ -116,6 +115,13 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
 
     def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config" () {
         setup:
+            getPipelineMock('edgex.defaultTrue').call(null) >> true
+            getPipelineMock('edgex.defaultTrue').call(true) >> true
+            getPipelineMock('edgex.defaultTrue').call(false) >> false
+            getPipelineMock('edgex.defaultFalse').call(null) >> false
+            getPipelineMock('edgex.defaultFalse').call(true) >> true
+            getPipelineMock('edgex.defaultFalse').call(false) >> false
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'golang:MyGoVersion-alpine'
         expect:
             edgeXBuildGoApp.toEnvironment(config) == expectedResult
         where:
@@ -148,6 +154,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     TEST_SCRIPT: 'MyTestScript',
                     BUILD_SCRIPT: 'MyBuildScript',
                     GO_VERSION: 'MyGoVersion',
+                    GOPROXY: 'https://www.example.com/repository/go-proxy/',
                     DOCKER_BASE_IMAGE: 'golang:MyGoVersion-alpine',
                     DOCKER_FILE_PATH: 'MyDockerFilePath',
                     DOCKER_BUILD_FILE_PATH: 'MyDockerBuildFilePath',
@@ -160,7 +167,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     BUILD_EXPERIMENTAL_DOCKER_IMAGE: true, 
                     BUILD_STABLE_DOCKER_IMAGE: false,
                     SEMVER_BUMP_LEVEL: 'patch',
-                    GOPROXY: 'https://www.example.com/repository/go-proxy/',
                     SNAP_CHANNEL: 'edge',
                     BUILD_SNAP: false,
                     PUBLISH_SWAGGER_DOCS: true,

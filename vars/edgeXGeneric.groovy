@@ -386,5 +386,5 @@ def getConfigFilesFromEnv() {
 
 @NonCPS
 def setupPath(config) {
-    config.path ? "${PATH}:${config.path.join(':')}" : "${PATH}"
+    config.path ? "${env.PATH}:${config.path.join(':')}" : "${env.PATH}"
 }

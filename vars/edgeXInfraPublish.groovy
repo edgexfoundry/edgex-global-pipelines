@@ -25,9 +25,6 @@ def call(body) {
     }
 
     def _logSettingsFile = config.logSettingsFile ?: 'jenkins-log-archives-settings'
-    if(!_logSettingsFile) {
-        throw new Exception('Log settings file id (logSettingsFile) is required for LF log deploy script.')
-    }
 
     stage('LF Post Build Actions') {
         // lf-infra-systat

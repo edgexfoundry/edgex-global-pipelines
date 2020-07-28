@@ -22,7 +22,7 @@ def build(dockerImageName, baseImage = null) {
     }
 
     if(env.BUILD_SCRIPT) {
-        buildArgs << "MAKE='${BUILD_SCRIPT}'"
+        buildArgs << "MAKE='${env.BUILD_SCRIPT}'"
     }
 
     // transform to standard arch
@@ -47,11 +47,11 @@ def build(dockerImageName, baseImage = null) {
 
     def buildArgString = buildArgs.join(' --build-arg ')
 
-    def labels = ['', "'git_sha=${GIT_COMMIT}'", "'arch=${buildArgArch}'"]
+    def labels = ['', "'git_sha=${env.GIT_COMMIT}'", "'arch=${buildArgArch}'"]
 
     // in case VERSION is not set (i.e. use semver = false)
     if(env.VERSION) {
-        labels << "'version=${VERSION}'"
+        labels << "'version=${env.VERSION}'"
     }
 
     // devops labels go here (date, branch, build number, etc)
@@ -61,7 +61,7 @@ def build(dockerImageName, baseImage = null) {
     sh 'sudo chown -R jenkins:jenkins .'
     sh 'ls -al .'
 
-    docker.build(finalImageName(dockerImageName), "-f ${DOCKER_FILE_PATH} ${buildArgString} ${labelString} ${DOCKER_BUILD_CONTEXT}")
+    docker.build(finalImageName(dockerImageName), "-f ${env.DOCKER_FILE_PATH} ${buildArgString} ${labelString} ${env.DOCKER_BUILD_CONTEXT}")
 }
 
 def buildInParallel(dockerImages, imageNamePrefix, baseImage = null) {
@@ -441,7 +441,7 @@ def finalImageName(imageName) {
 
     // prepend with registry "namespace" if not empty
     if(env.DOCKER_REGISTRY_NAMESPACE && env.DOCKER_REGISTRY_NAMESPACE != '/') {
-        finalDockerImageName = "${DOCKER_REGISTRY_NAMESPACE}/${finalDockerImageName}"
+        finalDockerImageName = "${env.DOCKER_REGISTRY_NAMESPACE}/${finalDockerImageName}"
     }
 
     finalDockerImageName

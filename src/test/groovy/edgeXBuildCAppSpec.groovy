@@ -4,7 +4,6 @@ import spock.lang.Ignore
 public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
 
     def edgeXBuildCApp = null
-    def edgex = null
 
     public static class TestException extends RuntimeException {
         public TestException(String _message) { 
@@ -15,10 +14,10 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
     def setup() {
 
         edgeXBuildCApp = loadPipelineScriptForTest('vars/edgeXBuildCApp.groovy')
-        edgex = loadPipelineScriptForTest('vars/edgex.groovy')
-        edgeXBuildCApp.getBinding().setVariable('edgex', edgex)
 
-        explicitlyMockPipelineStep('echo')
+        explicitlyMockPipelineVariable('edgex')
+        getPipelineMock('edgex.defaultTrue').call(_) >> true
+        getPipelineMock('edgex.defaultFalse').call(_) >> false
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture" () {
@@ -63,7 +62,6 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
 
     def "Test validate [Should] raise error [When] config does not include a project parameter" () {
         setup:
-            explicitlyMockPipelineStep('error')
         when:
             try {
                 edgeXBuildCApp.validate([:])
