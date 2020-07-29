@@ -51,6 +51,7 @@ pipeline {
         }
 
         stage('Lint Pipelines') {
+            when { not { expression { env.BRANCH_NAME =~ /^master$/ } } }
             steps {
                 sh './scripts/linter.sh'
             }
@@ -66,7 +67,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'gradle -Dgradle.user.home=/gradleCache clean test'
+                sh 'gradle -Dgradle.user.home=/gradleCache clean test --parallel'
 
                 junit allowEmptyResults: true, testResults: 'target/test-results/test/*.xml'
 

@@ -123,6 +123,11 @@ compileTestGroovy {
 }
 compileTestGroovy.dependsOn copyGlobalLibVars
 
+tasks.withType(Test) {
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+    forkEvery = 100
+}
+
 // print the test classpath. Good for debugging ClassNotFound issues
 task printClasspath {
   doLast {
