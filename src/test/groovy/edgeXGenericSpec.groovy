@@ -5,12 +5,6 @@ public class EdgeXGenericSpec extends JenkinsPipelineSpecification {
 
     def edgeXGeneric = null
 
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) { 
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeXGeneric = loadPipelineScriptForTest('vars/edgeXGeneric.groovy')
 
@@ -21,13 +15,9 @@ public class EdgeXGenericSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] config has no project" () {
         setup:
         when:
-            try {
-                edgeXGeneric.validate([:])
-            }
-            catch(TestException exception) {
-            }
+            edgeXGeneric.validate([:])
         then:
-            1 * getPipelineMock('error').call(_ as String)
+            1 * getPipelineMock('error').call('[edgeXGeneric] The parameter "project" is required. This is typically the project name.')
     }
 
     def "Test toEnvironment [Should] return expected [When] called - DD" () {

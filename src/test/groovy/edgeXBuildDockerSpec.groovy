@@ -5,12 +5,6 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
 
     def edgeXBuildDocker = null
 
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) { 
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeXBuildDocker = loadPipelineScriptForTest('vars/edgeXBuildDocker.groovy')
 
@@ -20,13 +14,9 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] config has no project" () {
         setup:
         when:
-            try {
-                edgeXBuildDocker.validate([:])
-            }
-            catch(TestException exception) {
-            }
+            edgeXBuildDocker.validate([:])
         then:
-            1 * getPipelineMock('error').call(_ as String)
+            1 * getPipelineMock('error').call('[edgeXBuildDocker] The parameter "project" is required. This is typically the project name')
     }
 
     def "Test toEnvironment [Should] return expected map [When] called" () {

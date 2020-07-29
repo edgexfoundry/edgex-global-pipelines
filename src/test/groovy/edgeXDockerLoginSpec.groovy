@@ -5,12 +5,6 @@ public class EdgeXDockerLoginSpec extends JenkinsPipelineSpecification {
 
     def edgeXDockerLogin = null
 
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) { 
-            super( _message );
-        }
-    }
-
     def setup() {
 
         edgeXDockerLogin = loadPipelineScriptForTest('vars/edgeXDockerLogin.groovy')
@@ -19,62 +13,46 @@ public class EdgeXDockerLoginSpec extends JenkinsPipelineSpecification {
     def "Test call [Should] raise error [When] config has no settingsFile" () {
         setup:
         when:
-            try {
-                edgeXDockerLogin()
-            }
-            catch(TestException exception) {
-            }
+            edgeXDockerLogin()
         then:
-            1 * getPipelineMock('error').call(_ as String)
+            1 * getPipelineMock('error').call('Project Settings File id (settingsFile) is required for the docker login script.')
     }
 
     def "Test call [Should] raise error [When] config has dockerRegistry but no dockerRegistryPorts" () {
         setup:
         when:
-            try {
-                def config = [
-                    'settingsFile': 'settingsFile',
-                    'dockerRegistry': 'dockerRegistry'
-                ]
-                edgeXDockerLogin(config)
-            }
-            catch(TestException exception) {
-            }
+            def config = [
+                'settingsFile': 'settingsFile',
+                'dockerRegistry': 'dockerRegistry'
+            ]
+            edgeXDockerLogin(config)
         then:
-            1 * getPipelineMock('error').call(_ as String)
+            1 * getPipelineMock('error').call('Docker registry ports (dockerRegistryPorts) are required when docker registry is set (dockerRegistry).')
     }
 
     def "Test call [Should] raise error [When] config has dockerRegistryPorts but no dockerRegistry" () {
         setup:
         when:
-            try {
-                def config = [
-                    'settingsFile': 'settingsFile',
-                    'dockerRegistryPorts': 'dockerRegistryPorts'
-                ]
-                edgeXDockerLogin(config)
-            }
-            catch(TestException exception) {
-            }
+            def config = [
+                'settingsFile': 'settingsFile',
+                'dockerRegistryPorts': 'dockerRegistryPorts'
+            ]
+            edgeXDockerLogin(config)
         then:
-            1 * getPipelineMock('error').call(_ as String)
+            1 * getPipelineMock('error').call('Docker registry (dockerRegistry) is required when docker registry ports are set (dockerRegistryPorts).')
     }
 
     def "Test call [Should] call expected [When] called" () {
         setup:
         when:
-            try {
-                def config = [
-                    'settingsFile': 'settingsFile',
-                    'dockerRegistry': 'dockerRegistry',
-                    'dockerRegistryPorts': 'dockerRegistryPorts',
-                    'dockerHubRegistry': 'dockerHubRegistry',
-                    'dockerHubEmail': 'dockerHubEmail'
-                ]
-                edgeXDockerLogin(config)
-            }
-            catch(TestException exception) {
-            }
+            def config = [
+                'settingsFile': 'settingsFile',
+                'dockerRegistry': 'dockerRegistry',
+                'dockerRegistryPorts': 'dockerRegistryPorts',
+                'dockerHubRegistry': 'dockerHubRegistry',
+                'dockerHubEmail': 'dockerHubEmail'
+            ]
+            edgeXDockerLogin(config)
         then:
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
                 def envArgs = [

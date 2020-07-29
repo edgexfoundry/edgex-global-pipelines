@@ -26,7 +26,7 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
         when:
             edgeXSwaggerPublish(apiFolders:'api/v1')
         then:
-            1 * getPipelineMock("libraryResource").call('edgex-publish-swagger.sh')
+            1 * getPipelineMock("libraryResource").call('edgex-publish-swagger.sh') >> 'edgex-public-swagger-script'
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
                 def envArgs = [
                     'SWAGGER_DRY_RUN=true',
@@ -35,6 +35,7 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
                 ]
                 assert envArgs == _arguments[0][0]
             }
+            1 * getPipelineMock('sh').call(script: 'edgex-public-swagger-script')
     }
 
     def "Test edgeXSwaggerPublish [Should] call shell script with expected arguments [When] owner is provided" () {
@@ -43,7 +44,7 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
         when:
             edgeXSwaggerPublish(owner: 'Moby', apiFolders:'openapi/v1 openapi/v2')
         then:
-            1 * getPipelineMock("libraryResource").call('edgex-publish-swagger.sh')
+            1 * getPipelineMock("libraryResource").call('edgex-publish-swagger.sh') >> 'edgex-public-swagger-script'
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
                 def envArgs = [
                     'SWAGGER_DRY_RUN=false',
@@ -52,6 +53,7 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
                 ]
                 assert envArgs == _arguments[0][0]
             }
+            1 * getPipelineMock('sh').call(script: 'edgex-public-swagger-script')
     }
 
     def "Test edgeXSwaggerPublish [Should] should execute shell script correctly [When] DRY_RUN is true" () {
@@ -60,6 +62,7 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
         when:
             edgeXSwaggerPublish(apiFolders: 'openapi/v1 openapi/v2 custom_api')
         then:
+            1 * getPipelineMock("libraryResource").call('edgex-publish-swagger.sh') >> 'edgex-public-swagger-script'
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
                 def envArgs = [
                     'SWAGGER_DRY_RUN=true',
@@ -68,6 +71,7 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
                 ]
                 assert envArgs == _arguments[0][0]
             }
+            1 * getPipelineMock('sh').call(script: 'edgex-public-swagger-script')
     }
 
 }
