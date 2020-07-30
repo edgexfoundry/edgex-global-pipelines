@@ -21,7 +21,7 @@ def call(vars) {
 
     def gitEnvVars = ['GIT_BRANCH', 'GIT_COMMIT']
     gitEnvVars.each { var ->
-        value = env[var]
+        value = env."${var}"
         vars[var] = value
 
         if(var == 'GIT_BRANCH') {
@@ -38,6 +38,6 @@ def call(vars) {
 
     vars.each { var, value ->
         println "[edgeXSetupEnvironment]: set envvar ${var} = ${value}"
-        env[var] = value
+        env."${var}" = value
     }
 }

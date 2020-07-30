@@ -7,12 +7,6 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
     def validReleaseInfo
     def validSnapInfo
 
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) { 
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeXReleaseSnap = loadPipelineScriptForTest('vars/edgeXReleaseSnap.groovy')
 
@@ -74,11 +68,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a name attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'name'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'name'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseSnap]: Release yaml does not contain \'name\'')
     }
@@ -86,11 +76,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a version attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'version'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'version'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseSnap]: Release yaml does not contain \'version\'')
     }
@@ -98,11 +84,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a snapChannels attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'snapChannels'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'snapChannels'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseSnap]: Release yaml does not contain \'snapChannels\'')
     }
@@ -110,11 +92,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a releaseStream attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'releaseStream'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'releaseStream'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseSnap]: Release yaml does not contain \'releaseStream\'')
     }    
@@ -122,11 +100,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a repo attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'repo'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'repo'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseSnap]: Release yaml does not contain \'repo\'')
     }

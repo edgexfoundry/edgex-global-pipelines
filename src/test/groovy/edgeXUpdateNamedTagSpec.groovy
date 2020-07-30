@@ -5,12 +5,6 @@ public class EdgeXUpdateNamedTagSpec extends JenkinsPipelineSpecification {
     
     def edgeXUpdateNamedTag = null
 
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) { 
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeXUpdateNamedTag = loadPipelineScriptForTest('vars/edgeXUpdateNamedTag.groovy')
 
@@ -21,11 +15,7 @@ public class EdgeXUpdateNamedTagSpec extends JenkinsPipelineSpecification {
         setup:
             getPipelineMock('edgex.isDryRun').call() >> true
         when:
-            try {
-                edgeXUpdateNamedTag()
-            }
-            catch(TestException exception) {
-            }
+            edgeXUpdateNamedTag()
         then:
             1 * getPipelineMock('error').call('[edgeXUpdateNamedTag]: Original version (ogVersion) is required for the update named tag script.')
     }
@@ -34,11 +24,7 @@ public class EdgeXUpdateNamedTagSpec extends JenkinsPipelineSpecification {
         setup:
             getPipelineMock('edgex.isDryRun').call() >> true
         when:
-            try {
-                edgeXUpdateNamedTag('0.0.0')
-            }
-            catch(TestException exception) {
-            }
+            edgeXUpdateNamedTag('0.0.0')
         then:
             1 * getPipelineMock('error').call('[edgeXUpdateNamedTag]: Named version (namedVersion) is required for the update named tag script.')
     }

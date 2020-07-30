@@ -5,12 +5,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def edgeX = null
 
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) { 
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeX = loadPipelineScriptForTest('vars/edgex.groovy')
         explicitlyMockPipelineVariable('out')
@@ -544,11 +538,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
         setup:
         when:
-            try {
-                edgeX.parseBuildCommit('release(geneva): Release Device Grove C service (1.2.0) and Testing frameworks (1.2.1)')
-            }
-            catch(TestException exception) {
-            }
+            edgeX.parseBuildCommit('release(geneva): Release Device Grove C service (1.2.0) and Testing frameworks (1.2.1)')
         then:
             1 * getPipelineMock('error').call('[edgex.parseBuildCommit]: No matches found.')
     }
@@ -556,11 +546,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
         setup:
         when:
-            try {
-                edgeX.parseBuildCommit('Merge pull request #46 from lranjbar/geneva-release')
-            }
-            catch(TestException exception) {
-            }
+            edgeX.parseBuildCommit('Merge pull request #46 from lranjbar/geneva-release')
         then:
             1 * getPipelineMock('error').call('[edgex.parseBuildCommit]: No matches found.')
     }
@@ -568,11 +554,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
         setup:
         when:
-            try {
-                edgeX.parseBuildCommit('release(geneva dot): Release App Service Configurable to latest track')
-            }
-            catch(TestException exception) {
-            }
+            edgeX.parseBuildCommit('release(geneva dot): Release App Service Configurable to latest track')
         then:
             1 * getPipelineMock('error').call('[edgex.parseBuildCommit]: No matches found.')
     }
@@ -580,11 +562,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
         setup:
         when:
-            try {
-                edgeX.parseBuildCommit('Merge pull request #46 from lranjbar/build(hanoi): release')
-            }
-            catch(TestException exception) {
-            }
+            edgeX.parseBuildCommit('Merge pull request #46 from lranjbar/build(hanoi): release')
         then:
             1 * getPipelineMock('error').call('[edgex.parseBuildCommit]: No matches found.')
     }
@@ -592,11 +570,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     def "Test parseBuildCommit [Should] raise error [When] no matches are found" () {
         setup:
         when:
-            try {
-                edgeX.parseBuildCommit('build(hanoi): [1.2.0-dev.1,1.0.0] Stage Artifacts for edgex-go')
-            }
-            catch(TestException exception) {
-            }
+            edgeX.parseBuildCommit('build(hanoi): [1.2.0-dev.1,1.0.0] Stage Artifacts for edgex-go')
         then:
             1 * getPipelineMock('error').call('[edgex.parseBuildCommit]: No matches found.')
     }

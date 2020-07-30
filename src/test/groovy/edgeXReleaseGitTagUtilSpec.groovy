@@ -6,12 +6,6 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
     def edgeXReleaseGitTagUtil = null
     def validReleaseInfo
 
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) { 
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeXReleaseGitTagUtil = loadPipelineScriptForTest('vars/edgeXReleaseGitTagUtil.groovy')
 
@@ -31,11 +25,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a name attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseGitTagUtil.validate(validReleaseInfo.findAll {it.key != 'name'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseGitTagUtil.validate(validReleaseInfo.findAll {it.key != 'name'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseGitTag]: Release yaml does not contain \'name\'')
     }
@@ -43,11 +33,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a version attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseGitTagUtil.validate(validReleaseInfo.findAll {it.key != 'version'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseGitTagUtil.validate(validReleaseInfo.findAll {it.key != 'version'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseGitTag]: Release yaml does not contain \'version\'')
     }
@@ -55,11 +41,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a releaseStream attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseGitTagUtil.validate(validReleaseInfo.findAll {it.key != 'releaseStream'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseGitTagUtil.validate(validReleaseInfo.findAll {it.key != 'releaseStream'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseGitTag]: Release yaml does not contain \'releaseStream\'')
     }
@@ -67,11 +49,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a repo attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseGitTagUtil.validate(validReleaseInfo.findAll {it.key != 'repo'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseGitTagUtil.validate(validReleaseInfo.findAll {it.key != 'repo'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseGitTag]: Release yaml does not contain \'repo\'')
     }

@@ -5,12 +5,6 @@ public class EdgeXReleaseDockerImageIntSpec extends JenkinsPipelineSpecification
     def edgeXReleaseDockerImage, edgex
     def validReleaseYaml, invalidReleaseYaml
     
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) {
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeXReleaseDockerImage = loadPipelineScriptForTest('vars/edgeXReleaseDockerImage.groovy')
 
@@ -71,10 +65,7 @@ public class EdgeXReleaseDockerImageIntSpec extends JenkinsPipelineSpecification
             edgex.getBinding().setVariable('env', environmentVariables)
 
         when:
-
-            try {
-                edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
-            } catch(TestException exception) { }
+            edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
         then:
             1 * getPipelineMock('echo').call("[edgeXReleaseDockerImage] DRY_RUN: docker login happens here")
 
@@ -114,10 +105,7 @@ public class EdgeXReleaseDockerImageIntSpec extends JenkinsPipelineSpecification
             edgex.getBinding().setVariable('env', environmentVariables)
 
         when:
-
-            try {
-                edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
-            } catch(TestException exception) { }
+            edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
         then:
             1 * getPipelineMock('echo').call("[edgeXReleaseDockerImage] DRY_RUN: docker login happens here")
 
@@ -162,9 +150,7 @@ public class EdgeXReleaseDockerImageIntSpec extends JenkinsPipelineSpecification
             explicitlyMockPipelineVariable('edgeXDockerLogin')
 
         when:
-            try {
-                edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
-            } catch(TestException exception) { }
+            edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
         then:
             1 * getPipelineMock('edgeXDockerLogin.call')(settingsFile: 'some-settings')
 
@@ -196,9 +182,7 @@ public class EdgeXReleaseDockerImageIntSpec extends JenkinsPipelineSpecification
             explicitlyMockPipelineVariable('edgeXDockerLogin')
 
         when:
-            try {
-                edgeXReleaseDockerImage.publishDockerImages(invalidReleaseYaml)
-            } catch(TestException exception) { }
+            edgeXReleaseDockerImage.publishDockerImages(invalidReleaseYaml)
         then:
             1 * getPipelineMock('echo').call("[edgeXReleaseDockerImage] The sourceImage [nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master] did not release...")
     }

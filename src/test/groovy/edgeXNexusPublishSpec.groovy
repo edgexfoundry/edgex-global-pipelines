@@ -5,12 +5,6 @@ public class EdgeXNexusPublishSpec extends JenkinsPipelineSpecification {
 
     def edgeXNexusPublish = null
 
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) { 
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeXNexusPublish = loadPipelineScriptForTest('vars/edgeXNexusPublish.groovy')
         explicitlyMockPipelineVariable('out')
@@ -71,14 +65,10 @@ public class EdgeXNexusPublishSpec extends JenkinsPipelineSpecification {
             getPipelineMock('sh')([script: 'uname -m', returnStdout: true]) >> '\n'
             def String[] zipFiles = []
         when:
-            try {
-                def config = [
-                    path: 'MyNexusPath'
-                ]
-                edgeXNexusPublish(config)
-            }
-            catch(TestException exception) {
-            }
+            def config = [
+                path: 'MyNexusPath'
+            ]
+            edgeXNexusPublish(config)
         then:
             1 * getPipelineMock('findFiles').call([glob: null]) >> zipFiles
             1 * getPipelineMock('error').call("[edgeXNexusPublish] serverId is required to publish to nexus. Example: 'logs'")
@@ -89,15 +79,11 @@ public class EdgeXNexusPublishSpec extends JenkinsPipelineSpecification {
             getPipelineMock('sh')([script: 'uname -m', returnStdout: true]) >> '\n'
             def String[] zipFiles = []
         when:
-            try {
-                def config = [
-                    path: 'MyNexusPath',
-                    serverId: 'MyServerId'
-                ]
-                edgeXNexusPublish(config)
-            }
-            catch(TestException exception) {
-            }
+            def config = [
+                path: 'MyNexusPath',
+                serverId: 'MyServerId'
+            ]
+            edgeXNexusPublish(config)
         then:
             1 * getPipelineMock('findFiles').call([glob: null]) >> zipFiles
             1 * getPipelineMock('error').call("[edgeXNexusPublish] mavenSettings is required to publish to nexus. Example: 'sandbox-settings'")
@@ -108,16 +94,12 @@ public class EdgeXNexusPublishSpec extends JenkinsPipelineSpecification {
             getPipelineMock('sh')([script: 'uname -m', returnStdout: true]) >> '\n'
             def String[] zipFiles = []
         when:
-            try {
-                def config = [
-                    path: 'MyNexusPath',
-                    serverId: 'MyServerId',
-                    mavenSettings: 'MySetting1,MySetting2'
-                ]
-                edgeXNexusPublish(config)
-            }
-            catch(TestException exception) {
-            }
+            def config = [
+                path: 'MyNexusPath',
+                serverId: 'MyServerId',
+                mavenSettings: 'MySetting1,MySetting2'
+            ]
+            edgeXNexusPublish(config)
         then:
             1 * getPipelineMock('findFiles').call([glob: null]) >> zipFiles
             1 * getPipelineMock('error').call("[edgeXNexusPublish] nexusRepo is required to publish to nexus. Example: 'logs'")
@@ -128,17 +110,13 @@ public class EdgeXNexusPublishSpec extends JenkinsPipelineSpecification {
             getPipelineMock('sh')([script: 'uname -m', returnStdout: true]) >> '\n'
             def String[] zipFiles = []
         when:
-            try {
-                def config = [
-                    path: 'MyNexusPath',
-                    serverId: 'MyServerId',
-                    mavenSettings: 'MySetting1,MySetting2',
-                    nexusRepo: 'MyNexusRepo'
-                ]
-                edgeXNexusPublish(config)
-            }
-            catch(TestException exception) {
-            }
+            def config = [
+                path: 'MyNexusPath',
+                serverId: 'MyServerId',
+                mavenSettings: 'MySetting1,MySetting2',
+                nexusRepo: 'MyNexusRepo'
+            ]
+            edgeXNexusPublish(config)
         then:
             1 * getPipelineMock('findFiles').call([glob: null]) >> zipFiles
             1 * getPipelineMock('error').call("[edgeXNexusPublish] zipFilePath is required to publish to nexus. Example: '**/*.zip'")

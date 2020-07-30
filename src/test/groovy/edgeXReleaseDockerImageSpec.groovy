@@ -5,12 +5,6 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
     def edgeXReleaseDockerImage
     def validReleaseYaml
     
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) {
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeXReleaseDockerImage = loadPipelineScriptForTest('vars/edgeXReleaseDockerImage.groovy')
 
@@ -110,11 +104,7 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not contain docker attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseDockerImage.validate(validReleaseYaml.findAll {it.key != 'docker'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseDockerImage.validate(validReleaseYaml.findAll {it.key != 'docker'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseDockerImage] Release yaml does not contain a list \'docker\' images')
     }
@@ -122,11 +112,7 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a releaseStream attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseDockerImage.validate(validReleaseYaml.findAll {it.key != 'releaseStream'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseDockerImage.validate(validReleaseYaml.findAll {it.key != 'releaseStream'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseDockerImage] Release yaml does not contain \'releaseStream\' (branch where you are releasing from). Example: master')
     }
@@ -134,11 +120,7 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] release info yaml does not have a version attribute" () {
         setup:
         when:
-            try {
-                edgeXReleaseDockerImage.validate(validReleaseYaml.findAll {it.key != 'version'})
-            }
-            catch(TestException exception) {
-            }
+            edgeXReleaseDockerImage.validate(validReleaseYaml.findAll {it.key != 'version'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseDockerImage] Release yaml does not contain release \'version\'. Example: v1.1.2')
     }

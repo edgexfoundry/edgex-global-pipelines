@@ -5,12 +5,6 @@ public class EdgeXClairSpec extends JenkinsPipelineSpecification {
 
     def edgeXClair = null
 
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) {
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeXClair = loadPipelineScriptForTest('vars/edgeXClair.groovy')
         explicitlyMockPipelineVariable('out')
@@ -18,15 +12,11 @@ public class EdgeXClairSpec extends JenkinsPipelineSpecification {
 
     def "Test edgeXClair [Should] raise error [When] no image is provided" () {
         setup:
-            // NOTE - docker and shstill needs to be stubbed because error below is caught but execution will continue
+            // NOTE - docker and sh still needs to be stubbed because error is mocked and apparently doesn't halt execution of method
             getPipelineMock('docker.image')(_) >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(_) >> ''
         when:
-            try {
-                edgeXClair('')
-            }
-            catch(TestException exception) {
-            }
+            edgeXClair('')
         then:
             1 * getPipelineMock('error').call("edgeXClair scanner requires docker image to scan: [edgeXClair('dockerImage:tag')]")
     }

@@ -5,12 +5,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
 
     def edgeXBuildGoApp = null
 
-    public static class TestException extends RuntimeException {
-        public TestException(String _message) { 
-            super( _message );
-        }
-    }
-
     def setup() {
         edgeXBuildGoApp = loadPipelineScriptForTest('vars/edgeXBuildGoApp.groovy')
 
@@ -58,13 +52,9 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
     def "Test validate [Should] raise error [When] config does not include a project parameter" () {
         setup:
         when:
-            try {
-                edgeXBuildGoApp.validate([:])
-            }
-            catch(TestException exception) {
-            }
+            edgeXBuildGoApp.validate([:])
         then:
-            1 * getPipelineMock('error').call(_ as String)
+            1 * getPipelineMock('error').call('[edgeXBuildGoApp] The parameter "project" is required. This is typically the project name.')
     }
 
     def "Test toEnvironment [Should] return expected map of default values [When] sandbox environment" () {
