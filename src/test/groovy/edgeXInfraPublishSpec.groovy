@@ -8,7 +8,7 @@ public class EdgeXInfraPublishSpec extends JenkinsPipelineSpecification {
     def setup() {
         edgeXInfraPublish = loadPipelineScriptForTest('vars/edgeXInfraPublish.groovy')
         explicitlyMockPipelineVariable('out')
-        explicitlyMockPipelineVariable('edgeXInfraShipLogs')
+        explicitlyMockPipelineVariable('lfInfraShipLogs')
     }
 
     def "Test edgeXInfraPublish [Should] call expected shell scripts with expected arguments [When] called" () {
