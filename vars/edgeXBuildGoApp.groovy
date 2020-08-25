@@ -154,19 +154,17 @@ def call(config) {
                             }
 
                             stage('Snap') {
+                                agent { label 'centos7-docker-8c-8g' }
                                 when {
+                                    beforeAgent true
                                     allOf {
                                         environment name: 'BUILD_SNAP', value: 'true'
                                         expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                        expression { !edgex.isReleaseStream() }
                                     }
                                 }
                                 steps {
-                                    script {
-                                        edgeXSnap(
-                                            jobType: edgex.isReleaseStream() ? 'stage' : 'build',
-                                            snapChannel: env.SNAP_CHANNEL
-                                        )
-                                    }
+                                    edgeXSnap(jobType: 'build')
                                 }
                             }
                         }
@@ -241,19 +239,17 @@ def call(config) {
                             }
 
                             stage('Snap') {
+                                agent { label 'ubuntu18.04-docker-arm64-16c-16g' }
                                 when {
+                                    beforeAgent true
                                     allOf {
                                         environment name: 'BUILD_SNAP', value: 'true'
                                         expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                        expression { !edgex.isReleaseStream() }
                                     }
                                 }
                                 steps {
-                                    script {
-                                        edgeXSnap(
-                                            jobType: edgex.isReleaseStream() ? 'stage' : 'build',
-                                            snapChannel: env.SNAP_CHANNEL
-                                        )
-                                    }
+                                    edgeXSnap(jobType: 'build')
                                 }
                             }
                         }
@@ -439,7 +435,7 @@ def toEnvironment(config) {
     def _pushImage           = edgex.defaultTrue(config.pushImage)
     def _semverBump          = config.semverBump ?: 'pre'
     def _semverVersion       = config.semverVersion ?: '' // default to empty string because it is a falsey value
-    def _snapChannel         = config.snapChannel ?: 'latest/edge'
+    // def _snapChannel         = config.snapChannel ?: 'latest/edge'
     def _buildSnap           = edgex.defaultFalse(config.buildSnap)
     def _publishSwaggerDocs  = edgex.defaultFalse(config.publishSwaggerDocs)
     def _swaggerApiFolders   = config.swaggerApiFolders ?: ['openapi/v1']
@@ -472,7 +468,7 @@ def toEnvironment(config) {
         BUILD_EXPERIMENTAL_DOCKER_IMAGE: _buildExperimentalDockerImage,
         BUILD_STABLE_DOCKER_IMAGE: _buildStableDockerImage,
         SEMVER_BUMP_LEVEL: _semverBump,
-        SNAP_CHANNEL: _snapChannel,
+        // SNAP_CHANNEL: _snapChannel,
         BUILD_SNAP: _buildSnap,
         PUBLISH_SWAGGER_DOCS: _publishSwaggerDocs,
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' ')
