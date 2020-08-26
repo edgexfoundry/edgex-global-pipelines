@@ -99,10 +99,9 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     SEMVER_BUMP_LEVEL: 'pre',
                     GOPROXY: 'https://nexus3.edgexfoundry.org/repository/go-proxy/',
                     PUBLISH_SWAGGER_DOCS: false,
-                    SWAGGER_API_FOLDERS: 'openapi/v1 openapi/v2'
-                    /*SNAP_CHANNEL: 'latest/edge',
-                    BUILD_SNAP: false,
-                    */
+                    SWAGGER_API_FOLDERS: 'openapi/v1 openapi/v2',
+                    // SNAP_CHANNEL: 'latest/edge',
+                    BUILD_SNAP: false
                 ]
             ]
     }
@@ -155,10 +154,9 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     SEMVER_BUMP_LEVEL: 'patch',
                     GOPROXY: 'https://www.example.com/repository/go-proxy/',
                     PUBLISH_SWAGGER_DOCS: true,
-                    SWAGGER_API_FOLDERS: 'api/v20 api/v30'
-                    /*SNAP_CHANNEL: 'edge',
+                    SWAGGER_API_FOLDERS: 'api/v20 api/v30',
+                    // SNAP_CHANNEL: 'edge',
                     BUILD_SNAP: false,
-                    */
                 ]
             ]
     }

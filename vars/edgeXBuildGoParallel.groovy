@@ -131,24 +131,25 @@ def call(config) {
                                 }
                             }
 
-                            /* Do not want to confuse...Leaving out Snap on inital release
-                               of this pipeline as edgex-go already has a dedicated snap pipeline
                             stage('Snap') {
+                                agent {
+                                    node {
+                                        label 'centos7-docker-8c-8g'
+                                        customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                                    }
+                                }
                                 when {
+                                    beforeAgent true
                                     allOf {
                                         environment name: 'BUILD_SNAP', value: 'true'
                                         expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                        expression { !edgex.isReleaseStream() }
                                     }
                                 }
                                 steps {
-                                    script {
-                                        edgeXSnap(
-                                            jobType: edgex.isReleaseStream() ? 'stage' : 'build',
-                                            snapChannel: env.SNAP_CHANNEL
-                                        )
-                                    }
+                                    edgeXSnap(jobType: 'build')
                                 }
-                            }*/
+                            }
                         }
                     }
 
@@ -223,24 +224,25 @@ def call(config) {
                                 }
                             }
 
-                            /* Do not want to confuse...Leaving out Snap on inital release
-                               of this pipeline as edgex-go already has a dedicated snap pipeline
                             stage('Snap') {
+                                agent {
+                                    node {
+                                        label 'ubuntu18.04-docker-arm64-16c-16g'
+                                        customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                                    }
+                                }
                                 when {
+                                    beforeAgent true
                                     allOf {
                                         environment name: 'BUILD_SNAP', value: 'true'
                                         expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                        expression { !edgex.isReleaseStream() }
                                     }
                                 }
                                 steps {
-                                    script {
-                                        edgeXSnap(
-                                            jobType: edgex.isReleaseStream() ? 'stage' : 'build',
-                                            snapChannel: env.SNAP_CHANNEL
-                                        )
-                                    }
+                                    edgeXSnap(jobType: 'build')
                                 }
-                            }*/
+                            }
                         }
                     }
                 }
@@ -425,11 +427,8 @@ def toEnvironment(config) {
     def _publishSwaggerDocs    = edgex.defaultFalse(config.publishSwaggerDocs)
     def _swaggerApiFolders     = config.swaggerApiFolders ?: ['openapi/v1', 'openapi/v2']
 
-    // commenting these out for now as edgex-go has a nightly snap build
-    // maybe we can integrate in the future if we can get the build time
-    // down
     // def _snapChannel           = config.snapChannel ?: 'latest/edge'
-    // def _buildSnap             = edgex.defaultFalse(config.buildSnap)
+    def _buildSnap             = edgex.defaultFalse(config.buildSnap)
 
     // no image to build, no image to push
     if(!_buildImage) {
@@ -456,9 +455,9 @@ def toEnvironment(config) {
         SEMVER_BUMP_LEVEL: _semverBump,
         GOPROXY: _goProxy,
         PUBLISH_SWAGGER_DOCS: _publishSwaggerDocs,
-        SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' ')
-        /*SNAP_CHANNEL: _snapChannel,
-        BUILD_SNAP: _buildSnap*/
+        SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
+        // SNAP_CHANNEL: _snapChannel,
+        BUILD_SNAP: _buildSnap
     ]
 
     edgex.bannerMessage "[edgeXBuildGoParallel] Pipeline Parameters:"

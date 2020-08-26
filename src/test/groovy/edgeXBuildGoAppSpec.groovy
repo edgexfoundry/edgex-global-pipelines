@@ -95,7 +95,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     BUILD_STABLE_DOCKER_IMAGE: false,
                     SEMVER_BUMP_LEVEL: 'pre',
                     GOPROXY: 'https://nexus3.edgexfoundry.org/repository/go-proxy/',
-                    SNAP_CHANNEL: 'latest/edge',
+                    // SNAP_CHANNEL: 'latest/edge',
                     BUILD_SNAP: false,
                     PUBLISH_SWAGGER_DOCS: false,
                     SWAGGER_API_FOLDERS: 'openapi/v1'
@@ -131,7 +131,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     semverBump: 'patch',
                     goProxy: 'https://www.example.com/repository/go-proxy/',
                     useAlpineBase: true,
-                    snapChannel: 'edge',
+                    // snapChannel: 'edge',
                     publishSwaggerDocs: true,
                     swaggerApiFolders: ['api/v20', 'api/v30']
                 ]
@@ -157,7 +157,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     BUILD_EXPERIMENTAL_DOCKER_IMAGE: true, 
                     BUILD_STABLE_DOCKER_IMAGE: false,
                     SEMVER_BUMP_LEVEL: 'patch',
-                    SNAP_CHANNEL: 'edge',
+                    // SNAP_CHANNEL: 'edge',
                     BUILD_SNAP: false,
                     PUBLISH_SWAGGER_DOCS: true,
                     SWAGGER_API_FOLDERS: 'api/v20 api/v30'
