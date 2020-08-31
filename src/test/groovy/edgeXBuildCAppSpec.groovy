@@ -93,7 +93,6 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
                     SEMVER_BUMP_LEVEL: 'pre',
-                    SNAP_CHANNEL: 'latest/edge',
                     BUILD_SNAP: false
                 ]
             ]
@@ -115,8 +114,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     dockerNamespace: 'MyDockerNameSpace',
                     dockerImageName: 'MyDockerImageName',
                     dockerNexusRepo: 'MyNexusRepo',
-                    semverBump: 'patch',
-                    snapChannel: 'edge'
+                    semverBump: 'patch'
                 ]
             ]
             expectedResult << [
@@ -136,7 +134,6 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
                     SEMVER_BUMP_LEVEL: 'patch',
-                    SNAP_CHANNEL: 'edge',
                     BUILD_SNAP: false
                 ]
             ]
