@@ -154,7 +154,12 @@ def call(config) {
                             }
 
                             stage('Snap') {
-                                agent { label 'centos7-docker-8c-8g' }
+                                agent {
+                                    node {
+                                        label 'centos7-docker-8c-8g'
+                                        customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                                    }
+                                }
                                 when {
                                     beforeAgent true
                                     allOf {
@@ -239,7 +244,12 @@ def call(config) {
                             }
 
                             stage('Snap') {
-                                agent { label 'ubuntu18.04-docker-arm64-16c-16g' }
+                                agent {
+                                    node {
+                                        label 'ubuntu18.04-docker-arm64-16c-16g'
+                                        customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                                    }
+                                }
                                 when {
                                     beforeAgent true
                                     allOf {
