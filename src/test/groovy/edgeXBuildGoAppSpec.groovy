@@ -124,6 +124,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     dockerFilePath: 'MyDockerFilePath',
                     dockerBuildFilePath: 'MyDockerBuildFilePath',
                     dockerBuildContext: 'MyDockerBuildContext',
+                    dockerBuildArgs: ['MyArg1=Value1', 'MyArg2="Value2"'],
                     dockerNamespace: 'MyDockerNameSpace',
                     dockerImageName: 'MyDockerImageName',
                     dockerNexusRepo: 'MyNexusRepo',
@@ -160,7 +161,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     // SNAP_CHANNEL: 'edge',
                     BUILD_SNAP: false,
                     PUBLISH_SWAGGER_DOCS: true,
-                    SWAGGER_API_FOLDERS: 'api/v20 api/v30'
+                    SWAGGER_API_FOLDERS: 'api/v20 api/v30',
+                    DOCKER_BUILD_ARGS: 'MyArg1=Value1,MyArg2="Value2"'
                 ]
             ]
     }
