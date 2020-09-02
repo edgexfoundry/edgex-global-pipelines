@@ -378,6 +378,7 @@ def toEnvironment(config) {
     def _dockerFilePath      = config.dockerFilePath ?: 'Dockerfile'
     def _dockerBuildFilePath = config.dockerBuildFilePath ?: 'Dockerfile.build'
     def _dockerBuildContext  = config.dockerBuildContext ?: '.'
+    def _dockerBuildArgs     = config.dockerBuildArgs ?: []
     def _dockerNamespace     = config.dockerNamespace ?: '' //default for edgex is empty string
     def _dockerImageName     = config.dockerImageName ?: "docker-${_projectName}"
     def _dockerNexusRepo     = config.dockerNexusRepo ?: 'staging'
@@ -411,6 +412,11 @@ def toEnvironment(config) {
         //SNAP_CHANNEL: _snapChannel,
         BUILD_SNAP: _buildSnap
     ]
+
+    // encode with comma in case build arg has space
+    if(_dockerBuildArgs) {
+        envMap << [ DOCKER_BUILD_ARGS: _dockerBuildArgs.join(',')]
+    }
 
     edgex.bannerMessage "[edgeXBuildCApp] Pipeline Parameters:"
     edgex.printMap envMap

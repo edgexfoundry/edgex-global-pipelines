@@ -111,6 +111,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     dockerFilePath: '/scripts/Dockerfile.alpine-3.9',
                     dockerBuildFilePath: 'Dockerfile.build',
                     dockerBuildContext: '.',
+                    dockerBuildArgs: ['MyArg1=Value1', 'MyArg2="Value2"'],
                     dockerNamespace: 'MyDockerNameSpace',
                     dockerImageName: 'MyDockerImageName',
                     dockerNexusRepo: 'MyNexusRepo',
@@ -134,7 +135,8 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
                     SEMVER_BUMP_LEVEL: 'patch',
-                    BUILD_SNAP: false
+                    BUILD_SNAP: false,
+                    DOCKER_BUILD_ARGS: 'MyArg1=Value1,MyArg2="Value2"'
                 ]
             ]
     }
