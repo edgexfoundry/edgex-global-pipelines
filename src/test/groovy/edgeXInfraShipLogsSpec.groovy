@@ -39,7 +39,7 @@ public class EdgeXInfraShipLogsSpec extends JenkinsPipelineSpecification {
         then:
             1 * getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-lftools-log-publisher:alpine') >> explicitlyMockPipelineVariable('DockerImageMock')
             1 * getPipelineMock('DockerImageMock.inside').call(_) >> { _arguments ->
-                def dockerArgs = '--privileged -u 0:0 -v /var/log/sa:/var/log/sa'
+                def dockerArgs = '--privileged -u 0:0 -v /var/log/sa:/var/log/sa-host'
                 assert dockerArgs == _arguments[0][0]
             }
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
@@ -48,6 +48,8 @@ public class EdgeXInfraShipLogsSpec extends JenkinsPipelineSpecification {
                 ]
                 assert envArgs == _arguments[0][0]
             }
+            1 * getPipelineMock('sh').call('mkdir -p /var/log/sa')
+            1 * getPipelineMock('sh').call('for file in `ls /var/log/sa-host`; do sadf -c /var/log/sa-host/${file} > /var/log/sa/${file}; done')
             1 * getPipelineMock('sh').call([script:'create-netrc'])
             1 * getPipelineMock('sh').call([script:'logs-deploy'])
             1 * getPipelineMock('sh').call([script:'logs-clear-credentials'])
