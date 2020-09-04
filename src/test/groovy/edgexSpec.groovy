@@ -602,6 +602,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 '1.11',
                 '1.12',
                 '1.13',
+                '1.15',
                 '1.01',
                 'MyVersion'
             ]
@@ -609,6 +610,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.11.13-alpine',
                 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
                 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine',
+                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.15-alpine',
                 'golang:1.01-alpine',
                 'golang:MyVersion-alpine'
             ]
@@ -623,6 +625,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 '1.11',
                 '1.12',
                 '1.13',
+                '1.15',
                 '1.01',
                 'MyVersion'
             ]
@@ -630,6 +633,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 'golang:1.11',
                 'golang:1.12',
                 'golang:1.13',
+                'golang:1.15',
                 'golang:1.01',
                 'golang:MyVersion'
             ]
