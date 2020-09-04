@@ -42,7 +42,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                 'ARCH': 'arm64',
                 'DOCKER_REGISTRY': 'nexus3.edgexfoundry.org',
                 'http_proxy': 'MyHttpProxy',
-                'DOCKER_BASE_IMAGE': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine',
+                'DOCKER_BASE_IMAGE': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.15-alpine',
                 'DOCKER_BUILD_FILE_PATH': 'MyDockerBuildFilePath',
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
@@ -52,7 +52,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
         then:
             1 * getPipelineMock('docker.build').call([
                     'ci-base-image-arm64', 
-                    '-f MyDockerBuildFilePath  --build-arg BASE=nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base-arm64:1.13-alpine --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
+                    '-f MyDockerBuildFilePath  --build-arg BASE=nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base-arm64:1.15-alpine --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
     }
 
     def "Test validate [Should] raise error [When] config does not include a project parameter" () {
@@ -69,7 +69,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                 'SILO': 'sandbox'
             ]
             edgeXBuildGoParallel.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine'
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.15-alpine'
         expect:
             edgeXBuildGoParallel.toEnvironment(config) == expectedResult
         where:
@@ -85,8 +85,8 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     USE_SEMVER: true,
                     TEST_SCRIPT: 'make test',
                     BUILD_SCRIPT: 'make build',
-                    GO_VERSION: '1.13',
-                    DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine',
+                    GO_VERSION: '1.15',
+                    DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.15-alpine',
                     DOCKER_FILE_GLOB: 'cmd/**/Dockerfile',
                     DOCKER_IMAGE_NAME_PREFIX: 'docker-',
                     DOCKER_IMAGE_NAME_SUFFIX: '-go',

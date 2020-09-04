@@ -410,7 +410,7 @@ def toEnvironment(config) {
     def _useSemver       = edgex.defaultTrue(config.semver)
     def _testScript      = config.testScript ?: 'make test'
     def _buildScript     = config.buildScript ?: 'make build'
-    def _goVersion       = config.goVersion ?: '1.13'
+    def _goVersion       = config.goVersion ?: '1.15'
     def _useAlpine       = edgex.defaultTrue(config.useAlpineBase)
     def _dockerBaseImage = edgex.getGoLangBaseImage(_goVersion, _useAlpine)
 
