@@ -1,5 +1,5 @@
 #!/bin/bash
-
+shopt -s extglob
 # Environment Variables need to be set to call this shell script:
 # Owner: The username on swaggerhub where this API will be pushed.
 # apiFolder: A string of space delimited paths to API folders. Each .yaml file inside of this folder will be pushed to SwaggerHub.
@@ -18,9 +18,9 @@ publishToSwagger() {
     echo "[publishToSwagger] Publishing the API Docs [${apiFolder}] to Swagger"
 
     if [ -d "$apiPath" ]; then
-        for file in "${apiPath}"/*.yaml; do
+        for file in "${apiPath}"/*.+(yml|yaml); do
             apiName=$(basename "${file}" | cut -d "." -f 1)
-            apiContent=$(cat "${apiPath}/${apiName}".yaml)
+            apiContent=$(cat "${file}")
 
             echo "[publishToSwagger] Publishing API Name [$apiName]"
 
