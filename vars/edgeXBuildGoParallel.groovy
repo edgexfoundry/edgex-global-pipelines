@@ -83,6 +83,7 @@ def call(config) {
                                     script {
                                         // builds ci-base-image used to cache dependencies and system libs
                                         prepBaseBuildImage()
+                                        sh 'go version'
                                     }
                                 }
                             }
@@ -98,7 +99,6 @@ def call(config) {
                                         docker.image("ci-base-image-${env.ARCH}")
                                             .inside('-u 0:0 -e GOTESTFLAGS= -v /var/run/docker.sock:/var/run/docker.sock --privileged')
                                         {
-                                            sh 'go version'
                                             testAndVerify()
                                         }
                                     }
@@ -176,6 +176,7 @@ def call(config) {
                                             unstash 'semver'
                                         }
                                         prepBaseBuildImage()
+                                        sh 'go version'
                                     }
                                 }
                             }
@@ -191,7 +192,6 @@ def call(config) {
                                         docker.image("ci-base-image-${env.ARCH}")
                                             .inside('-u 0:0 -e GOTESTFLAGS= -v /var/run/docker.sock:/var/run/docker.sock --privileged')
                                         {
-                                            sh 'go version'
                                             testAndVerify()
                                         }
                                     }

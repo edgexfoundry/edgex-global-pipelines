@@ -108,6 +108,7 @@ def call(config) {
                                             unstash 'semver'
                                         }
                                         prepBaseBuildImage()
+                                        sh 'go version'
                                     }
                                 }
                             }
@@ -119,7 +120,6 @@ def call(config) {
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
-                                            sh 'go version'
                                             sh "${TEST_SCRIPT}"
                                             stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
                                         }
@@ -198,6 +198,7 @@ def call(config) {
                                             unstash 'semver'
                                         }
                                         prepBaseBuildImage()
+                                        sh 'go version'
                                     }
                                 }
                             }
@@ -209,7 +210,6 @@ def call(config) {
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
-                                            sh 'go version'
                                             sh "${TEST_SCRIPT}"
                                             stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
                                         }
