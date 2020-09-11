@@ -15,6 +15,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
         explicitlyMockPipelineVariable('edgeXReleaseSnap')
         explicitlyMockPipelineVariable('edgeXReleaseGitTag')
         explicitlyMockPipelineVariable('edgeXReleaseDockerImage')
+        explicitlyMockPipelineVariable('edgeXReleaseGitHubAssets')
     }
 
     def "Test collectReleaseYamlFiles [Should] return instance of java.util.ArrayList of size 2 [When] called with no parameters and two changed files" () {
@@ -353,4 +354,47 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
         then:
             println("No assertions yet.")
     }
+
+    def "Test parallelStepFactoryTransform [Should] call edgeXReleaseGitHubAssets [When] called with gitHubRelease: true" () {
+        setup:
+            def step =
+                [
+                    name:'app-functions-sdk-go',
+                    version:'v1.2.0',
+                    releaseName:'geneva',
+                    repo:'https://github.com/edgexfoundry/app-functions-sdk-go.git',
+                    gitTag:false,
+                    gitTagDestination:'https://github.com/edgexfoundry/app-functions-sdk-go.git',
+                    dockerImages:false,
+                    dockerSource:['https://nexus3.edgexfoundry.org/..', 'https://nexus3.edgexfoundry.org/..'],
+                    dockerDestination:['https://nexus3.edgexfoundry.org/..', 'https://hub.docker.com/..'],
+                    snap:false,
+                    snapDestination:'https://snapcraft.org/..',
+                    snapChannel:'geneva',
+                    gitHubRelease:true,
+                    gitHubReleaseAssets:['https://nexus-location/asset1', 'https://nexus-location/asset2']
+                ]
+        when:
+            edgeXRelease.parallelStepFactoryTransform(step).asWritable().toString()
+
+        then:
+            1 * getPipelineMock("edgeXReleaseGitHubAssets.call")(
+                [
+                    'name':'app-functions-sdk-go',
+                    'version':'v1.2.0',
+                    'releaseName':'geneva',
+                    'repo':'https://github.com/edgexfoundry/app-functions-sdk-go.git',
+                    'gitTag':false,
+                    'gitTagDestination':'https://github.com/edgexfoundry/app-functions-sdk-go.git',
+                    'dockerImages':false,
+                    'dockerSource':['https://nexus3.edgexfoundry.org/..', 'https://nexus3.edgexfoundry.org/..'],
+                    'dockerDestination':['https://nexus3.edgexfoundry.org/..', 'https://hub.docker.com/..'],
+                    'snap':false,
+                    'snapDestination':'https://snapcraft.org/..',
+                    'snapChannel':'geneva',
+                    'gitHubRelease':true,
+                    'gitHubReleaseAssets':['https://nexus-location/asset1', 'https://nexus-location/asset2']
+                ])
+    }
+
 }
