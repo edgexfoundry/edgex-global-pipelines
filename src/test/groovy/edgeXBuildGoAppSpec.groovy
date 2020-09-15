@@ -98,12 +98,15 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     // SNAP_CHANNEL: 'latest/edge',
                     BUILD_SNAP: false,
                     PUBLISH_SWAGGER_DOCS: false,
-                    SWAGGER_API_FOLDERS: 'openapi/v1'
+                    SWAGGER_API_FOLDERS: 'openapi/v1',
+                    ARTIFACT_ROOT: "archives/bin",
+                    ARTIFACT_TYPES: 'docker',
+                    SHOULD_BUILD: true
                 ]
             ]
     }
 
-    def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config" () {
+    def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config and artifact is a docker image" () {
         setup:
             getPipelineMock('edgex.defaultTrue').call(null) >> true
             getPipelineMock('edgex.defaultTrue').call(true) >> true
@@ -134,7 +137,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     useAlpineBase: true,
                     // snapChannel: 'edge',
                     publishSwaggerDocs: true,
-                    swaggerApiFolders: ['api/v20', 'api/v30']
+                    swaggerApiFolders: ['api/v20', 'api/v30'],
+                    artifactTypes: ['docker']
                 ]
             ]
             expectedResult << [
@@ -162,7 +166,120 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     BUILD_SNAP: false,
                     PUBLISH_SWAGGER_DOCS: true,
                     SWAGGER_API_FOLDERS: 'api/v20 api/v30',
-                    DOCKER_BUILD_ARGS: 'MyArg1=Value1,MyArg2="Value2"'
+                    DOCKER_BUILD_ARGS: 'MyArg1=Value1,MyArg2="Value2"',
+                    ARTIFACT_ROOT: "archives/bin",
+                    ARTIFACT_TYPES: 'docker',
+                    SHOULD_BUILD: true
+                ]
+            ]
+    }
+
+    def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config and artifact is an archive" () {
+        setup:
+            getPipelineMock('edgex.defaultTrue').call(null) >> true
+            getPipelineMock('edgex.defaultTrue').call(true) >> true
+            getPipelineMock('edgex.defaultTrue').call(false) >> false
+            getPipelineMock('edgex.defaultFalse').call(null) >> false
+            getPipelineMock('edgex.defaultFalse').call(true) >> true
+            getPipelineMock('edgex.defaultFalse').call(false) >> false
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'golang:MyGoVersion-alpine'
+        expect:
+            edgeXBuildGoApp.toEnvironment(config) == expectedResult
+        where:
+            config << [
+                [
+                    project: 'pSoda',
+                    testScript: 'MyTestScript',
+                    buildScript: 'MyBuildScript',
+                    goVersion: 'MyGoVersion',
+                    buildImage: false,
+                    semverBump: 'pLevel',
+                    goProxy: 'https://www.example.com/repository/go-proxy/',
+                    artifactTypes: ['archive']
+                ]
+            ]
+            expectedResult << [
+                [
+                    MAVEN_SETTINGS: 'pSoda-settings',
+                    PROJECT: 'pSoda',
+                    USE_SEMVER: true,
+                    TEST_SCRIPT: 'MyTestScript',
+                    BUILD_SCRIPT: 'MyBuildScript',
+                    GO_VERSION: 'MyGoVersion',
+                    GOPROXY: 'https://www.example.com/repository/go-proxy/',
+                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion-alpine',
+                    DOCKER_FILE_PATH: 'Dockerfile',
+                    DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
+                    DOCKER_BUILD_CONTEXT: '.',
+                    DOCKER_IMAGE_NAME: 'docker-pSoda',
+                    DOCKER_REGISTRY_NAMESPACE: '',
+                    DOCKER_NEXUS_REPO: 'staging',
+                    BUILD_DOCKER_IMAGE: false,
+                    PUSH_DOCKER_IMAGE: false,
+                    BUILD_EXPERIMENTAL_DOCKER_IMAGE: false,
+                    BUILD_STABLE_DOCKER_IMAGE: false,
+                    SEMVER_BUMP_LEVEL: 'pLevel',
+                    BUILD_SNAP: false,
+                    PUBLISH_SWAGGER_DOCS: false,
+                    SWAGGER_API_FOLDERS: 'openapi/v1',
+                    ARTIFACT_ROOT: 'archives/bin',
+                    ARTIFACT_TYPES: 'archive',
+                    SHOULD_BUILD: true,
+                    ARCHIVE_ARTIFACTS: '**/*.tar.gz **/*.zip'
+                ]
+            ]
+    }
+
+    def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config and artifact unknown" () {
+        setup:
+            getPipelineMock('edgex.defaultTrue').call(null) >> true
+            getPipelineMock('edgex.defaultTrue').call(true) >> true
+            getPipelineMock('edgex.defaultTrue').call(false) >> false
+            getPipelineMock('edgex.defaultFalse').call(null) >> false
+            getPipelineMock('edgex.defaultFalse').call(true) >> true
+            getPipelineMock('edgex.defaultFalse').call(false) >> false
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'golang:MyGoVersion-alpine'
+        expect:
+            edgeXBuildGoApp.toEnvironment(config) == expectedResult
+        where:
+            config << [
+                [
+                    project: 'pSoda',
+                    testScript: 'MyTestScript',
+                    buildScript: 'MyBuildScript',
+                    goVersion: 'MyGoVersion',
+                    semverBump: 'pLevel',
+                    goProxy: 'https://www.example.com/repository/go-proxy/',
+                    artifactTypes: ['foo']
+                ]
+            ]
+            expectedResult << [
+                [
+                    MAVEN_SETTINGS: 'pSoda-settings',
+                    PROJECT: 'pSoda',
+                    USE_SEMVER: true,
+                    TEST_SCRIPT: 'MyTestScript',
+                    BUILD_SCRIPT: 'MyBuildScript',
+                    GO_VERSION: 'MyGoVersion',
+                    GOPROXY: 'https://www.example.com/repository/go-proxy/',
+                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion-alpine',
+                    DOCKER_FILE_PATH: 'Dockerfile',
+                    DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
+                    DOCKER_BUILD_CONTEXT: '.',
+                    DOCKER_IMAGE_NAME: 'docker-pSoda',
+                    DOCKER_REGISTRY_NAMESPACE: '',
+                    DOCKER_NEXUS_REPO: 'staging',
+                    BUILD_DOCKER_IMAGE: false,
+                    PUSH_DOCKER_IMAGE: false,
+                    BUILD_EXPERIMENTAL_DOCKER_IMAGE: false,
+                    BUILD_STABLE_DOCKER_IMAGE: false,
+                    SEMVER_BUMP_LEVEL: 'pLevel',
+                    BUILD_SNAP: false,
+                    PUBLISH_SWAGGER_DOCS: false,
+                    SWAGGER_API_FOLDERS: 'openapi/v1',
+                    ARTIFACT_ROOT: 'archives/bin',
+                    ARTIFACT_TYPES: 'foo',
+                    SHOULD_BUILD: false
                 ]
             ]
     }

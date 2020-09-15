@@ -55,6 +55,7 @@ def call(config) {
                 when { environment name: 'USE_SEMVER', value: 'true' }
                 steps {
                     script {
+                        // TODO: Refactor this code out into another function
                         def _commitMsg = edgex.getCommitMessage(env.GIT_COMMIT)
                         echo("GIT_COMMIT: ${env.GIT_COMMIT}, Commit Message: ${_commitMsg}")
                         def _buildVersion = ''
@@ -128,11 +129,9 @@ def call(config) {
                             }
 
                             stage('Build') {
-                                when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
+                                when { environment name: 'SHOULD_BUILD', value: 'true' }
                                 steps {
-                                    script {
-                                        edgeXDocker.build("${env.DOCKER_IMAGE_NAME}", "ci-base-image-${env.ARCH}")
-                                    }
+                                    buildArtifact()
                                 }
                             }
 
@@ -210,7 +209,7 @@ def call(config) {
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
-                                            sh "${TEST_SCRIPT}"
+                                            sh "${env.TEST_SCRIPT}"
                                             stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
                                         }
                                     }
@@ -218,10 +217,10 @@ def call(config) {
                             }
 
                             stage('Build') {
-                                when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
+                                when { environment name: 'SHOULD_BUILD', value: 'true' }
                                 steps {
                                     script {
-                                        edgeXDocker.build("${env.DOCKER_IMAGE_NAME}-${env.ARCH}", "ci-base-image-${env.ARCH}")
+                                        buildArtifact()
                                     }
                                 }
                             }
@@ -313,6 +312,23 @@ def call(config) {
                 }
             }
 
+            stage('Archive Prep') {
+                when {
+                    expression { env.ARTIFACT_TYPES.split(' ').contains('archive') }
+                }
+                steps {
+                    script {
+                        // unstash artifacts back on main node, edgeXInfraPublish will archive
+                        if(edgex.nodeExists(config, 'amd64')) {
+                            unstash 'artifacts-x86_64'
+                        }
+                        if(edgex.nodeExists(config, 'arm64')) {
+                            unstash 'artifacts-arm64'
+                        }
+                    }
+                }
+            }
+
             stage('Publish Swagger') {
                 when {
                     allOf {
@@ -374,7 +390,7 @@ def call(config) {
                         }
                     }
                 }
-            }   
+            }
         }
 
         post {
@@ -411,6 +427,21 @@ def prepBaseBuildImage() {
         "ci-base-image-${env.ARCH}",
         "-f ${env.DOCKER_BUILD_FILE_PATH} ${buildArgString} ${env.DOCKER_BUILD_CONTEXT}"
     )
+}
+
+def buildArtifact() {
+    def artifactTypes = env.ARTIFACT_TYPES.split(' ') ?: []
+
+    if(artifactTypes.contains('docker')) {
+        edgeXDocker.build("${env.DOCKER_IMAGE_NAME}", "ci-base-image-${env.ARCH}")
+    }
+
+    if(artifactTypes.contains('archive')) {
+        docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
+            sh env.BUILD_SCRIPT
+        }
+        stash name: "artifacts-${env.ARCH}", includes: "${env.ARTIFACT_ROOT}/**", useDefaultExcludes: false, allowEmpty: true
+    }
 }
 
 def validate(config) {
@@ -453,7 +484,36 @@ def toEnvironment(config) {
 
     def _buildExperimentalDockerImage  = edgex.defaultFalse(config.buildExperimentalDockerImage)
     def _buildStableDockerImage        = false
-    
+
+    def _artifactTypes = config.artifactTypes ?: ['docker']
+
+    // if you write files to the archives directory, they are automatically pushed to nexus in the "post" build stage
+    def _artifactRoot = config.artifactRoot ?: "archives/bin"
+
+    // needs to be a relative path no starting with ./
+    // might try to find a better way to do this in case of absolute path
+    if(_artifactRoot.indexOf('./') == 0) {
+        _artifactRoot = _artifactRoot.replaceAll('\\.\\/', '')
+    }
+
+    def _archiveArtifacts = []
+
+    // new env var to determine if build stage should trigger
+    def _shouldBuild = false
+
+    if(!_artifactTypes.contains('docker')) {
+        _buildImage = false
+    }
+
+    if(_buildImage && _artifactTypes.contains('docker')) {
+        _shouldBuild = true
+    } else if(_artifactTypes.contains('archive')) {
+        _shouldBuild = true
+
+        _archiveArtifacts << '**/*.tar.gz'
+        _archiveArtifacts << '**/*.zip'
+    }
+
     // no image to build, no image to push
     if(!_buildImage) {
         _pushImage = false
@@ -482,12 +542,20 @@ def toEnvironment(config) {
         // SNAP_CHANNEL: _snapChannel,
         BUILD_SNAP: _buildSnap,
         PUBLISH_SWAGGER_DOCS: _publishSwaggerDocs,
-        SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' ')
+        SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
+        ARTIFACT_ROOT: _artifactRoot,
+        ARTIFACT_TYPES: _artifactTypes.join(' '),
+        SHOULD_BUILD: _shouldBuild
     ]
 
     // encode with comma in case build arg has space
     if(_dockerBuildArgs) {
         envMap << [ DOCKER_BUILD_ARGS: _dockerBuildArgs.join(',')]
+    }
+
+    // this is used by global-jjb/shell/logs-deploy.sh to deploy artifacts
+    if(_archiveArtifacts) {
+        envMap << [ ARCHIVE_ARTIFACTS: _archiveArtifacts.join(' ') ]
     }
 
     edgex.bannerMessage "[edgeXBuildGoApp] Pipeline Parameters:"
