@@ -433,7 +433,8 @@ def buildArtifact() {
     def artifactTypes = env.ARTIFACT_TYPES.split(' ') ?: []
 
     if(artifactTypes.contains('docker')) {
-        edgeXDocker.build("${env.DOCKER_IMAGE_NAME}", "ci-base-image-${env.ARCH}")
+        def imageName = (env.ARCH == 'x86_64') ? env.DOCKER_IMAGE_NAME : "${env.DOCKER_IMAGE_NAME}-${env.ARCH}"
+        edgeXDocker.build(imageName, "ci-base-image-${env.ARCH}")
     }
 
     if(artifactTypes.contains('archive')) {
