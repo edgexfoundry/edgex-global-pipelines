@@ -22,7 +22,11 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
 
     def "Test edgeXSwaggerPublish [Should] call shell script with expected arguments [When] no owner is provided" () {
         setup:
-            getPipelineMock('edgex.isDryRun').call() >> true
+            // getPipelineMock('edgex.isDryRun').call() >> true
+            def environmentVariables = [
+                'DRY_RUN': 'true'
+            ]
+            edgeXSwaggerPublish.getBinding().setVariable('env', environmentVariables)
         when:
             edgeXSwaggerPublish(apiFolders:'api/v1')
         then:
@@ -40,7 +44,6 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
 
     def "Test edgeXSwaggerPublish [Should] call shell script with expected arguments [When] owner is provided" () {
         setup:
-            getPipelineMock('edgex.isDryRun').call() >> false
         when:
             edgeXSwaggerPublish(owner: 'Moby', apiFolders:'openapi/v1 openapi/v2')
         then:
@@ -58,7 +61,10 @@ public class EdgeXSwaggerPublishSpec extends JenkinsPipelineSpecification {
 
     def "Test edgeXSwaggerPublish [Should] should execute shell script correctly [When] DRY_RUN is true" () {
         setup:
-            getPipelineMock('edgex.isDryRun').call() >> true
+            def environmentVariables = [
+                'DRY_RUN': 'true'
+            ]
+            edgeXSwaggerPublish.getBinding().setVariable('env', environmentVariables)
         when:
             edgeXSwaggerPublish(apiFolders: 'openapi/v1 openapi/v2 custom_api')
         then:

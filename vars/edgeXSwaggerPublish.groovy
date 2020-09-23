@@ -28,7 +28,7 @@ def call(Map config = [:]) {
     def owner               = config.owner ?: 'EdgeXFoundry1'
     def apiFolders          = config.apiFolders ?: null
     def swaggerCredentialId = config.swaggerCredentialId ?: 'swaggerhub-api-key'
-    def dryRun              = edgex.isDryRun()
+    def dryRun              = ['1', 'true'].contains(env.DRY_RUN)
 
     if (apiFolders == null){
         error("[edgeXSwaggerPublish]: No list of API Folders given")
