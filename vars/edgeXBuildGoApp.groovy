@@ -368,6 +368,10 @@ def call(config) {
                             allOf {
                                 environment name: 'BUILD_EXPERIMENTAL_DOCKER_IMAGE', value: 'true'
                                 expression { env.SEMVER_BRANCH =~ /^master$/ }
+                                // env.GITSEMVER_HEAD_TAG is only set when HEAD is tagged and
+                                // when set - edgeXSemver will ignore all tag, bump and push commands (unforced)
+                                // thus we also want to ignore updating stable/experimental tags when set
+                                expression { env.GITSEMVER_HEAD_TAG == null }
                             }
                         }
                         steps {
@@ -381,6 +385,10 @@ def call(config) {
                             allOf {
                                 environment name: 'BUILD_STABLE_DOCKER_IMAGE', value: 'true'
                                 expression { env.SEMVER_BRANCH =~ /^master$/ }
+                                // env.GITSEMVER_HEAD_TAG is only set when HEAD is tagged and
+                                // when set - edgeXSemver will ignore all tag, bump and push commands (unforced)
+                                // thus we also want to ignore updating stable/experimental tags when set
+                                expression { env.GITSEMVER_HEAD_TAG == null }
                             }
                         }
                         steps {
