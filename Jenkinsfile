@@ -103,7 +103,15 @@ pipeline {
         }
 
         stage('Semver Bump Pre-Release Version') {
-            when { expression { env.BRANCH_NAME =~ /^master$/ } }
+            when {
+                allOf {
+                    expression { env.BRANCH_NAME =~ /^master$/ }
+                    // env.GITSEMVER_HEAD_TAG is only set when HEAD is tagged and
+                    // when set - edgeXSemver will ignore all tag, bump and push commands (unforced)
+                    // thus we also want to ignore updating stable/experimental tags when set
+                    expression { env.GITSEMVER_HEAD_TAG == null }
+                }
+            }
             steps {
                 edgeXSemver('bump patch') //this changes the VERSION env var
                 edgeXSemver('push')
@@ -112,7 +120,15 @@ pipeline {
 
         // automatically bump experimental tag...more research needed
         stage('🧪 Bump Experimental Tag') {
-            when { expression { env.BRANCH_NAME =~ /^master$/ } }
+            when {
+                allOf {
+                    expression { env.BRANCH_NAME =~ /^master$/ }
+                    // env.GITSEMVER_HEAD_TAG is only set when HEAD is tagged and
+                    // when set - edgeXSemver will ignore all tag, bump and push commands (unforced)
+                    // thus we also want to ignore updating stable/experimental tags when set
+                    expression { env.GITSEMVER_HEAD_TAG == null }
+                }
+            }
             steps {
                 script {
                     edgeXUpdateNamedTag(env.OG_VERSION, 'experimental')
