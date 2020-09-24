@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 Intel Corporation
+// Copyright (c) 2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ def call(tokenFile = null) {
     if (tokenFile == null) {
         tokenFile = "${env.PROJECT}-codecov-token"
     }
-    configFileProvider([configFile(fileId: tokenFile, variable: "CODECOV_TOKEN")]) {
-        sh "curl -s https://codecov.io/bash | bash -s - -t @${env.CODECOV_TOKEN}"
+
+    // See Jenkins example: https://docs.codecov.io/docs/supported-ci-providers
+    configFileProvider([configFile(fileId: tokenFile, variable: "CODECOV_TOKEN_FILE")]) {
+        sh "set +x ; export CODECOV_TOKEN=\$(cat ${env.CODECOV_TOKEN_FILE}) ; set -x ; curl -s https://codecov.io/bash | bash -s --"
     }
 }
