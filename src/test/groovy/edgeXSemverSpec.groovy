@@ -10,7 +10,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         explicitlyMockPipelineVariable('out')
     }
 
-    def "Test edgeXSemver [Should] call expected and set VERSION envvar [When] called with no command" () {
+    def "Test edgeXSemver [Should] call expected and set VERSION [When] no command" () {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
@@ -22,7 +22,18 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             environmentVariables['VERSION'] == '1.2.3-dev.4'
     }
 
-    def "Test edgeXSemver [Should] call expected and set VERSION envvar [When] called with init command, semverVersion and GITSEMVER_HEAD_TAG is set" () {
+    def "Test edgeXSemver [Should] return expected [When] no command" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')([script: 'git semver', returnStdout: true]) >> '1.2.3-dev.4\n'
+        expect:
+            def result = edgeXSemver()
+            result == '1.2.3-dev.4'
+    }
+
+    def "Test edgeXSemver [Should] call expected and set VERSION [When] command is init and semverVersion and GITSEMVER_HEAD_TAG is set" () {
         setup:
             def environmentVariables = [
                 'GITSEMVER_HEAD_TAG': 'MyTag'
@@ -51,9 +62,12 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             environmentVariables['VERSION'] == '1.2.4'
             // verify writefile
             1 * getPipelineMock('writeFile').call([file: 'VERSION', text: '1.2.4'])
+            // should not call get tag to determine if HEAD is tagged since GITSEMVER_HEAD_TAG is set
+            0 * getPipelineMock('sh')([script:'git tag --points-at HEAD', returnStdout:true])
+            environmentVariables['GITSEMVER_INIT_VERSION'] == '1.2.4'
     }
 
-    def "Test edgeXSemver [Should] get semver version from command and set VERSION envvar [When] called with init command" () {
+    def "Test edgeXSemver [Should] call expected and set VERSION [When] called with init command and GITSEMVER_HEAD_TAG is set" () {
         setup:
             def environmentVariables = [
                 'GITSEMVER_HEAD_TAG': 'MyTag'
@@ -63,74 +77,295 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             edgeXSemver('init')
         then:
             1 * getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+
+            1 * getPipelineMock('echo')("[edgeXSemver]: GITSEMVER_HEAD_TAG is already set to 'MyTag'")
+
+            1 * getPipelineMock('sh').call('git semver init')
+
             1 * getPipelineMock('sh').call([script: 'git semver', returnStdout: true]) >> '1.2.3-dev.4\n'
             environmentVariables['VERSION'] == '1.2.3-dev.4'
     }
 
-    @Ignore
-    def "Test edgeXSemver [Should] call expected [When] called with tag force command and GITSEMVER_HEAD_TAG is set" () {
+    def "Test edgeXSemver [Should] ignore command, call expected and set VERSION [When] called with non init command and GITSEMVER_HEAD_TAG is set" () {
         setup:
             def environmentVariables = [
-                'GITSEMVER_HEAD_TAG': 'MyTag'
+                'GITSEMVER_HEAD_TAG': 'v1.0.3-dev.3'
             ]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
         when:
-            edgeXSemver('tag -force')
+            edgeXSemver('tag')
         then:
-            // TODO: this is a bug - tag force is not being executed because GITSEMVER_HEAD_TAG is set
-            // https://github.com/edgexfoundry/cd-management/issues/55
+            1 * getPipelineMock('echo')("[edgeXSemver]: ignoring command tag because GITSEMVER_HEAD_TAG is already set to 'v1.0.3-dev.3'")
+
             1 * getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
-            1 * getPipelineMock('sh').call('git semver tag -force')
+
             1 * getPipelineMock('sh').call([script: 'git semver', returnStdout: true]) >> '1.2.3-dev.4\n'
+            environmentVariables['VERSION'] == '1.2.3-dev.4'
     }
 
-    def "Test executeSSH [Should] call sshagent and sh with the expected arguments [When] called" () {
+    def "Test edgeXSemver [Should] call command and set GITSEMVER_HEAD_TAG [When] command is init and no semverVersion" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> 'v1.2.3'
+            getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
+        when:
+            edgeXSemver('init')
+        then:
+            1 * getPipelineMock('echo')("[edgeXSemver]: set GITSEMVER_HEAD_TAG to 'v1.2.3'")
+            1 * getPipelineMock('sh').call('git semver init')
+            environmentVariables['GITSEMVER_HEAD_TAG'] == 'v1.2.3'
+            environmentVariables['VERSION'] == '1.2.4-dev.1'
+    }
+
+    def "Test edgeXSemver [Should] call command and not set GITSEMVER_HEAD_TAG [When] command is init and semverVersion" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+        when:
+            edgeXSemver('init', '2.3.4')
+        then:
+            0 * getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true)
+            1 * getPipelineMock('sh').call('git semver init -ver=2.3.4 -force')
+            environmentVariables.containsKey('GITSEMVER_HEAD_TAG') == false
+            environmentVariables['VERSION'] == '2.3.4'
+            environmentVariables['GITSEMVER_INIT_VERSION'] == '2.3.4'
+    }
+
+    def "Test edgeXSemver [Should] call command and not set GITSEMVER_HEAD_TAG [When] command is init ver force and not semverVersion" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
+        when:
+            // TODO: I'm not convinced this should be supported - specify semverVersion if specific version is to be specified
+            edgeXSemver('init -ver=2.3.4 -force')
+        then:
+            0 * getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true)
+            1 * getPipelineMock('sh').call('git semver init -ver=2.3.4 -force')
+            environmentVariables.containsKey('GITSEMVER_HEAD_TAG') == false
+            environmentVariables['VERSION'] == '1.2.4-dev.1'
+    }
+
+    def "Test edgeXSemver [Should] not call command [When] command is tag and GITSEMVER_HEAD_TAG is set" () {
+        setup:
+            def environmentVariables = [
+                'GITSEMVER_HEAD_TAG': '1.2.3'
+            ]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
+        when:
+            edgeXSemver('tag')
+        then:
+            1 * getPipelineMock('echo')("[edgeXSemver]: ignoring command tag because GITSEMVER_HEAD_TAG is already set to '1.2.3'")
+            0 * getPipelineMock('sh').call('git semver tag')
+            environmentVariables['VERSION'] == '1.2.4-dev.1'
+    }
+
+    def "Test edgeXSemver [Should] call command [When] command is tag and GITSEMVER_HEAD_TAG is not set and GITSEMVER_INIT_VERSION not in HEAD tags" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> ''
+            getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
+        when:
+            edgeXSemver('tag')
+        then:
+            1 * getPipelineMock('sh').call('git semver tag')
+            environmentVariables['VERSION'] == '1.2.4-dev.1'
+    }
+
+    def "Test edgeXSemver [Should] not call command [When] command is tag and GITSEMVER_HEAD_TAG is not set and GITSEMVER_INIT_VERSION is in HEAD tags" () {
+        setup:
+            def environmentVariables = [
+                'GITSEMVER_INIT_VERSION': '1.2.3'
+            ]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> 'v1.2.3'
+            getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
+        when:
+            edgeXSemver('tag')
+        then:
+            1 * getPipelineMock('echo')("[edgeXSemver]: HEAD is already tagged with 1.2.3")
+            0 * getPipelineMock('sh').call('git semver tag')
+            environmentVariables['VERSION'] == '1.2.4-dev.1'
+    }
+
+    def "Test edgeXSemver [Should] not call command [When] command is tag force and GITSEMVER_HEAD_TAG is not set and GITSEMVER_INIT_VERSION is not in HEAD tags" () {
+        setup:
+            def environmentVariables = [
+                'GITSEMVER_INIT_VERSION': '1.2.3'
+            ]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> ''
+            getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.3'
+        when:
+            edgeXSemver('tag -force')
+        then:
+            0 * getPipelineMock('echo')("[edgeXSemver]: HEAD is already tagged with 1.2.3")
+            1 * getPipelineMock('echo')("[edgeXSemver]: removing remote and local tags for 1.2.3")
+            1 * getPipelineMock('sh').call('git semver tag -force')
+            environmentVariables['VERSION'] == '1.2.3'
+    }
+
+    def "Test edgeXSemver [Should] call command [When] command is bump and GITSEMVER_HEAD_TAG is not set" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
+        when:
+            edgeXSemver('bump pre')
+        then:
+            1 * getPipelineMock('sh').call('git semver bump pre')
+            environmentVariables['VERSION'] == '1.2.4-dev.1'
+    }
+
+    def "Test edgeXSemver [Should] not call command [When] command is bump and GITSEMVER_HEAD_TAG is set" () {
+        setup:
+            def environmentVariables = [
+                'GITSEMVER_HEAD_TAG': '1.2.4-dev.1'
+            ]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
+        when:
+            edgeXSemver('bump pre')
+        then:
+            1 * getPipelineMock('echo')("[edgeXSemver]: ignoring command bump pre because GITSEMVER_HEAD_TAG is already set to '1.2.4-dev.1'")
+            0 * getPipelineMock('sh').call('git semver bump pre')
+            environmentVariables['VERSION'] == '1.2.4-dev.1'
+    }
+
+    def "Test edgeXSemver [Should] call command [When] command is push and GITSEMVER_HEAD_TAG is not set" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
+        when:
+            edgeXSemver('push')
+        then:
+            1 * getPipelineMock('sh').call('git semver push')
+            environmentVariables['VERSION'] == '1.2.4-dev.1'
+    }
+
+    def "Test edgeXSemver [Should] not call command [When] command is push and GITSEMVER_HEAD_TAG is set" () {
+        setup:
+            def environmentVariables = [
+                'GITSEMVER_HEAD_TAG': '1.2.4-dev.1'
+            ]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
+        when:
+            edgeXSemver('push')
+        then:
+            1 * getPipelineMock('echo')("[edgeXSemver]: ignoring command push because GITSEMVER_HEAD_TAG is already set to '1.2.4-dev.1'")
+            0 * getPipelineMock('sh').call('git semver push')
+            environmentVariables['VERSION'] == '1.2.4-dev.1'
+    }
+
+    def "Test executeGitSemver [Should] call sshagent and sh with the expected arguments [When] called" () {
         setup:
         when:
-            edgeXSemver.executeSSH('MyCredentials', 'MyCommand')
-        then:   
+            edgeXSemver.executeGitSemver('MyCredentials', 'git semver bump pre')
+        then:
             1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
                 assert ['credentials':['MyCredentials']] == _arguments[0][0]
             }
-            1 * getPipelineMock('sh').call('MyCommand')
+            1 * getPipelineMock('sh').call('git semver bump pre')
     }
 
-    def "Test setHeadTagEnv [Should] not call sshagent [When] GITSEMVER_HEAD_TAG environment variable is set" () {
+    def "Test executeGitSemver [Should] return and not call command [When] tag and HEAD is tagged with GITSEMVER_INIT_VERSION" () {
+        setup:
+            def environmentVariables = [
+                'GITSEMVER_INIT_VERSION': '1.2.3'
+            ]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('sh')([script:'git tag --points-at HEAD', returnStdout:true]) >> 'v1.2.3'
+        when:
+            edgeXSemver.executeGitSemver('MyCredentials', 'git semver tag')
+        then:
+            1 * getPipelineMock('echo').call("[edgeXSemver]: HEAD is already tagged with 1.2.3")
+            0 * getPipelineMock('sh').call('git semver tag')
+    }
+
+    def "Test executeGitSemver [Should] delete remote and local tag and call command [When] tag force and HEAD is not tagged" () {
+        setup:
+            def environmentVariables = [
+                'GITSEMVER_INIT_VERSION': '1.2.3'
+            ]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('sh')([script:'git tag --points-at HEAD', returnStdout:true]) >> ''
+        when:
+            edgeXSemver.executeGitSemver('MyCredentials', 'git semver tag -force')
+        then:
+            // ugly to assert due to spaces after carriage returns
+            // 1 * getPipelineMock('sh').call('set +x\nset +e\ngit push origin :refs/tags/v1.2.3\ngit tag -d v1.2.3\nset -e\n')
+            1 * getPipelineMock('echo').call("[edgeXSemver]: removing remote and local tags for 1.2.3")
+            1 * getPipelineMock('sh').call('git semver tag -force')
+    }
+
+    def "Test setGitSemverHeadTag [Should] not call sshagent [When] GITSEMVER_HEAD_TAG is set" () {
         setup:
             def environmentVariables = [
                 'GITSEMVER_HEAD_TAG': 'MyGitsemverHeadTag'
             ]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
         when:
-            edgeXSemver.setHeadTagEnv('MyCredentials')
+            edgeXSemver.setGitSemverHeadTag('MyCredentials')
         then:
             0 * getPipelineMock('sshagent').call(_) 
     }
 
-    def "Test setHeadTagEnv [Should] query for and set GITSEMVER_HEAD_TAG environment variable [When] GITSEMVER_HEAD_TAG environment variable is not set" () {
+    def "Test setGitSemverHeadTag [Should] set GITSEMVER_HEAD_TAG [When] GITSEMVER_HEAD_TAG is not set and HEAD is tagged" () {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
         when:
-            edgeXSemver.setHeadTagEnv('MyCredentials')
+            edgeXSemver.setGitSemverHeadTag('MyCredentials')
         then:
             1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
                 assert ['credentials':['MyCredentials']] == _arguments[0][0]
             }
-            1 * getPipelineMock('sh')([script:'git describe --exact-match --tags HEAD', returnStdout:true]) >> 'MyTag\n'
-            environmentVariables['GITSEMVER_HEAD_TAG'] == 'MyTag'
+            1 * getPipelineMock('sh')([script:'git tag --points-at HEAD', returnStdout:true]) >> 'v1.0.3\nexperimental'
+            environmentVariables['GITSEMVER_HEAD_TAG'] == 'v1.0.3|experimental'
     }
 
-    def "Test setHeadTagEnv [Should] not set GITSEMVER_HEAD_TAG environment variable [When] exception occurs within ssh" () {
+    def "Test setGitSemverHeadTag [Should] not set GITSEMVER_HEAD_TAG [When] GITSEMVER_HEAD_TAG is not set and HEAD is not tagged" () {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('sh')(_) >> {
-                throw new Exception('MockedException1')
-            }
+            getPipelineMock('sh')([script:'git tag --points-at HEAD', returnStdout:true]) >> ''
         when:
-            edgeXSemver.setHeadTagEnv('MyCredentials')
+            edgeXSemver.setGitSemverHeadTag('MyCredentials')
         then:
             environmentVariables.containsKey('GITSEMVER_HEAD_TAG') == false
+    }
+
+    def "Test getHeadTags [Should] return expected list [When] HEAD is tagged" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('sh')([script:'git tag --points-at HEAD', returnStdout:true]) >> 'tag1\ntag2\ntag3'
+        expect:
+            edgeXSemver.getHeadTags('MyCredentials') == ['tag1', 'tag2', 'tag3']
+    }
+
+    def "Test getHeadTags [Should] return empty list [When] HEAD is not tagged" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('sh')([script:'git tag --points-at HEAD', returnStdout:true]) >> ''
+        expect:
+            edgeXSemver.getHeadTags('MyCredentials') == []
     }
 }
