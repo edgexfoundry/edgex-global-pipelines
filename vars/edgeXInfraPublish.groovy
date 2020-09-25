@@ -1,3 +1,4 @@
+import org.jenkinsci.plugins.workflow.libs.Library
 //
 // Copyright (c) 2019 Intel Corporation
 //
@@ -13,11 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+@Library("lf-pipelines") _
 
 def call(body) {
     // evaluate the body block, and collect configuration into the object
     def config = [:]
-    
+
     if(body) {
         body.resolveStrategy = Closure.DELEGATE_FIRST
         body.delegate = config
@@ -34,7 +36,7 @@ def call(body) {
         sh(script: libraryResource('global-jjb-shell/package-listing.sh'))
 
         // lf-infra-ship-logs
-        edgeXInfraShipLogs {
+        lfInfraShipLogs {
             logSettingsFile = _logSettingsFile
         }
 
