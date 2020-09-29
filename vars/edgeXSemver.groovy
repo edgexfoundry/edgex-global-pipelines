@@ -42,7 +42,7 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
             semverCommand << "-force"
         }
 
-        docker.image(semverImage).inside('-v /etc/ssh:/etc/ssh') {
+        docker.image(semverImage).inside('-u 0:0 -v /etc/ssh:/etc/ssh') {
             withEnv(envVars) {
                 if((env.GITSEMVER_HEAD_TAG) && (command != 'init')) {
                     // setting and checking GITSEMVER_HEAD_TAG is the pattern we implement to facilitate re-execution
@@ -50,11 +50,8 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
                     echo "[edgeXSemver]: ignoring command ${command} because GITSEMVER_HEAD_TAG is already set to '${env.GITSEMVER_HEAD_TAG}'"
                 }
                 else {
-                    if((command == 'init') && (!semverVersion)) {
-                        // when a semverVersion is specified semver will force init the version and
-                        // we don't want to set GITSEMVER_HEAD_TAG since we don't want to ignore
-                        // any other subsequent git semver commands associated with the force init
-                        setGitSemverHeadTag(credentials)
+                    if(command == 'init') {
+                        setGitSemverHeadTag(semverVersion, credentials)
                     }
                     executeGitSemver(credentials, semverCommand.join(' '))
                 }
@@ -71,13 +68,9 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
 
     if(command == 'init') {
         writeFile file: 'VERSION', text: semverVersion
-        stash name: 'semver', includes: '.semver/**,VERSION', useDefaultExcludes: false
+        stash name: 'semver', includes: 'VERSION', useDefaultExcludes: false
         echo "[edgeXSemver]: initialized semver on version ${semverVersion}"
-
-        if(semverVersion) {
-            // set GITSEMVER_INIT_VERSION to initial specified version
-            env.GITSEMVER_INIT_VERSION = semverVersion
-        }
+        env.GITSEMVER_INIT_VERSION = semverVersion
     }
 
     semverVersion
@@ -86,46 +79,47 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
 def executeGitSemver(credentials, semverCommand) {
     // execute semverCommand via ssh with provided credentials
     sshagent (credentials: [credentials]) {
-        if(semverCommand =~ '^.*tag.*$') {
-            // edgeXSemver sets specified semverVersion in the GITSEMVER_INIT_VERSION environment variable
-            def headTags = getHeadTags(credentials)
-            if(headTags.contains("v${env.GITSEMVER_INIT_VERSION}")) {
-                // if HEAD is already tagged with GITSEMVER_INIT_VERSION then return and do not execute the tag command
-                echo "[edgeXSemver]: HEAD is already tagged with ${env.GITSEMVER_INIT_VERSION}"
-                return
-            }
-            else {
-                if(semverCommand =~ '^.*-force$') {
-                    // HEAD is not tagged with GITSEMVER_INIT_VERSION
-                    // lets remove the GITSEMVER_INIT_VERSION tag from remote and local (if it exists)
-                    // so the tag command will not error with the tag already exists
-                    // this is an edge condition that only happens when user re-submits a build commit on same version
-                    echo "[edgeXSemver]: removing remote and local tags for ${env.GITSEMVER_INIT_VERSION}"
-                    sh """
-                        set +x
-                        set +e
-                        git push origin :refs/tags/${env.GITSEMVER_INIT_VERSION}
-                        git tag -d ${env.GITSEMVER_INIT_VERSION}
-                        set -e
-                    """
-                }
-            }
+        if(semverCommand =~ '^.*tag.*-force$') {
+            // remove the GITSEMVER_INIT_VERSION tag from remote and local (if it exists)
+            // so the tag command will not error with the tag already exists
+            // this is an edge condition that only happens when user re-submits a build commit with the same version
+            echo "[edgeXSemver]: removing remote and local tags for v${env.GITSEMVER_INIT_VERSION}"
+            sh """
+                set -x
+                set +e
+                git ls-remote --tags origin
+                git push origin :refs/tags/v${env.GITSEMVER_INIT_VERSION}
+                git tag -d v${env.GITSEMVER_INIT_VERSION}
+                set -e
+            """
         }
         sh semverCommand
     }
 }
 
-def setGitSemverHeadTag(credentials) {
-    // set GITSEMVER_HEAD_TAG to value of all tags at HEAD only if tagged
+def setGitSemverHeadTag(initVersion, credentials) {
+    // set GITSEMVER_HEAD_TAG to value of HEAD when any of the following conditions are satisfied
+    //   an init version is specified and HEAD is tagged with init version
+    //   an init version is not specified and HEAD is tagged
     if(env.GITSEMVER_HEAD_TAG) {
         echo "[edgeXSemver]: GITSEMVER_HEAD_TAG is already set to '${env.GITSEMVER_HEAD_TAG}'"
     }
     else {
         def headTags = getHeadTags(credentials)
-        if(headTags) {
-            def gitSemverHeadTags = headTags.join('|')
-            env.GITSEMVER_HEAD_TAG = gitSemverHeadTags
-            echo "[edgeXSemver]: set GITSEMVER_HEAD_TAG to \'${gitSemverHeadTags}\'"
+        if(initVersion) {
+            if(headTags.contains("v${initVersion}")) {
+                echo "[edgeXSemver]: HEAD is already tagged with v${initVersion}"
+                def gitSemverHeadTags = headTags.join('|')
+                env.GITSEMVER_HEAD_TAG = gitSemverHeadTags
+                echo "[edgeXSemver]: set GITSEMVER_HEAD_TAG to \'${gitSemverHeadTags}\'"
+            }
+        }
+        else {
+            if(headTags) {
+                def gitSemverHeadTags = headTags.join('|')
+                env.GITSEMVER_HEAD_TAG = gitSemverHeadTags
+                echo "[edgeXSemver]: set GITSEMVER_HEAD_TAG to \'${gitSemverHeadTags}\'"
+            }
         }
     }
 }

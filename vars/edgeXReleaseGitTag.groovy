@@ -57,18 +57,14 @@ def cloneRepo(repo, branch, name, credentials) {
 def setAndSignGitTag(name, version) {
     // call edgeXSemver functions to force tag version and push
     println "[edgeXReleaseGitTag]: setting tag for ${name} to: ${version} - DRY_RUN: ${env.DRY_RUN}"
-    def commands = [
-        "init -ver=${version} -force",
-        "tag -force"
-    ]
     if(edgex.isDryRun()) {
-        echo(commands.collect {"edgeXSemver ${it}"}.join('\n'))
+        echo("edgeXSemver init ${version}")
+        echo("edgeXSemver tag -force")
     }
     else {
         dir("${name}") {
-            commands.each { command ->
-                edgeXSemver command
-            }
+            edgeXSemver('init', version)
+            edgeXSemver('tag -force')
         }
     }
     edgeXReleaseGitTagUtil.signGitTag(version, name)
