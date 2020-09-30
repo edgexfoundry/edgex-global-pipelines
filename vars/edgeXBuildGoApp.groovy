@@ -62,21 +62,29 @@ def call(config) {
                         def _namedTag = ''
                         def _parsedCommitMsg = [:]
 
-                        if(edgex.isBuildCommit(_commitMsg)) {
-                            _parsedCommitMsg = edgex.parseBuildCommit(_commitMsg)
-                            _buildVersion = _parsedCommitMsg.version
-                            _namedTag = _parsedCommitMsg.namedTag
-                            echo("This is a build commit.")
-                            echo("buildVersion: [${_buildVersion}], namedTag: [${_namedTag}]")
-
-                            env.NAMED_TAG = _namedTag
-                            env.BUILD_STABLE_DOCKER_IMAGE = true
-                            edgeXSemver('init', _buildVersion)  // <-- Generates a VERSION file and .semver directory
-                        }
-                        else {
-                            echo("This is not a build commit.")
-                            edgeXSemver 'init' // <-- Generates a VERSION file and .semver directory
+                        if (params.forceVersion){
+                            echo("[edgeXBuildGoApp]: This is a forced-version release build.")
+                            
+                            edgeXSemver('init', params.forceVersion)  // <-- Generates a VERSION file and .semver directory
                             env.BUILD_STABLE_DOCKER_IMAGE = false
+                        }
+                        else{
+                            if(edgex.isBuildCommit(_commitMsg)) {
+                                _parsedCommitMsg = edgex.parseBuildCommit(_commitMsg)
+                                _buildVersion = _parsedCommitMsg.version
+                                _namedTag = _parsedCommitMsg.namedTag
+                                echo("[edgeXBuildGoApp] This is a build commit.")
+                                echo("buildVersion: [${_buildVersion}], namedTag: [${_namedTag}]")
+
+                                env.NAMED_TAG = _namedTag
+                                env.BUILD_STABLE_DOCKER_IMAGE = true
+                                edgeXSemver('init', _buildVersion)  // <-- Generates a VERSION file and .semver directory
+                            }
+                            else {
+                                echo("[edgeXBuildGoApp] This is not a build commit.")
+                                edgeXSemver 'init' // <-- Generates a VERSION file and .semver directory
+                                env.BUILD_STABLE_DOCKER_IMAGE = false
+                            }
                         }
                     }
                 }

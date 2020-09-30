@@ -36,10 +36,16 @@ def parallelStepFactory(data) {
 def parallelStepFactoryTransform(step) {
     return {
         stage(step.name.toString()) {
+            
             if(step.gitTag == true) {
                 stage("Git Tag Publish") {
                     edgeXReleaseGitTag(step)
                 }
+            }
+            
+            stage("Build Artifact") {
+                rebuildRepo = step.repo.split('/')[-1].split('.git')[0]
+                build job: '../'+rebuildRepo+'/'+step.releaseStream, propagate: true, wait: true, parameters: [[$class: 'StringParameterValue', name: 'forceVersion', value: "${step.version}"]]
             }
             
             if(step.dockerImages == true) {

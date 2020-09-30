@@ -10,6 +10,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
         edgeXRelease = loadPipelineScriptForTest('vars/edgeXRelease.groovy')
 
         explicitlyMockPipelineVariable('out')
+        explicitlyMockPipelineVariable('build')
 
         explicitlyMockPipelineVariable('edgex')
         explicitlyMockPipelineVariable('edgeXReleaseSnap')
