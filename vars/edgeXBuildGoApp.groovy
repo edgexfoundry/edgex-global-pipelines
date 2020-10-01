@@ -78,8 +78,6 @@ def call(config) {
                             edgeXSemver 'init' // <-- Generates a VERSION file and .semver directory
                             env.BUILD_STABLE_DOCKER_IMAGE = false
                         }
-                        env.OG_VERSION = env.VERSION
-                        echo("Archived original version: [${env.OG_VERSION}]")
                     }
                 }
             }
@@ -351,10 +349,18 @@ def call(config) {
                 stages {
                     stage('Tag') {
                         steps {
-                            unstash 'semver'
+                            script {
+                                unstash 'semver'
 
-                            edgeXSemver 'tag'
-                            edgeXInfraLFToolsSign(command: 'git-tag', version: 'v${VERSION}')
+                                def tagCommand = 'tag'
+                                def _commitMsg = edgex.getCommitMessage(env.GIT_COMMIT)
+                                if(edgex.isBuildCommit(_commitMsg)) {
+                                    tagCommand = 'tag -force'
+                                }
+
+                                edgeXSemver "${tagCommand}"
+                                edgeXInfraLFToolsSign(command: 'git-tag', version: 'v${VERSION}')
+                            }
                         }
                     }
                     stage('Bump Pre-Release Version') {
@@ -376,7 +382,7 @@ def call(config) {
                         }
                         steps {
                             script {
-                                edgeXUpdateNamedTag(env.OG_VERSION, 'experimental')
+                                edgeXUpdateNamedTag(env.GITSEMVER_INIT_VERSION, 'experimental')
                             }
                         }
                     }
@@ -393,7 +399,7 @@ def call(config) {
                         }
                         steps {
                             script {
-                                edgeXUpdateNamedTag(env.OG_VERSION, env.NAMED_TAG)
+                                edgeXUpdateNamedTag(env.GITSEMVER_INIT_VERSION, env.NAMED_TAG)
                             }
                         }
                     }

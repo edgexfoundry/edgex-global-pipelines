@@ -59,7 +59,7 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
         when:
             edgeXReleaseGitTag.setAndSignGitTag('sample-service', '1.2.3')
         then:
-            1 * getPipelineMock('edgeXSemver.call')('init -ver=1.2.3 -force')
+            1 * getPipelineMock('edgeXSemver.call')('init', '1.2.3')
             1 * getPipelineMock('edgeXSemver.call')('tag -force')
             1 * getPipelineMock('dir').call(_) >> { _arguments ->
                 assert 'sample-service' == _arguments[0][0]
@@ -73,7 +73,8 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
         when:
             edgeXReleaseGitTag.setAndSignGitTag('sample-service', '1.2.3')
         then:
-            1 * getPipelineMock('echo').call('edgeXSemver init -ver=1.2.3 -force\nedgeXSemver tag -force')
+            1 * getPipelineMock('echo').call("edgeXSemver init 1.2.3")
+            1 * getPipelineMock('echo').call("edgeXSemver tag -force")
             1 * getPipelineMock('edgeXReleaseGitTagUtil.signGitTag').call('1.2.3', 'sample-service')
     }
 
