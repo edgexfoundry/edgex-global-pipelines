@@ -57,6 +57,55 @@ pipeline {
             }
         }
 
+        stage('Generate Documentation') {
+            when { { expression { env.BRANCH_NAME =~ /^master$/ } } }
+            agent {
+                docker {
+                    image 'gradle'
+                    reuseNode true
+                    args '-u 0:0 --privileged'
+                }
+            }
+            steps {
+                sh 'gradle clean generateDocumentation'
+                // stash the site contents generated from gradle tasks
+                stash name: 'md_files', includes: 'docs_src/md_files/**', useDefaultExcludes: false
+            }
+        }
+        stage('MkDocs Build') {
+            when { { expression { env.BRANCH_NAME =~ /^master$/ } } }
+            agent {
+                docker {
+                    image 'python:3-slim'
+                    reuseNode true
+                    args '-u 0:0 --privileged'
+                }
+            }
+            steps {
+                sh 'pip install mkdocs'
+                sh 'pip install mkdocs-material'
+                dir('docs_src') {
+                    unstash 'md_files'
+                }
+                sh 'mkdocs build'
+                // stash the site contents generated from mkdocs build
+                stash name: 'html_files', includes: 'docs/html/**', useDefaultExcludes: false
+            }
+        }
+        stage('Publish to GitHub pages') {
+            when { { expression { env.BRANCH_NAME =~ /^master$/ } } }
+            agent {
+                docker {
+                    image 'gradle'
+                    reuseNode true
+                    args '-u 0:0 --privileged'
+                }
+            }
+            steps {
+                sh 'gradle publish'
+            }
+        }
+
         stage('Test') {
             when { not { expression { env.BRANCH_NAME =~ /^master$/ } } }
             agent {
@@ -80,16 +129,16 @@ pipeline {
                     reportFiles: 'index.html',
                     reportName: 'Unit Test Summary'
                 ])
-
-                // // Jacoco Report
-                // publishHTML([
-                //     allowMissing: true,
-                //     alwaysLinkToLastBuild: true,
-                //     keepAll: true,
-                //     reportDir: 'target/reports/jacoco/test/html',
-                //     reportFiles: 'index.html',
-                //     reportName: 'Jacoco Test Report'
-                // ])
+//
+//                // // Jacoco Report
+//                // publishHTML([
+//                //     allowMissing: true,
+//                //     alwaysLinkToLastBuild: true,
+//                //     keepAll: true,
+//                //     reportDir: 'target/reports/jacoco/test/html',
+//                //     reportFiles: 'index.html',
+//                //     reportName: 'Jacoco Test Report'
+//                // ])
             }
         }
 

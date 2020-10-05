@@ -134,3 +134,28 @@ task printClasspath {
     configurations.testRuntimeClasspath.each { println it }
   }
 }
+
+sourceSets {
+  main {
+    groovy {
+      srcDirs = ['vars/']
+    }
+  }
+}
+
+// Runs the groovy custom script to generate documentation in MD files
+task generateDocumentation (type: JavaExec){
+  main = 'DocumentGenerator'
+  classpath = sourceSets.main.runtimeClasspath
+  def config = [
+          sourcePath : "vars" , // value is  mandatory
+          excludes : [".*DocumentGenerator.*"] //if no exclusion, then give as []
+  ]
+  args config.sourcePath, config.excludes
+}
+
+// publish the HTML files to GitHub pages
+task publish(type: GradleBuild) {
+  buildFile = 'publish.gradle'
+  tasks = ['gitPublishPush']
+}

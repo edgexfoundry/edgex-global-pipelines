@@ -13,7 +13,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+/**
+ # edgeXBuildCApp
 
+ Shared Library to build C projects
+
+ ## Parameters
+
+ * **project** - Specify your project name
+ * **dockerBuildFilePath** - Specify your Docker Build file Path
+ * **dockerFilePath** - Specify your Dockerfile path
+ * **pushImage** - Set this `false` if you dont want to push the image to DockerHub, by default `true`
+
+ ## Example Usage
+
+ ```bash
+ edgeXBuildCApp (
+ project: 'device-bacnet-c',
+ dockerBuildFilePath: 'scripts/Dockerfile.alpine-3.9-base',
+ dockerFilePath: 'scripts/Dockerfile.alpine-3.9' )
+ ```
+
+ ```bash
+ edgeXBuildCApp (
+ project: 'device-sdk-c',
+ dockerBuildFilePath: 'scripts/Dockerfile.alpine-3.11-base',
+ dockerFilePath: 'scripts/Dockerfile.alpine-3.11',
+ pushImage: false )
+ ```
+ */
 def call(config) {
     edgex.bannerMessage "[edgeXBuildCApp] RAW Config: ${config}"
 
@@ -105,7 +133,7 @@ def call(config) {
                             }
 
                             stage('Docker Push') {
-                                when { 
+                                when {
                                     allOf {
                                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -192,7 +220,7 @@ def call(config) {
                             }
 
                             stage('Docker Push') {
-                                when { 
+                                when {
                                     allOf {
                                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -238,7 +266,7 @@ def call(config) {
             // We should be back on the mainAgent here.
 
             // CodeCov should only run once, no need to run per arch only
-            // TODO: Coverage report is required to run CodeCov. 
+            // TODO: Coverage report is required to run CodeCov.
             // Test/QA and Device services WG will need to define unit testing for C code.
             // stage('CodeCov') {
             //     when { environment name: 'SILO', value: 'production' }
@@ -250,7 +278,7 @@ def call(config) {
 
             // Snyk doesn't support general docker images - and doesn't support C
             // stage('Snyk Scan') {
-            //     when { 
+            //     when {
             //         allOf {
             //             environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
             //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -351,8 +379,8 @@ def prepBaseBuildImage() {
     def buildArgString = buildArgs.join(' --build-arg ')
 
     docker.build(
-        "ci-base-image-${env.ARCH}",
-        "-f ${env.DOCKER_BUILD_FILE_PATH} ${buildArgString} ${env.DOCKER_BUILD_CONTEXT}"
+            "ci-base-image-${env.ARCH}",
+            "-f ${env.DOCKER_BUILD_FILE_PATH} ${buildArgString} ${env.DOCKER_BUILD_CONTEXT}"
     )
 }
 
@@ -394,23 +422,23 @@ def toEnvironment(config) {
     }
 
     def envMap = [
-        MAVEN_SETTINGS: _mavenSettings,
-        PROJECT: _projectName,
-        USE_SEMVER: _useSemver,
-        TEST_SCRIPT: _testScript,
-        BUILD_SCRIPT: _buildScript,
-        DOCKER_BASE_IMAGE: _dockerBaseImage,
-        DOCKER_FILE_PATH: _dockerFilePath,
-        DOCKER_BUILD_FILE_PATH: _dockerBuildFilePath,
-        DOCKER_BUILD_CONTEXT: _dockerBuildContext,
-        DOCKER_IMAGE_NAME: _dockerImageName,
-        DOCKER_REGISTRY_NAMESPACE: _dockerNamespace,
-        DOCKER_NEXUS_REPO: _dockerNexusRepo,
-        BUILD_DOCKER_IMAGE: _buildImage,
-        PUSH_DOCKER_IMAGE: _pushImage,
-        SEMVER_BUMP_LEVEL: _semverBump,
-        //SNAP_CHANNEL: _snapChannel,
-        BUILD_SNAP: _buildSnap
+            MAVEN_SETTINGS: _mavenSettings,
+            PROJECT: _projectName,
+            USE_SEMVER: _useSemver,
+            TEST_SCRIPT: _testScript,
+            BUILD_SCRIPT: _buildScript,
+            DOCKER_BASE_IMAGE: _dockerBaseImage,
+            DOCKER_FILE_PATH: _dockerFilePath,
+            DOCKER_BUILD_FILE_PATH: _dockerBuildFilePath,
+            DOCKER_BUILD_CONTEXT: _dockerBuildContext,
+            DOCKER_IMAGE_NAME: _dockerImageName,
+            DOCKER_REGISTRY_NAMESPACE: _dockerNamespace,
+            DOCKER_NEXUS_REPO: _dockerNexusRepo,
+            BUILD_DOCKER_IMAGE: _buildImage,
+            PUSH_DOCKER_IMAGE: _pushImage,
+            SEMVER_BUMP_LEVEL: _semverBump,
+            //SNAP_CHANNEL: _snapChannel,
+            BUILD_SNAP: _buildSnap
     ]
 
     // encode with comma in case build arg has space
