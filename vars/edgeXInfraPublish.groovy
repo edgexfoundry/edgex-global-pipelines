@@ -27,6 +27,7 @@ def call(body) {
     }
 
     def _logSettingsFile = config.logSettingsFile ?: 'jenkins-log-archives-settings'
+    def _dockerOptimized = edgex.defaultTrue(config.dockerOptimized)
 
     stage('LF Post Build Actions') {
         // lf-infra-systat
@@ -35,11 +36,48 @@ def call(body) {
         // lf-infra-package-listing
         sh(script: libraryResource('global-jjb-shell/package-listing.sh'))
 
-        // lf-infra-ship-logs
-        lfInfraShipLogs {
-            logSettingsFile = _logSettingsFile
+        if(_dockerOptimized) {
+            def insideArgs = getLogPublishContainerArgs()
+            // lf-infra-ship-logs
+            sh 'facter operatingsystem > ./facter-os'
+            docker.image("${env.DOCKER_REGISTRY}:10003/edgex-lftools-log-publisher:alpine").inside(insideArgs.join(' ')) {
+                sh 'touch /tmp/pre-build-complete' // skips python-tools-install.sh
+
+                // this will remap the sa logs from the host
+                sh 'mkdir -p /var/log/sa'
+                sh 'for file in `ls /var/log/sa-host`; do sadf -c /var/log/sa-host/${file} > /var/log/sa/${file}; done'
+                //////////////////////////////////////////////
+
+                lfInfraShipLogs {
+                    logSettingsFile = _logSettingsFile
+                }
+            }
+        } else {
+            lfInfraShipLogs {
+                logSettingsFile = _logSettingsFile
+            }
         }
 
         cleanWs()
     }
+}
+
+def getLogPublishContainerArgs() {
+    def insideArgs = [
+        '--privileged',
+        '-u 0:0',
+        '--net host', // required for the calls to the metadata IP 169.254.169.254 global-jjb/shell/job-cost.sh
+
+        // These are the required bind mounts for the scripts to work properly
+        '-v /var/log/sa:/var/log/sa-host',          // global-jjb/shell/logs-deploy.sh
+        '-v /var/log/secure:/var/log/secure',       // global-jjb/shell/sudo-logs.shgho
+        '-v /var/log/auth.log:/var/log/auth.log',   // global-jjb/shell/sudo-logs.sh
+        "-v ${env.WORKSPACE}/facter-os:/facter-os", // global-jjb/shell/sudo-logs.sh
+        '-v /proc/uptime:/proc/uptime',             // global-jjb/shell/job-cost.sh
+        '-v /run/cloud-init/result.json:/run/cloud-init/result.json' // global-jjb/shell/job-cost.sh
+    ]
+
+    println "Launching container with: [${insideArgs.join(' ')}]"
+
+    insideArgs
 }
