@@ -221,30 +221,8 @@ def call(config) {
                 }
             }
 
-            // Snyk doesn't support general docker images - and doesn't support C
-            // stage('Snyk Scan') {
-            //     when { 
-            //         allOf {
-            //             environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
-            //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-            //             expression { edgex.isReleaseStream() }
-            //         }
-            //     }
-            //     steps {
-            //         script {
-            //             if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images){
-            //                 edgeXSnyk(taggedAMD64Images.first(), env.DOCKER_FILE_PATH)
-            //             }
-            //             if(edgex.nodeExists(config, 'arm64') && taggedARM64Images){
-            //                 edgeXSnyk(taggedARM64Images.first(), env.DOCKER_FILE_PATH)
-            //             }
-            //         }
-            //     }
-            // }
-
-            // When scanning the clair image, the FQDN is needed
-            stage('Clair Scan') {
-                when {
+            stage('Snyk Docker Image Scan') {
+                when { 
                     allOf {
                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
                         expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
@@ -253,14 +231,54 @@ def call(config) {
                 steps {
                     script {
                         if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
-                            edgeXClair(taggedAMD64Images.first())
+                            edgeXSnyk(
+                                command: 'test',
+                                dockerImage: taggedAMD64Images.first(),
+                                dockerFile: env.DOCKER_FILE_PATH,
+                                severity: 'high',
+                                sendEmail: false, // for now do not send a message. This mostly applies to devops images
+                                emailTo: env.SECURITY_NOTIFY_LIST,
+                                htmlReport: true
+                            )
                         }
-                        if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
-                            edgeXClair(taggedARM64Images.first())
-                        }
+
+                        // While ARM64 images can be scanned, this would double the amount of tests run
+                        // so we are disabling arm64 scans for now
+                        // if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
+                        //     edgeXSnyk(
+                        //         command: 'test',
+                        //         taggedARM64Images.first(),
+                        //         dockerFile: env.DOCKER_FILE_PATH,
+                        //         severity: 'high',
+                        //         sendEmail: true,
+                        //         emailTo: env.SECURITY_NOTIFY_LIST,
+                        //         htmlReport: true
+                        //     )
+                        // }
                     }
                 }
             }
+
+            // Comment this out in favor of Snyk scanning
+            // When scanning the clair image, the FQDN is needed
+            // stage('Clair Scan') {
+            //     when {
+            //         allOf {
+            //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+            //             expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
+            //         }
+            //     }
+            //     steps {
+            //         script {
+            //             if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
+            //                 edgeXClair(taggedAMD64Images.first())
+            //             }
+            //             if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
+            //                 edgeXClair(taggedARM64Images.first())
+            //             }
+            //         }
+            //     }
+            // }
 
             stage('Semver') {
                 when {
@@ -333,6 +351,7 @@ def toEnvironment(config) {
     def _archiveName           = config.archiveName ?: "${_projectName}-archive.tar.gz"
     def _semverBump            = config.semverBump ?: 'pre'
     def _releaseBranchOverride = config.releaseBranchOverride
+    def _securityNotify        = 'security-issues@lists.edgexfoundry.org'
 
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
@@ -347,7 +366,8 @@ def toEnvironment(config) {
         PUSH_DOCKER_IMAGE: _pushImage,
         ARCHIVE_IMAGE: _archiveImage,
         ARCHIVE_NAME: _archiveName,
-        SEMVER_BUMP_LEVEL: _semverBump
+        SEMVER_BUMP_LEVEL: _semverBump,
+        SECURITY_NOTIFY_LIST: _securityNotify
     ]
 
     if(_releaseBranchOverride) {
