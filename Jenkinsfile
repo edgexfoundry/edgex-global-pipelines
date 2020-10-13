@@ -122,9 +122,12 @@ pipeline {
             }
         }
 
-        // back onto the main centos agent (not in docker container)
+        // this will need to happen on an isolated node to not interfere with git-semver
         stage('Publish to GitHub pages') {
             when { expression { env.BRANCH_NAME =~ /^master$/ } }
+            agent {
+                label 'centos7-docker-4c-2g'
+            }
             steps {
                 script {
                     def originalCommitMsg = sh(script: 'git log --format=%B -n 1 | grep -v Signed-off-by | head -n 1', returnStdout: true)
