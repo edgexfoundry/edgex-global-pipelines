@@ -124,7 +124,7 @@ pipeline {
 
         // back onto the main centos agent (not in docker container)
         stage('Publish to GitHub pages') {
-            when { expression { edgex.isReleaseStream() } }
+            when { expression { env.BRANCH_NAME =~ /^master$/ } }
             steps {
                 script {
                     def originalCommitMsg = sh(script: 'git log --format=%B -n 1 | grep -v Signed-off-by | head -n 1', returnStdout: true)
