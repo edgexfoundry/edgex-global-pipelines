@@ -14,6 +14,35 @@
 // limitations under the License.
 //
 
+/**
+ # edgeXBuildCApp
+
+ Shared Library to build C projects
+
+ ## Parameters
+
+ * **project** - Specify your project name
+ * **dockerBuildFilePath** - Specify your Docker Build file Path
+ * **dockerFilePath** - Specify your Dockerfile path
+ * **pushImage** - Set this `false` if you dont want to push the image to DockerHub, by default `true`
+
+ ## Example Usage
+
+ ```bash
+ edgeXBuildCApp (
+ project: 'device-bacnet-c',
+ dockerBuildFilePath: 'scripts/Dockerfile.alpine-3.9-base',
+ dockerFilePath: 'scripts/Dockerfile.alpine-3.9' )
+ ```
+
+ ```bash
+ edgeXBuildCApp (
+ project: 'device-sdk-c',
+ dockerBuildFilePath: 'scripts/Dockerfile.alpine-3.11-base',
+ dockerFilePath: 'scripts/Dockerfile.alpine-3.11',
+ pushImage: false )
+ ```
+ */
 def call(config) {
     edgex.bannerMessage "[edgeXBuildCApp] RAW Config: ${config}"
 
@@ -105,7 +134,7 @@ def call(config) {
                             }
 
                             stage('Docker Push') {
-                                when { 
+                                when {
                                     allOf {
                                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -192,7 +221,7 @@ def call(config) {
                             }
 
                             stage('Docker Push') {
-                                when { 
+                                when {
                                     allOf {
                                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -238,7 +267,7 @@ def call(config) {
             // We should be back on the mainAgent here.
 
             // CodeCov should only run once, no need to run per arch only
-            // TODO: Coverage report is required to run CodeCov. 
+            // TODO: Coverage report is required to run CodeCov.
             // Test/QA and Device services WG will need to define unit testing for C code.
             // stage('CodeCov') {
             //     when { environment name: 'SILO', value: 'production' }
@@ -250,7 +279,7 @@ def call(config) {
 
             // Snyk doesn't support general docker images - and doesn't support C
             // stage('Snyk Scan') {
-            //     when { 
+            //     when {
             //         allOf {
             //             environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
             //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'

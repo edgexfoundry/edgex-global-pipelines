@@ -1,0 +1,32 @@
+plugins {
+    id "org.ajoberstar.git-publish" version "3.0.0"
+}
+
+gitPublish {
+    // publish to this repository
+    repoUri = 'git@github.com:edgexfoundry/edgex-global-pipelines.git'
+
+    // branch will be created if it doesn't exist
+    branch = 'gh-pages'
+
+    // mkdocs publishes to this directory
+    repoDir = file("$buildDir/docs/html")
+
+    // what to publish, this is a standard CopySpec
+    // copying to github pages default location docs
+    contents {
+        from('docs/html') {
+            into 'docs'
+        }
+        // copying md_files generated and static assets
+        from 'docs_src'
+    }
+
+    // We need index.html to redirect to the main page; If we don't preserve it will be overwritten.
+    preserve {
+        include 'docs/index.html'
+    }
+
+    // message used when committing changes to the gh-pages branch
+    commitMessage = 'Publishing to GitHub pages'
+}
