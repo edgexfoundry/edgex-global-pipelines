@@ -31,8 +31,18 @@ repositories {
 //   }
 // }
 
+sourceSets {
+  main {
+    groovy {
+      srcDirs = ['src/main/groovy']
+    }
+  }
+}
+
 dependencies {
   def withoutIcu = { exclude group: 'com.ibm.icu', module: 'icu4j' }
+
+  compile "org.jenkins-ci.plugins.workflow:workflow-cps-global-lib:2.15@jar"
 
   // mandatory dependencies for using Spock
   implementation "org.codehaus.groovy:groovy-all:2.5.8"
@@ -133,4 +143,21 @@ task printClasspath {
   doLast {
     configurations.testRuntimeClasspath.each { println it }
   }
+}
+
+// Runs the groovy custom script to generate documentation in MD files
+task generateDocumentation (type: JavaExec){
+  main = 'edgeXDocGenerator'
+  classpath = sourceSets.main.runtimeClasspath
+  def config = [
+          sourcePath : "vars" , // value is  mandatory
+          excludes : [".*DocGenerator.*"] //if no exclusion, then give as []
+  ]
+  args config.sourcePath, config.excludes
+}
+
+// publish the HTML files to GitHub pages
+task publish(type: GradleBuild) {
+  buildFile = 'publish.gradle'
+  tasks = ['gitPublishPush']
 }
