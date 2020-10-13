@@ -30,9 +30,13 @@ edgeXReleaseGitTag(releaseYaml)
 
 */
 
-def call(releaseInfo, credentials = 'edgex-jenkins-ssh') {
+def call(releaseInfo, releaseGitTagOptions) {
+    def credentials = releaseGitTagOptions.credentials != null ? releaseGitTagOptions.credentials : 'edgex-jenkins-ssh'
+    def bump = releaseGitTagOptions.bump != null ? releaseGitTagOptions.bump : 'true'
+    def tag = releaseGitTagOptions.tag != null ? releaseGitTagOptions.tag : 'true'
+
     edgeXReleaseGitTagUtil.validate(releaseInfo)
-    edgeXReleaseGitTagUtil.releaseGitTag(releaseInfo, credentials)
+    edgeXReleaseGitTagUtil.releaseGitTag(releaseInfo, credentials, bump, tag)
 }
 
 def cloneRepo(repo, branch, name, credentials) {
@@ -40,7 +44,7 @@ def cloneRepo(repo, branch, name, credentials) {
     def ssh_repo = edgeXReleaseGitTagUtil.getSSHRepoName(repo)
     println "[edgeXReleaseGitTag]: git cloning ${ssh_repo} : ${branch} to ${name} - DRY_RUN: ${env.DRY_RUN}"
     def commands = [
-        "git clone -b ${branch} ${ssh_repo} ${env.WORKSPACE}/${name}",
+        "git clone -b ${branch} ${ssh_repo} ${env.WORKSPACE}/${name} || true",
     ]
     sshagent(credentials: [credentials]) {
         if(edgex.isDryRun()) {
@@ -70,13 +74,19 @@ def setAndSignGitTag(name, version) {
     edgeXReleaseGitTagUtil.signGitTag(version, name)
 }
 
-def bumpAndPushGitTag(name, version, bumpLevel) {
+def bumpAndPushGitTag(name, version, bumpLevel, bump = true) {
     // call edgeXSemver bump to bump semver branch to next bumpLevel and push to push git tag
     println "[edgeXReleaseGitTag]: pushing git tag for ${name}: ${version} - DRY_RUN: ${env.DRY_RUN}"
+    
     def commands = [
         "bump ${bumpLevel}",
         "push"
     ]
+    
+    if (!bump){
+        commands = ["push"]
+    }
+    
     if(edgex.isDryRun()) {
         echo(commands.collect {"edgeXSemver ${it}"}.join('\n'))
     }

@@ -64,14 +64,16 @@ def signGitTag(version, name) {
     }
 }
 
-def releaseGitTag(releaseInfo, credentials) {
+def releaseGitTag(releaseInfo, credentials, bump = true, tag = true) {
     // exception handled function that clones, sets and signs git tag version
     try {
         edgeXReleaseGitTag.cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, releaseInfo.name, credentials)
         withEnv(["SEMVER_BRANCH=${releaseInfo.releaseStream}"]) {
-            edgeXReleaseGitTag.setAndSignGitTag(releaseInfo.name, releaseInfo.version)
+            if (tag){
+                edgeXReleaseGitTag.setAndSignGitTag(releaseInfo.name, releaseInfo.version)
+            }
             def semverBumpLevel = releaseInfo.semverBumpLevel ?: '-pre=dev pre'
-            edgeXReleaseGitTag.bumpAndPushGitTag(releaseInfo.name, releaseInfo.version, semverBumpLevel)
+            edgeXReleaseGitTag.bumpAndPushGitTag(releaseInfo.name, releaseInfo.version, semverBumpLevel, bump)
         }
     }
     catch(Exception ex) {

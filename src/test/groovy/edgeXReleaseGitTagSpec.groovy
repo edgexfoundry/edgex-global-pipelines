@@ -5,6 +5,7 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
     
     def edgeXReleaseGitTag = null
     def validReleaseInfo
+    def validreleaseGitTagOptions
 
     def setup() {
         edgeXReleaseGitTag = loadPipelineScriptForTest('vars/edgeXReleaseGitTag.groovy')
@@ -20,6 +21,11 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             'version': '1.2.3',
             'releaseStream': 'master',
             'repo': 'https://github.com/edgexfoundry/sample-service.git'
+        ]
+        validreleaseGitTagOptions = [
+            'credentials': 'edgex-jenkins-ssh',
+            'bump': true,
+            'tag': true
         ]
         def environmentVariables = [
             'WORKSPACE': '/w/thecars'
@@ -37,7 +43,7 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
                 assert ['credentials':['MyCredentials']] == _arguments[0][0]
             }
-            1 * getPipelineMock('sh').call('git clone -b master git-repo-name /w/thecars/sample-service')
+            1 * getPipelineMock('sh').call('git clone -b master git-repo-name /w/thecars/sample-service || true')
     }
 
     def "Test cloneRepo [Should] echo sh and sshagent with expected arguments [When] DRY_RUN is true" () {
@@ -50,7 +56,7 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
                 assert ['credentials':['MyCredentials']] == _arguments[0][0]
             }
-            1 * getPipelineMock('echo').call('sh git clone -b master git-repo-name /w/thecars/sample-service')
+            1 * getPipelineMock('echo').call('sh git clone -b master git-repo-name /w/thecars/sample-service || true')
     }
 
     def "Test setAndSignGitTag [Should] call edgeXSemver init, tag and edgeXInfraLFToolsSign with expected arguments [When] DRY_RUN is false" () {
@@ -103,10 +109,10 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
     def "Test edgeXReleaseGitTag [Should] call expected [When] called" () {
         setup:
         when:
-            edgeXReleaseGitTag(validReleaseInfo)
+            edgeXReleaseGitTag(validReleaseInfo,validreleaseGitTagOptions)
         then:
             1 * getPipelineMock('edgeXReleaseGitTagUtil.validate').call(validReleaseInfo)
-            1 * getPipelineMock('edgeXReleaseGitTagUtil.releaseGitTag').call(validReleaseInfo, 'edgex-jenkins-ssh')
+            1 * getPipelineMock('edgeXReleaseGitTagUtil.releaseGitTag').call(validReleaseInfo, 'edgex-jenkins-ssh', true, true)
     }
 
 

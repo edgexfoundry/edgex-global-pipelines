@@ -117,7 +117,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
                     assert _arguments[0][0][0] == 'SEMVER_BRANCH=master'
                 }
             1 * getPipelineMock('edgeXReleaseGitTag.setAndSignGitTag').call('sample-service', '1.2.3')
-            1 * getPipelineMock('edgeXReleaseGitTag.bumpAndPushGitTag').call('sample-service', '1.2.3', '-pre=dev pre')
+            1 * getPipelineMock('edgeXReleaseGitTag.bumpAndPushGitTag').call('sample-service', '1.2.3', '-pre=dev pre', true)
     }
 
 }
