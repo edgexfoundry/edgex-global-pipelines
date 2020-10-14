@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
+     <loc>https://edgexfoundry.github.io/edgex-global-pipelines/md_files/</loc>
+     <lastmod>2020-10-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://edgexfoundry.github.io/edgex-global-pipelines/md_files/edgeXBuildCApp/</loc>
+     <lastmod>2020-10-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://edgexfoundry.github.io/edgex-global-pipelines/md_files/edgeXBuildDocker/</loc>
+     <lastmod>2020-10-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://edgexfoundry.github.io/edgex-global-pipelines/md_files/edgeXBuildGoApp/</loc>
+     <lastmod>2020-10-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+</urlset>
