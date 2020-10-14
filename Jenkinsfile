@@ -41,10 +41,6 @@ pipeline {
                     edgex.releaseInfo()
                     //edgeXSetupEnvironment([GIT_BRANCH: env.BRANCH_NAME])
                     edgeXSemver 'init'
-
-                    env.GITSEMVER_INIT_VERSION = env.VERSION
-                    sh "echo Archived original version: [$GITSEMVER_INIT_VERSION]"
-
                     sh 'env | sort'
                 }
             }
