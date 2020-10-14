@@ -13,36 +13,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 /**
-
  #edgeXBuildGoApp
-
+ 
  Shared Library to build Go projects
+ 
+ ## Parameters
 
- ##Parameters
  * **project** - Specify your project name
  * **goVersion** - Go version
+ 
+ ## Usage
+ 
+ ### Basic example
 
- ##Example Usage
-
- ```bash
+ ```groovy
  edgeXBuildGoApp (
- project: 'device-random-go',
- goVersion: '1.13'
+     project: 'device-random-go',
+     goVersion: '1.15'
  )
  ```
- ```bash
+ 
+ ### Complex example
+ 
+ ```groovy
  edgeXBuildGoApp (
- project: 'app-functions-sdk-go',
- semver: true,
- goVersion: '1.13',
- testScript: 'make test',
- buildImage: false,
- publishSwaggerDocs: true,
- swaggerApiFolders: ['openapi/v2']
+     project: 'app-functions-sdk-go',
+     semver: true,
+     goVersion: '1.15',
+     testScript: 'make test',
+     buildImage: false,
+     publishSwaggerDocs: true,
+     swaggerApiFolders: ['openapi/v2']
  )
  ```
  */
+
 def taggedAMD64Images
 def taggedARM64Images
 

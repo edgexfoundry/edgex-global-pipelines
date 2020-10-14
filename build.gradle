@@ -150,8 +150,8 @@ task generateDocumentation (type: JavaExec){
   main = 'edgeXDocGenerator'
   classpath = sourceSets.main.runtimeClasspath
   def config = [
-          sourcePath : "vars" , // value is  mandatory
-          excludes : [".*DocGenerator.*"] //if no exclusion, then give as []
+    sourcePath : "vars" , // value is  mandatory
+    excludes : [".*DocGenerator.*"] //if no exclusion, then give as []
   ]
   args config.sourcePath, config.excludes
 }

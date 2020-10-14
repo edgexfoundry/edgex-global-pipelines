@@ -18,10 +18,15 @@ theme:
   features:
     - tabs
 nav:
-    - './md_files/index.md'
-    - './md_files/edgeXBuildCApp.md'
-    - './md_files/edgeXBuildDocker.md'
-    - './md_files/edgeXBuildGoApp.md'
+  - Introduction:
+    - 'index.md'
+  - Pipelines:
+    - './libraries/edgeXBuildCApp.md'
+    - './libraries/edgeXBuildDocker.md'
+    - './libraries/edgeXBuildGoApp.md'
+  - Tutorials:
+    - './tutorials/index.md'
+    - './tutorials/manual-bump.md'
 
 markdown_extensions:
   - codehilite
