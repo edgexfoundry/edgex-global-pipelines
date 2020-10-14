@@ -1,11 +1,11 @@
 import groovy.io.FileType
 import java.util.regex.Pattern
 
-mdDirName = "docs_src/md_files"
+mdDirName = "docs_src"
 
 def config = [
-        sourcePath: args[0],
-        excludes  : args[1].replaceAll("\\[", "").replaceAll("\\]", "").split(", ")
+    sourcePath: args[0],
+    excludes  : args[1].replaceAll("\\[", "").replaceAll("\\]", "").split(", ")
 ]
 
 generateDocumentation(config)
@@ -13,16 +13,23 @@ generateDocumentation(config)
 def generateDocumentation(config){
     checkParameters(config)
     def groovyFiles = fetchRequiredFiles(config)
-    String indexFileContent = fetchIndexHeader()
-    for(file in groovyFiles){
+    def indexFileContent = fetchIndexHeader()
+    def generatedFiles = []
+
+    for(file in groovyFiles) {
         def mdFileContent = generateMdFileContent(file)
-        if(mdFileContent == null){
+
+        if(mdFileContent == null) {
             continue
         }
-        indexFileContent += writeFileLine(file)
-        writeMdFile(getFileName(file), mdFileContent)
-        println("Generated MD fie for ${file.name}")
+
+        generatedFiles << writeFileLine(file)
+        writeMdFile("libraries/${getFileName(file)}", mdFileContent)
+
+        println "Generated MD file for ${file.name}"
     }
+
+    indexFileContent += generatedFiles.join('\n')
     writeMdFile("index", indexFileContent)
 }
 
@@ -32,7 +39,7 @@ def checkParameters(config) {
     }
 }
 
-def fetchRequiredFiles(config){
+def fetchRequiredFiles(config) {
     def files = []
     def dir = new File(config.sourcePath)
     dir.eachFileRecurse(FileType.FILES) { file ->
@@ -54,14 +61,13 @@ def fetchRequiredFiles(config){
     return files
 }
 
-def fetchIndexHeader(){
-    return new File("${mdDirName}/header.md").text
+def fetchIndexHeader() {
+    return new File("${mdDirName}/templates/header.md").text
 }
 
-def writeFileLine(file){
+def writeFileLine(file) {
     def mdFileName = getFileName(file)
-    def fileLine = "[${mdFileName}](${mdFileName}.md)\n\n"
-    return fileLine
+    return "- [${mdFileName}](libraries/${mdFileName}.md)"
 }
 
 def generateMdFileContent(file) {
@@ -76,15 +82,16 @@ def generateMdFileContent(file) {
 }
 
 def getFileName(file) {
-    return file.name.replace(".groovy","")
+    return file.name.replace(".groovy", "")
 }
 
 def writeMdFile(fileName, fileContent) {
-    File mdDir = new File("${mdDirName}")
+    def mdDir = new File(mdDirName)
     if (!mdDir.exists()) {
         mdDir.mkdirs()
     }
-    File file = new File( "${mdDirName}/${fileName}.md")
+
+    def file = new File( "${mdDirName}/${fileName}.md")
     file.createNewFile()
     file.write fileContent
 }

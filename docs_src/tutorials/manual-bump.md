@@ -10,7 +10,7 @@ You must have write access to the repo to perform this manual version bump proce
  - Developer must be a member of the devops-core-team as per TSC approval
  - Version info can be obtained through view of the Jenkins Pipeline log for last successful build
 
-```Bash
+```bash
 $ git clone git@github.com:edgexfoundry/edgex-global-pipelines.git
 $ cd edgex-global-pipelines
 $ ./resources/update-named-tag.sh <version> <stable|experimental>

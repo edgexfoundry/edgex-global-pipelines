@@ -26,21 +26,27 @@
  * **dockerFilePath** - Specify your Dockerfile path
  * **pushImage** - Set this `false` if you dont want to push the image to DockerHub, by default `true`
 
- ## Example Usage
+ ## Usage
 
- ```bash
+ ### Basic example
+
+ ```groovy
  edgeXBuildCApp (
- project: 'device-bacnet-c',
- dockerBuildFilePath: 'scripts/Dockerfile.alpine-3.9-base',
- dockerFilePath: 'scripts/Dockerfile.alpine-3.9' )
+     project: 'device-bacnet-c',
+     dockerBuildFilePath: 'scripts/Dockerfile.alpine-3.9-base',
+     dockerFilePath: 'scripts/Dockerfile.alpine-3.9'
+ )
  ```
 
- ```bash
+ ### Complex example
+
+ ```groovy
  edgeXBuildCApp (
- project: 'device-sdk-c',
- dockerBuildFilePath: 'scripts/Dockerfile.alpine-3.11-base',
- dockerFilePath: 'scripts/Dockerfile.alpine-3.11',
- pushImage: false )
+     project: 'device-sdk-c',
+     dockerBuildFilePath: 'scripts/Dockerfile.alpine-3.11-base',
+     dockerFilePath: 'scripts/Dockerfile.alpine-3.11',
+     pushImage: false
+ )
  ```
  */
 def call(config) {

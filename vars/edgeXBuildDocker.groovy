@@ -15,32 +15,37 @@
 //
 
 /**
- #edgeXBuildDocker
+ # edgeXBuildDocker
 
  Shared Library to build docker images
 
- ##Parameters
+ ## Parameters
 
  * **project** - Specify your project name
  * **dockerImageName** - Specify your Docker Image name
  * **semver** - Set this `true` for Semantic versioning
  * **dockerNexusRepo** - Specify Docker Nexus repository
 
- ##Example Usage
+ ## Usage
+ 
+ ### Basic example
 
- ```bash
+ ```groovy
  edgeXBuildDocker (
- project: 'docker-edgex-consul',
- dockerImageName: 'docker-edgex-consul',
- semver: true
+     project: 'docker-edgex-consul',
+     dockerImageName: 'docker-edgex-consul',
+     semver: true
  )
  ```
- ```bash
+
+ ### Complex example
+
+ ```groovy
  edgeXBuildDocker (
- project: 'edgex-taf-common',
- mavenSettings: 'taf-settings',
- dockerNexusRepo: 'snapshots',
- semver: true
+     project: 'edgex-taf-common',
+     mavenSettings: 'taf-settings',
+     dockerNexusRepo: 'snapshots',
+     semver: true
  )
  ```
  */

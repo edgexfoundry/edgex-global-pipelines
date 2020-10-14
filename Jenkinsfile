@@ -38,12 +38,12 @@ pipeline {
         stage('Prep') {
             steps {
                 script {
-                    //edgex.releaseInfo() this can be uncommented once this moves to stable
+                    edgex.releaseInfo()
                     //edgeXSetupEnvironment([GIT_BRANCH: env.BRANCH_NAME])
                     edgeXSemver 'init'
 
-                    env.OG_VERSION = env.VERSION
-                    sh "echo Archived original version: [$OG_VERSION]"
+                    env.GITSEMVER_INIT_VERSION = env.VERSION
+                    sh "echo Archived original version: [$GITSEMVER_INIT_VERSION]"
 
                     sh 'env | sort'
                 }
@@ -80,16 +80,6 @@ pipeline {
                     reportFiles: 'index.html',
                     reportName: 'Unit Test Summary'
                 ])
-
-                // // Jacoco Report
-                // publishHTML([
-                //     allowMissing: true,
-                //     alwaysLinkToLastBuild: true,
-                //     keepAll: true,
-                //     reportDir: 'target/reports/jacoco/test/html',
-                //     reportFiles: 'index.html',
-                //     reportName: 'Jacoco Test Report'
-                // ])
             }
         }
 
@@ -105,6 +95,7 @@ pipeline {
                 sh 'gradle clean generateDocumentation'
             }
         }
+
         stage('MkDocs Build') {
             agent {
                 docker {
@@ -114,9 +105,9 @@ pipeline {
                 }
             }
             steps {
-                sh 'pip install mkdocs'
-                sh 'pip install mkdocs-material'
+                sh 'pip install mkdocs && pip install mkdocs-material'
                 sh 'mkdocs build'
+
                 // stash the site contents generated from mkdocs build
                 stash name: 'site-contents', includes: 'docs/**', useDefaultExcludes: false
             }
@@ -204,7 +195,7 @@ pipeline {
             }
             steps {
                 script {
-                    edgeXUpdateNamedTag(env.OG_VERSION, 'experimental')
+                    edgeXUpdateNamedTag(env.GITSEMVER_INIT_VERSION, 'experimental')
                 }
             }
         }
