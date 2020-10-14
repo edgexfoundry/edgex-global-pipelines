@@ -124,7 +124,10 @@ pipeline {
 
         // this will need to happen on an isolated node to not interfere with git-semver
         stage('Publish to GitHub pages') {
-            when { expression { env.BRANCH_NAME =~ /^master$/ } }
+            when {
+                beforeAgent true
+                expression { env.BRANCH_NAME =~ /^master$/ }
+            }
             agent {
                 label 'centos7-docker-4c-2g'
             }
