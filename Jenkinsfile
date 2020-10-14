@@ -139,8 +139,10 @@ pipeline {
                         git url: 'git@github.com:edgexfoundry/edgex-global-pipelines.git', branch: 'gh-pages', credentialsId: 'edgex-jenkins-ssh', changelog: false, poll: false
                         unstash 'site-contents'
 
+                        sh 'ls -al .'
                         sh 'cp -rlf docs/* .'
                         sh 'rm -rf docs'
+                        sh 'ls -al .'
 
                         def changesDetected = sh(script: 'git diff-index --quiet HEAD --', returnStatus: true)
                         echo "We have detected there are changes to commit: [${changesDetected}] [${changesDetected != 0}]"
