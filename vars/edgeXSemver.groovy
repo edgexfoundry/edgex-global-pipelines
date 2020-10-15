@@ -62,6 +62,12 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
                 semverVersion = sh(script: 'git semver', returnStdout: true).trim()
             }
         }
+
+        // Fix semver directory permissions back on the host. docker.image.inside above
+        // uses -u 0:0 so .semver directory is owned by root
+        if(command =~ '^init') {
+            sh 'sudo chown -R jenkins:jenkins .semver'
+        }
     }
 
     env.VERSION = semverVersion
