@@ -65,6 +65,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             // should not call get tag to determine if HEAD is tagged since GITSEMVER_HEAD_TAG is set
             0 * getPipelineMock('sh')([script:'git tag --points-at HEAD', returnStdout:true])
             environmentVariables['GITSEMVER_INIT_VERSION'] == '1.2.4'
+            1 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call expected and set VERSION [When] called with init command and GITSEMVER_HEAD_TAG is set" () {
@@ -84,6 +85,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
 
             1 * getPipelineMock('sh').call([script: 'git semver', returnStdout: true]) >> '1.2.3-dev.4\n'
             environmentVariables['VERSION'] == '1.2.3-dev.4'
+            1 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call command and set GITSEMVER_HEAD_TAG [When] command is init without semverVersion and HEAD is tagged" () {
@@ -100,6 +102,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('sh').call('git semver init')
             environmentVariables['GITSEMVER_HEAD_TAG'] == 'v1.2.3'
             environmentVariables['VERSION'] == '1.2.4-dev.1'
+            1 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call command and not set GITSEMVER_HEAD_TAG [When] command is init without semverVersion and HEAD is not tagged" () {
@@ -116,6 +119,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             environmentVariables.containsKey('GITSEMVER_HEAD_TAG') == false
             environmentVariables['VERSION'] == '1.2.4-dev.1'
             environmentVariables['GITSEMVER_INIT_VERSION'] == '1.2.4-dev.1'
+            1 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call command and set GITSEMVER_HEAD_TAG [When] command is init with semverVersion and HEAD is tagged with semverVersion" () {
@@ -131,6 +135,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             environmentVariables['GITSEMVER_HEAD_TAG'] == 'v2.3.4|stable'
             environmentVariables['VERSION'] == '2.3.4'
             environmentVariables['GITSEMVER_INIT_VERSION'] == '2.3.4'
+            1 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call command and not set GITSEMVER_HEAD_TAG [When] command is init with semverVersion and HEAD is not tagged" () {
@@ -146,6 +151,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             environmentVariables.containsKey('GITSEMVER_HEAD_TAG') == false
             environmentVariables['VERSION'] == '2.3.4'
             environmentVariables['GITSEMVER_INIT_VERSION'] == '2.3.4'
+            1 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call command and not set GITSEMVER_HEAD_TAG [When] command is init with semverVersion and HEAD is not tagged with semverVersion" () {
@@ -161,6 +167,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             environmentVariables.containsKey('GITSEMVER_HEAD_TAG') == false
             environmentVariables['VERSION'] == '2.3.4'
             environmentVariables['GITSEMVER_INIT_VERSION'] == '2.3.4'
+            1 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call command and not set GITSEMVER_HEAD_TAG [When] command is init ver force and not semverVersion" () {
@@ -177,6 +184,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('sh').call('git semver init -ver=2.3.4 -force')
             environmentVariables.containsKey('GITSEMVER_HEAD_TAG') == false
             environmentVariables['VERSION'] == '1.2.4-dev.1'
+            1 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] not call command [When] command is tag and GITSEMVER_HEAD_TAG is set" () {
@@ -193,6 +201,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('echo')("[edgeXSemver]: ignoring command tag because GITSEMVER_HEAD_TAG is already set to '1.2.3'")
             0 * getPipelineMock('sh').call('git semver tag')
             environmentVariables['VERSION'] == '1.2.4-dev.1'
+            0 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call command [When] command is tag and GITSEMVER_HEAD_TAG is not set" () {
@@ -207,6 +216,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         then:
             1 * getPipelineMock('sh').call('git semver tag')
             environmentVariables['VERSION'] == '1.2.4-dev.1'
+            0 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call command [When] command is tag force and GITSEMVER_HEAD_TAG is not set" () {
@@ -225,6 +235,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('echo')("[edgeXSemver]: removing remote and local tags for v1.2.3")
             1 * getPipelineMock('sh').call('git semver tag -force')
             environmentVariables['VERSION'] == '1.2.3'
+            0 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call command [When] command is bump and GITSEMVER_HEAD_TAG is not set" () {
@@ -238,6 +249,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         then:
             1 * getPipelineMock('sh').call('git semver bump pre')
             environmentVariables['VERSION'] == '1.2.4-dev.1'
+            0 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] not call command [When] command is bump and GITSEMVER_HEAD_TAG is set" () {
@@ -254,6 +266,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('echo')("[edgeXSemver]: ignoring command bump pre because GITSEMVER_HEAD_TAG is already set to '1.2.4-dev.1'")
             0 * getPipelineMock('sh').call('git semver bump pre')
             environmentVariables['VERSION'] == '1.2.4-dev.1'
+            0 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] call command [When] command is push and GITSEMVER_HEAD_TAG is not set" () {
@@ -267,6 +280,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         then:
             1 * getPipelineMock('sh').call('git semver push')
             environmentVariables['VERSION'] == '1.2.4-dev.1'
+            0 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test edgeXSemver [Should] not call command [When] command is push and GITSEMVER_HEAD_TAG is set" () {
@@ -283,6 +297,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('echo')("[edgeXSemver]: ignoring command push because GITSEMVER_HEAD_TAG is already set to '1.2.4-dev.1'")
             0 * getPipelineMock('sh').call('git semver push')
             environmentVariables['VERSION'] == '1.2.4-dev.1'
+            0 * getPipelineMock('sh').call('sudo chown -R jenkins:jenkins .semver')
     }
 
     def "Test executeGitSemver [Should] call sshagent and sh with the expected arguments [When] called" () {
