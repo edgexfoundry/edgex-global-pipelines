@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.8">
       <module name="edgex-global-pipelines.globalPipelines" target="1.8" />
       <module name="edgex-global-pipelines.gra" target="1.8" />
       <module name="edgex-global-pipelines.jenki" target="1.8" />
