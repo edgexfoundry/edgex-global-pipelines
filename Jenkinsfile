@@ -94,14 +94,13 @@ pipeline {
 
         stage('MkDocs Build') {
             agent {
-                docker {
-                    image 'python:3-slim'
+                dockerfile {
+                    filename 'Dockerfile.docs'
                     reuseNode true
                     args '-u 0:0 --privileged'
                 }
             }
             steps {
-                sh 'pip install mkdocs && pip install mkdocs-material'
                 sh 'mkdocs build'
 
                 // stash the site contents generated from mkdocs build
