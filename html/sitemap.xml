@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>https://edgexfoundry.github.io/edgex-global-pipelines/</loc>
-     <lastmod>2020-10-15</lastmod>
+     <lastmod>2020-10-19</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildCApp/</loc>
-     <lastmod>2020-10-15</lastmod>
+     <lastmod>2020-10-19</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildDocker/</loc>
-     <lastmod>2020-10-15</lastmod>
+     <lastmod>2020-10-19</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildGoApp/</loc>
-     <lastmod>2020-10-15</lastmod>
+     <lastmod>2020-10-19</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/</loc>
-     <lastmod>2020-10-15</lastmod>
+     <lastmod>2020-10-19</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/manual-bump/</loc>
-     <lastmod>2020-10-15</lastmod>
+     <lastmod>2020-10-19</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
