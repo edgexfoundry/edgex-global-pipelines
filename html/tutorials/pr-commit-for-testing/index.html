@@ -9,24 +9,24 @@
         <meta name="description" content="Documentation for EdgeX Global Pipelines">
       
       
-        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/">
+        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/pr-commit-for-testing/">
       
       
         <meta name="author" content="EdgeX DevOps Team">
       
-      <link rel="shortcut icon" href="../assets/logo_edgex.png">
+      <link rel="shortcut icon" href="../../assets/logo_edgex.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.0">
     
     
       
-        <title>Tutorials - EdgeX Global Pipelines Documentation</title>
+        <title>Pull Request Sandbox Testing - EdgeX Global Pipelines Documentation</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.bc7e593a.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bc7e593a.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab28b872.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab28b872.min.css">
         
       
     
@@ -41,9 +41,9 @@
     
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/version-select.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/version-select.css">
     
-      <link rel="stylesheet" href="../assets/stylesheets/branding.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/branding.css">
     
     
       
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tutorials" class="md-skip">
+        <a href="#pull-request-sandbox-testing" class="md-skip">
           Skip to content
         </a>
       
@@ -85,7 +85,7 @@
   <nav class="md-header-nav md-grid" aria-label="Header">
     <a href="https://edgexfoundry.github.io/edgex-global-pipelines/" title="EdgeX Global Pipelines Documentation" class="md-header-nav__button md-logo" aria-label="EdgeX Global Pipelines Documentation">
       
-  <img src="../assets/logo_edgex_white.png" alt="logo">
+  <img src="../../assets/logo_edgex_white.png" alt="logo">
 
     </a>
     <label class="md-header-nav__button md-icon" for="__drawer">
@@ -99,7 +99,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              Tutorials
+              Pull Request Sandbox Testing
             
           </span>
         </div>
@@ -171,7 +171,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="https://edgexfoundry.github.io/edgex-global-pipelines/" title="EdgeX Global Pipelines Documentation" class="md-nav__button md-logo" aria-label="EdgeX Global Pipelines Documentation">
       
-  <img src="../assets/logo_edgex_white.png" alt="logo">
+  <img src="../../assets/logo_edgex_white.png" alt="logo">
 
     </a>
     EdgeX Global Pipelines Documentation
@@ -219,7 +219,7 @@
 
 
   <li class="md-nav__item">
-    <a href=".." class="md-nav__link">
+    <a href="../.." class="md-nav__link">
       EdgeX Global Pipelines
     </a>
   </li>
@@ -257,7 +257,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../libraries/edgeXBuildCApp/" class="md-nav__link">
+    <a href="../../libraries/edgeXBuildCApp/" class="md-nav__link">
       edgeXBuildCApp
     </a>
   </li>
@@ -269,7 +269,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../libraries/edgeXBuildDocker/" class="md-nav__link">
+    <a href="../../libraries/edgeXBuildDocker/" class="md-nav__link">
       edgeXBuildDocker
     </a>
   </li>
@@ -281,7 +281,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../libraries/edgeXBuildGoApp/" class="md-nav__link">
+    <a href="../../libraries/edgeXBuildGoApp/" class="md-nav__link">
       edgeXBuildGoApp
     </a>
   </li>
@@ -296,12 +296,10 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+  <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
     
     <label class="md-nav__link" for="nav-3">
       Tutorials
@@ -319,20 +317,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-      
-    
-    
-    <a href="./" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../" class="md-nav__link">
       Tutorials
     </a>
-    
   </li>
 
         
@@ -342,7 +331,7 @@
 
 
   <li class="md-nav__item">
-    <a href="manual-bump/" class="md-nav__link">
+    <a href="../manual-bump/" class="md-nav__link">
       Manual Version Bump Process
     </a>
   </li>
@@ -370,6 +359,55 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-create-draft-pr" class="md-nav__link">
+    Step 1 - Create Draft PR
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-use-pr-commit-hash" class="md-nav__link">
+    Step 2 - Use PR Commit Hash
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-execute-jenkinsfile" class="md-nav__link">
+    Step 3 - Execute Jenkinsfile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-finishing-up" class="md-nav__link">
+    Step 4 - Finishing Up
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -380,17 +418,45 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/tutorials/index.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/tutorials/pr-commit-for-testing.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="tutorials">Tutorials</h1>
-<p>More coming soon!</p>
-<ul>
-<li><a href="manual-bump/">Manual Version Bump</a></li>
-<li><a href="pr-commit-for-testing/">Pull Request Sandbox Testing</a></li>
-</ul>
+                <h1 id="pull-request-sandbox-testing">Pull Request Sandbox Testing</h1>
+<h2 id="introduction">Introduction</h2>
+<p>The <a href="https://jenkins.edgexfoundry.org/">EdgeX Jenkins Production Server</a> and <a href="https://jenkins.edgexfoundry.org/sandbox/">EdgeX Jenkins Sandbox Server</a> are configured to use the <a href="https://github.com/edgexfoundry/edgex-global-pipelines"><code>edgex-global-pipelines</code></a> library. The servers target either <a href="https://github.com/edgexfoundry/edgex-global-pipelines/tree/stable"><code>stable</code></a> or <a href="https://github.com/edgexfoundry/edgex-global-pipelines/tree/experimental"><code>experimental</code></a> tags for Production and Sandbox servers respectively.</p>
+<p>To make functional testing of Jenkins Shared Pipeline Libraries more convenient, you can use a commit hash from a Pull Request into <a href="https://github.com/edgexfoundry/edgex-global-pipelines"><code>edgex-global-pipelines</code></a> to override the default pipeline version that the Jenkins server is using. (<code>stable</code>/<code>experimental</code>)</p>
+<h3 id="step-1-create-draft-pr">Step 1 - Create Draft PR</h3>
+<p>When you have changes you'd like to functionally test, open a Draft Pull Request from your forked repository of <code>edgex-global-pipelines</code> into <a href="https://github.com/edgexfoundry/edgex-global-pipelines"><code>edgex-global-pipelines:master</code></a></p>
+<p>Make clear that this is a PR for functional testing purposes and is not meant to be merged.</p>
+<p><img alt="Create Draft PR" src="../images/draft-pr.png" /></p>
+<h3 id="step-2-use-pr-commit-hash">Step 2 - Use PR Commit Hash</h3>
+<p>Find the commit hash of your draft PR.</p>
+<p><img alt="Find Commit Hash" src="../images/find-commit.png" /></p>
+<p>Place the commit hash into your Jenkinsfile that is under test. The <a href="https://github.com/edgexfoundry/sample-service">EdgeX Sample-Service</a> is a good place to functionally test shared libraries without affecting production code.</p>
+<p>Add the commit hash after the <code>'@'</code> in the explicit library import statement as shown below.</p>
+<div class="highlight"><pre><span></span><code>@Library<span class="o">(</span><span class="s2">&quot;edgex-global-pipelines@7eba319&quot;</span><span class="o">)</span> _
+
+edgeXBuildGoApp <span class="o">(</span>
+    project: <span class="s1">&#39;sample-service&#39;</span>,
+    goVersion: <span class="s1">&#39;1.15&#39;</span>,
+    buildExperimentalDockerImage: <span class="nb">true</span>
+<span class="o">)</span>
+</code></pre></div>
+<h3 id="step-3-execute-jenkinsfile">Step 3 - Execute Jenkinsfile</h3>
+<p>When you execute your functional test build job on the sandbox, the commit hash of your PR will be shown as the commit used for the edgex-global-pipeline shared library. You will see a message similar to the following in your build job console output.</p>
+<div class="highlight"><pre><span></span><code>...
+Loading library edgex-global-pipelines@7eba319
+Attempting to resolve 7eba319 from remote references...
+...
+</code></pre></div>
+<h3 id="step-4-finishing-up">Step 4 - Finishing Up</h3>
+<p>When you are satisfied that the content of your <code>edgex-global-pipelines</code> fork is functionally tested and ready to be merged, you can convert your draft PR into a real PR and add the appropriate reviewers.</p>
+<p>After your PR is merged to master, the <code>experimental</code> tag will point to your newest content. You might want to test your new code by switching back to the <code>experimental</code> tag in your Jenkinsfile.</p>
+<div class="highlight"><pre><span></span><code>@Library<span class="o">(</span><span class="s2">&quot;edgex-global-pipelines@experimental&quot;</span><span class="o">)</span> _
+</code></pre></div>
+<p>Please clean up and close your PR after you have finished your functional testing.</p>
                 
               
               
@@ -405,41 +471,6 @@
       
         
 <footer class="md-footer">
-  
-    <div class="md-footer-nav">
-      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
-        
-          <a href="../libraries/edgeXBuildGoApp/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-            </div>
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
-                  Previous
-                </span>
-                edgeXBuildGoApp
-              </div>
-            </div>
-          </a>
-        
-        
-          <a href="manual-bump/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Manual Version Bump Process
-              </div>
-            </div>
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
-    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -492,15 +523,15 @@
       
     </div>
     
-      <script src="../assets/javascripts/vendor.6a3d08fc.min.js"></script>
-      <script src="../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../../assets/javascripts/vendor.6a3d08fc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({
-          base: "..",
+          base: "../..",
           features: ['tabs'],
           search: Object.assign({
-            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+            worker: "../../assets/javascripts/worker/search.4ac00218.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>
