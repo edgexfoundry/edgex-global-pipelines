@@ -106,10 +106,11 @@ local.properties
 # since they will be recreated, and may cause churn.  Uncomment if using
 # auto-import.
 # .idea/modules.xml
-# .idea/*.iml
+.idea/*.iml
 # .idea/modules
 # *.iml
 # *.ipr
+.idea/compiler.xml
 
 # CMake
 cmake-build-*/
@@ -134,7 +135,8 @@ atlassian-ide-plugin.xml
 
 # *.iml
 # modules.xml
-# .idea/misc.xml
+.idea/misc.xml
+.idea/
 # *.ipr
 
 # Sonarlint plugin
