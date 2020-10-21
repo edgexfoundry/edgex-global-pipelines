@@ -54,12 +54,6 @@ def parallelStepFactoryTransform(step) {
                 }
             }
 
-            if(step.snap == true) {
-                stage("Snap Publish") {
-                    edgeXReleaseSnap(step)
-                }
-            }
-
             if(step.gitHubRelease == true) {
                 stage("GitHub Release") {
                     edgeXReleaseGitHubAssets(step)

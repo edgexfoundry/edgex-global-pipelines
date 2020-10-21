@@ -362,7 +362,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
             edgeXRelease.parallelStepFactoryTransform(step).asWritable().toString()
 
         then:
-            1 * getPipelineMock("edgeXReleaseSnap.call")(['name':'app-functions-sdk-go', 'version':'v1.2.0', 'releaseName':'geneva', 'repo':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'gitTag':false, 'gitTagDestination':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'dockerImages':false, 'dockerSource':['https://nexus3.edgexfoundry.org/..', 'https://nexus3.edgexfoundry.org/..'], 'dockerDestination':['https://nexus3.edgexfoundry.org/..', 'https://hub.docker.com/..'], 'snap':true, 'snapDestination':'https://snapcraft.org/..', 'snapChannel':'geneva'])
+            0 * getPipelineMock("edgeXReleaseSnap.call")(['name':'app-functions-sdk-go', 'version':'v1.2.0', 'releaseName':'geneva', 'repo':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'gitTag':false, 'gitTagDestination':'https://github.com/edgexfoundry/app-functions-sdk-go.git', 'dockerImages':false, 'dockerSource':['https://nexus3.edgexfoundry.org/..', 'https://nexus3.edgexfoundry.org/..'], 'dockerDestination':['https://nexus3.edgexfoundry.org/..', 'https://hub.docker.com/..'], 'snap':true, 'snapDestination':'https://snapcraft.org/..', 'snapChannel':'geneva'])
     }
 
     def "Test parallelStepFactoryTransform [Should] call edgeXReleaseDockerImage [When] called with dockerImages: true" () {
