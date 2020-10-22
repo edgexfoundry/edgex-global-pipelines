@@ -168,5 +168,6 @@ gradle-app.setting
 
 ### Mkdocs ###
 docs/html/
+docs_src/libraries/*
 
 # End of https://www.gitignore.io/api/gradle,eclipse,intellij
