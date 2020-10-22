@@ -125,12 +125,6 @@ def call(config) {
                             beforeAgent true
                             expression { edgex.nodeExists(config, 'amd64') }
                         }
-                        agent { // comment out to reuse mainNode
-                            node {
-                                label edgex.getNode(config, 'amd64')
-                                customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
-                            }
-                        }
                         environment {
                             ARCH = 'x86_64'
                         }
@@ -149,15 +143,17 @@ def call(config) {
                             }
 
                             stage('Test') {
-                                when {
-                                    expression { !edgex.isReleaseStream() }
-                                }
+                                // need to always run this stage due to codecov always needing the coverage.out file
+                                // when {
+                                //     expression { !edgex.isReleaseStream() }
+                                // }
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
                                             sh "${TEST_SCRIPT}"
-                                            stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
                                         }
+                                        sh 'sudo chown -R jenkins:jenkins .' // fix perms
+                                        stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
                                     }
                                 }
                             }
@@ -237,15 +233,17 @@ def call(config) {
                             }
 
                             stage('Test') {
-                                when {
-                                    expression { !edgex.isReleaseStream() }
-                                }
+                                // need to always run this stage due to codecov always needing the coverage.out file
+                                // when {
+                                //     expression { !edgex.isReleaseStream() }
+                                // }
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
                                             sh "${env.TEST_SCRIPT}"
-                                            stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
                                         }
+                                        sh 'sudo chown -R jenkins:jenkins .' // fix perms
+                                        stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
                                     }
                                 }
                             }
@@ -308,7 +306,7 @@ def call(config) {
                 when {
                     allOf {
                         environment name: 'SILO', value: 'production'
-                        expression { !edgex.isReleaseStream() }
+                        // expression { !edgex.isReleaseStream() } // always run the codecov scan
                     }
                 }
                 steps {
