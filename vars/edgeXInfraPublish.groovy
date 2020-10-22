@@ -48,13 +48,21 @@ def call(body) {
                 sh 'for file in `ls /var/log/sa-host`; do sadf -c /var/log/sa-host/${file} > /var/log/sa/${file}; done'
                 //////////////////////////////////////////////
 
-                lfInfraShipLogs {
-                    logSettingsFile = _logSettingsFile
+                try {
+                    lfInfraShipLogs {
+                        logSettingsFile = _logSettingsFile
+                    }
+                } catch(e) {
+                    println "[edgeXInfraPublish] An error occurd while publishing logs: ${e.message}"
                 }
             }
         } else {
-            lfInfraShipLogs {
-                logSettingsFile = _logSettingsFile
+            try {
+                lfInfraShipLogs {
+                    logSettingsFile = _logSettingsFile
+                }
+            } catch(e) {
+                println "[edgeXInfraPublish] An error occurd while publishing logs: ${e.message}"
             }
         }
 
