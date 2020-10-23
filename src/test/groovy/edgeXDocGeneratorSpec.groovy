@@ -133,9 +133,12 @@ public class EdgeXDocGeneratorSpec extends Specification {
 
     def "Test fetchIndexHeader [Should] fetches index [When] called with expected arguments"() {
         given:
+            def mockFile = GroovyMock(File)
+            mockFile.text >> "test file contents"
         when:
-            edgeXDocGenerator.fetchIndexHeader()
+            def actualText = edgeXDocGenerator.fetchIndexHeader()
         then:
-            1 * edgeXDocGenerator.getFileObject("docs_src/templates/header.md")
+            "test file contents" == actualText
+            1 * edgeXDocGenerator.getFileObject("${edgeXDocGenerator.mdDirName}/templates/header.md") >> mockFile
     }
 }
