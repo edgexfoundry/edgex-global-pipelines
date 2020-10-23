@@ -186,5 +186,48 @@ public class EdgeXReleaseDockerImageIntSpec extends JenkinsPipelineSpecification
         then:
             1 * getPipelineMock('echo').call("[edgeXReleaseDockerImage] The sourceImage [nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master] did not release...")
     }
+    
+    def "Test edgeXReleaseDockerImage [Should] not docker push [When] destination already exists" () {
+        setup:
+            def environmentVariables = [
+                'DRY_RUN': 'false',
+                'RELEASE_DOCKER_SETTINGS': 'some-settings'
+            ]
+            
+            getPipelineMock('sh').call(script: "docker pull docker.io/edgexfoundry/docker-app-functions-sdk-go:v1.2.0 > /dev/null && exit 1 || exit 0", returnStatus: true) >> true
+            
+            edgeXReleaseDockerImage.getBinding().setVariable('env', environmentVariables)
+            edgex.getBinding().setVariable('env', environmentVariables)
+            explicitlyMockPipelineVariable('edgeXDockerLogin')
+
+        when:
+            edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
+        then:
+            1 * getPipelineMock('edgeXDockerLogin.call')(settingsFile: 'some-settings')
+            0 * getPipelineMock('sh').call("docker push docker.io/edgexfoundry/docker-app-functions-sdk-go:v1.2.0")
+    }
+    
+        def "Test edgeXReleaseDockerImage [Should] docker push [When] destination already exists and dockerForce is true" () {
+            setup:
+                def environmentVariables = [
+                    'DRY_RUN': 'false',
+                    'RELEASE_DOCKER_SETTINGS': 'some-settings'
+                ]
+                
+                getPipelineMock('sh').call(script: "docker pull docker.io/edgexfoundry/docker-app-functions-sdk-go:v1.2.0 > /dev/null && exit 1 || exit 0", returnStatus: true) >> true
+            
+                validReleaseYaml.dockerForce = true
+                
+                edgeXReleaseDockerImage.getBinding().setVariable('env', environmentVariables)
+                edgex.getBinding().setVariable('env', environmentVariables)
+
+                explicitlyMockPipelineVariable('edgeXDockerLogin')
+
+            when:
+                edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
+            then:
+                1 * getPipelineMock('edgeXDockerLogin.call')(settingsFile: 'some-settings')
+                1 * getPipelineMock('sh').call("docker push docker.io/edgexfoundry/docker-app-functions-sdk-go:v1.2.0")
+        }
 
 }

@@ -90,10 +90,17 @@ def publishDockerImages (releaseInfo) {
                     // set the destination version to the version from the yaml
                     dockerTo.tag = releaseInfo.version
 
-                    // if we have matching image names...then publish the image
-                    if(isValidReleaseRegistry(dockerTo)) {
-                        publishDockerImage (dockerFrom, dockerTo)
-                        publishCount++
+                    def exists = imageExists(dockerTo)
+                    // if destination image doesn't exit or we are forcing it, go ahead and publish.
+                    if (!exists || releaseInfo.dockerForce) {
+                        // if we have matching image names...then publish the image
+                        if(isValidReleaseRegistry(dockerTo)) {
+                            publishDockerImage (dockerFrom, dockerTo)
+                            publishCount++
+                        }
+                    } else {
+                        echo "[edgeXReleaseDockerImage] Image exists at destination and option 'dockerForce' was not set in release.yaml file. [${dockerTo ? edgeXDocker.toImageStr(dockerTo) : dockerInfo.image}] did not release..."
+                        unstable(message: 'A Docker Image did not release')
                     }
                 }
             }
@@ -144,4 +151,8 @@ def validate(releaseYaml) {
     if(!releaseYaml.version) {
         error("[edgeXReleaseDockerImage] Release yaml does not contain release 'version'. Example: v1.1.2")
     }
+}
+
+def imageExists(image) {
+    sh(script: "docker pull ${edgeXDocker.toImageStr(image)} > /dev/null && exit 1 || exit 0", returnStatus: true)
 }
