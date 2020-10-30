@@ -119,7 +119,7 @@ pipeline {
             }
             steps {
                 script {
-                    edgeXGHPagesPublish(repoUrl: "git@github.com:edgexfoundry/edgex-global-pipelines.git")
+                    edgeXGHPagesPublish(repoUrl: 'git@github.com:edgexfoundry/edgex-global-pipelines.git')
                 }
             }
         }

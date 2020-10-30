@@ -28,13 +28,13 @@ def call(Map config = [:]) {
     try{
         cleanWs()
         dir('gh-pages-src') {
-            git url: "${repoUrl}", branch: "${ghPagesBranch}", credentialsId: "${credentialId}", changelog: false,
+            git url: repoUrl, branch: ghPagesBranch, credentialsId: credentialId, changelog: false,
                 poll: false
-            unstash "${stashName}"
+            unstash stashName
             withEnv(["DRY_RUN=${dryRun}",
                      "GH_PAGES_BRANCH=${ghPagesBranch}"
             ]) {
-                sshagent(credentials: ["${credentialId}"]) {
+                sshagent(credentials: [credentialId]) {
                     sh(script: libraryResource('github-pages-publish.sh'))
                 }
             }
