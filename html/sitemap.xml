@@ -23,5 +23,9 @@
      <loc>https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/manual-bump/</loc>
      <lastmod>2020-10-30</lastmod>
      <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/pr-commit-for-testing/</loc>
+     <lastmod>2020-10-30</lastmod>
+     <changefreq>daily</changefreq>
     </url>
 </urlset>
