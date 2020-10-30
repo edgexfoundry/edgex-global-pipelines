@@ -27,6 +27,7 @@ nav:
   - Tutorials:
     - './tutorials/index.md'
     - './tutorials/manual-bump.md'
+    - './tutorials/pr-commit-for-testing.md'
 
 markdown_extensions:
   - codehilite
