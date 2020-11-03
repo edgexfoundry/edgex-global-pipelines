@@ -274,25 +274,26 @@ def call(config) {
                                 }
                             }
 
-                            stage('Snap') {
-                                agent {
-                                    node {
-                                        label 'ubuntu18.04-docker-arm64-16c-16g'
-                                        customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
-                                    }
-                                }
-                                when {
-                                    beforeAgent true
-                                    allOf {
-                                        environment name: 'BUILD_SNAP', value: 'true'
-                                        expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
-                                        expression { !edgex.isReleaseStream() }
-                                    }
-                                }
-                                steps {
-                                    edgeXSnap(jobType: 'build')
-                                }
-                            }
+                            // Turning off arm64 Snap stage Per WG meeting 10/29/20
+                            // stage('Snap') {
+                            //     agent {
+                            //         node {
+                            //             label 'ubuntu18.04-docker-arm64-16c-16g'
+                            //             customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                            //         }
+                            //     }
+                            //     when {
+                            //         beforeAgent true
+                            //         allOf {
+                            //             environment name: 'BUILD_SNAP', value: 'true'
+                            //             expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                            //             expression { !edgex.isReleaseStream() }
+                            //         }
+                            //     }
+                            //     steps {
+                            //         edgeXSnap(jobType: 'build')
+                            //     }
+                            // }
                         }
                     }
                 }
@@ -315,17 +316,16 @@ def call(config) {
                 }
             }
 
-            // Scan Go Dependencies
-            stage('Snyk Scan') {
+            // Scan Go Dependencies (snyk monitor)
+            stage('Snyk Dependency Scan') {
                 when { expression { edgex.isReleaseStream() } }
                 steps {
                     edgeXSnyk()
                 }
             }
 
-            // When scanning the clair image, the FQDN is needed
-            stage('Clair Scan') {
-                when {
+            stage('Snyk Docker Image Scan') {
+                when { 
                     allOf {
                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -335,11 +335,30 @@ def call(config) {
                 steps {
                     script {
                         if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
-                            edgeXClair(taggedAMD64Images.first())
+                            edgeXSnyk(
+                                command: 'test',
+                                dockerImage: taggedAMD64Images.first(),
+                                dockerFile: env.DOCKER_FILE_PATH,
+                                severity: 'high',
+                                sendEmail: true,
+                                emailTo: env.SECURITY_NOTIFY_LIST,
+                                htmlReport: true
+                            )
                         }
-                        if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
-                            edgeXClair(taggedARM64Images.first())
-                        }
+
+                        // While ARM64 images can be scanned, this would double the amount of tests run
+                        // so we are disabling arm64 scans for now
+                        // if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
+                            //     edgeXSnyk(
+                            //     command: 'test',
+                            //     dockerImage: taggedARM64Images.first(),
+                            //     dockerFile: env.DOCKER_FILE_PATH,
+                            //     severity: 'high',
+                            //     sendEmail: true,
+                            //     emailTo: env.SECURITY_NOTIFY_LIST,
+                            //     htmlReport: true
+                            // )
+                        // }
                     }
                 }
             }
@@ -530,6 +549,7 @@ def toEnvironment(config) {
     def _buildSnap           = edgex.defaultFalse(config.buildSnap)
     def _publishSwaggerDocs  = edgex.defaultFalse(config.publishSwaggerDocs)
     def _swaggerApiFolders   = config.swaggerApiFolders ?: ['openapi/v1']
+    def _securityNotify      = 'security-issues@lists.edgexfoundry.org'
 
     def _buildExperimentalDockerImage  = edgex.defaultFalse(config.buildExperimentalDockerImage)
     def _buildStableDockerImage        = false
@@ -594,7 +614,8 @@ def toEnvironment(config) {
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
         ARTIFACT_ROOT: _artifactRoot,
         ARTIFACT_TYPES: _artifactTypes.join(' '),
-        SHOULD_BUILD: _shouldBuild
+        SHOULD_BUILD: _shouldBuild,
+        SECURITY_NOTIFY_LIST: _securityNotify
     ]
 
     // encode with comma in case build arg has space

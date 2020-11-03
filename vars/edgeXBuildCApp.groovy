@@ -277,32 +277,8 @@ def call(config) {
             //     }
             // }
 
-            // Snyk doesn't support general docker images - and doesn't support C
-            // stage('Snyk Scan') {
-            //     when {
-            //         allOf {
-            //             environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
-            //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-            //             expression { edgex.isReleaseStream() }
-            //         }
-            //     }
-            //     steps {
-            //         script {
-            //             if(edgex.nodeExists(config, 'amd64')){
-            //                 def amd64Image = edgeXDocker.finalImageName("${env.DOCKER_IMAGE_NAME}")
-            //                 edgeXSnyk(dockerImage="${env.DOCKER_REGISTRY}/${amd64Image}:${env.GIT_COMMIT}")
-            //             }
-            //             if(edgex.nodeExists(config, 'arm64')){
-            //                 def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
-            //                 edgeXSnyk(dockerImage="${env.DOCKER_REGISTRY}/${arm64Image}:${env.GIT_COMMIT}")
-            //             }
-            //         }
-            //     }
-            // }
-
-            // When scanning the clair image, the FQDN is needed
-            stage('Clair Scan') {
-                when {
+            stage('Snyk Docker Image Scan') {
+                when { 
                     allOf {
                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -313,15 +289,59 @@ def call(config) {
                     script {
                         if(edgex.nodeExists(config, 'amd64')) {
                             def amd64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
-                            edgeXClair("${DOCKER_REGISTRY}/${amd64Image}:${GIT_COMMIT}")
+
+                            edgeXSnyk(
+                                command: 'test',
+                                dockerImage: "${DOCKER_REGISTRY}/${amd64Image}:${GIT_COMMIT}",
+                                dockerFile: env.DOCKER_FILE_PATH,
+                                severity: 'high',
+                                sendEmail: true,
+                                emailTo: env.SECURITY_NOTIFY_LIST,
+                                htmlReport: true
+                            )
                         }
-                        if(edgex.nodeExists(config, 'arm64')) {
-                            def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
-                            edgeXClair("${DOCKER_REGISTRY}/${arm64Image}:${GIT_COMMIT}")
-                        }
+
+                        // While ARM64 images can be scanned, this would double the amount of tests run
+                        // so we are disabling arm64 scans for now
+                        // if(edgex.nodeExists(config, 'arm64')) {
+                        //     def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
+                        //     edgeXSnyk(
+                        //         command: 'test',
+                        //         dockerImage: "${DOCKER_REGISTRY}/${arm64Image}:${GIT_COMMIT}",
+                        //         dockerFile: env.DOCKER_FILE_PATH,
+                        //         severity: 'high',
+                        //         sendEmail: true,
+                        //         emailTo: env.SECURITY_NOTIFY_LIST,
+                        //         htmlReport: true
+                        //     )
+                        // }
                     }
                 }
             }
+
+            // Comment this out in favor of Snyk scanning
+            // // When scanning the clair image, the FQDN is needed
+            // stage('Clair Scan') {
+            //     when {
+            //         allOf {
+            //             environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
+            //             environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+            //             expression { edgex.isReleaseStream() }
+            //         }
+            //     }
+            //     steps {
+            //         script {
+            //             if(edgex.nodeExists(config, 'amd64')) {
+            //                 def amd64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
+            //                 edgeXClair("${DOCKER_REGISTRY}/${amd64Image}:${GIT_COMMIT}")
+            //             }
+            //             if(edgex.nodeExists(config, 'arm64')) {
+            //                 def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
+            //                 edgeXClair("${DOCKER_REGISTRY}/${arm64Image}:${GIT_COMMIT}")
+            //             }
+            //         }
+            //     }
+            // }
 
             stage('Semver') {
                 when {
@@ -416,6 +436,7 @@ def toEnvironment(config) {
     def _semverBump          = config.semverBump ?: 'pre'
     //def _snapChannel         = config.snapChannel ?: 'latest/edge'
     def _buildSnap           = edgex.defaultFalse(config.buildSnap)
+    def _securityNotify      = 'security-issues@lists.edgexfoundry.org'
 
     // no image to build, no image to push
     if(!_buildImage) {
@@ -439,7 +460,8 @@ def toEnvironment(config) {
         PUSH_DOCKER_IMAGE: _pushImage,
         SEMVER_BUMP_LEVEL: _semverBump,
         //SNAP_CHANNEL: _snapChannel,
-        BUILD_SNAP: _buildSnap
+        BUILD_SNAP: _buildSnap,
+        SECURITY_NOTIFY_LIST: _securityNotify
     ]
 
     // encode with comma in case build arg has space

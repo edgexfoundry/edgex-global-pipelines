@@ -101,7 +101,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     SWAGGER_API_FOLDERS: 'openapi/v1',
                     ARTIFACT_ROOT: "archives/bin",
                     ARTIFACT_TYPES: 'docker',
-                    SHOULD_BUILD: true
+                    SHOULD_BUILD: true,
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
                 ]
             ]
     }
@@ -169,7 +170,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_BUILD_ARGS: 'MyArg1=Value1,MyArg2="Value2"',
                     ARTIFACT_ROOT: "archives/bin",
                     ARTIFACT_TYPES: 'docker',
-                    SHOULD_BUILD: true
+                    SHOULD_BUILD: true,
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
                 ]
             ]
     }
@@ -225,7 +227,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     ARTIFACT_ROOT: 'archives/bin',
                     ARTIFACT_TYPES: 'archive',
                     SHOULD_BUILD: true,
-                    ARCHIVE_ARTIFACTS: '**/*.tar.gz **/*.zip'
+                    ARCHIVE_ARTIFACTS: '**/*.tar.gz **/*.zip',
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
                 ]
             ]
     }
@@ -279,7 +282,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     SWAGGER_API_FOLDERS: 'openapi/v1',
                     ARTIFACT_ROOT: 'archives/bin',
                     ARTIFACT_TYPES: 'foo',
-                    SHOULD_BUILD: false
+                    SHOULD_BUILD: false,
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
                 ]
             ]
     }

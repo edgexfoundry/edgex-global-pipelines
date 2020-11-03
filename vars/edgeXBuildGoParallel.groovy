@@ -275,8 +275,8 @@ def call(config) {
                 }
             }
 
-            stage('Clair Scan') {
-                when {
+            stage('Snyk Docker Image Scan') {
+                when { 
                     allOf {
                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -286,15 +286,40 @@ def call(config) {
                 steps {
                     script {
                         if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
-                            taggedAMD64Images.each {
-                                edgeXClair(it)
+                            def tagged = getDockerfilesFromTagged(taggedAMD64Images, dockerImagesToBuild)
+                            if(tagged) {
+                                tagged.each {
+                                    edgeXSnyk(
+                                        command: 'test',
+                                        dockerImage: it[0],
+                                        dockerFile: it[1],
+                                        severity: 'high',
+                                        sendEmail: true,
+                                        emailTo: env.SECURITY_NOTIFY_LIST,
+                                        htmlReport: true
+                                    )
+                                }
                             }
                         }
-                        if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
-                            taggedARM64Images.each {
-                                edgeXClair(it)
-                            }
-                        }
+
+                        // While ARM64 images can be scanned, this would double the amount of tests run
+                        // so we are disabling arm64 scans for now
+                        // if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
+                        //     def tagged = getDockerfilesFromTagged(taggedARM64Images, dockerImagesToBuild)
+                        //     if(tagged) {
+                        //         tagged.each {
+                        //             edgeXSnyk(
+                        //                 command: 'test',
+                        //                 dockerImage: it[0],
+                        //                 dockerFile: it[1],
+                        //                 severity: 'high',
+                        //                 sendEmail: true,
+                        //                 emailTo: env.SECURITY_NOTIFY_LIST,
+                        //                 htmlReport: true
+                        //             )
+                        //         }
+                        //     }
+                        // }
                     }
                 }
             }
@@ -428,6 +453,7 @@ def toEnvironment(config) {
     def _goProxy               = config.goProxy ?: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
     def _publishSwaggerDocs    = edgex.defaultFalse(config.publishSwaggerDocs)
     def _swaggerApiFolders     = config.swaggerApiFolders ?: ['openapi/v1', 'openapi/v2']
+    def _securityNotify        = 'security-issues@lists.edgexfoundry.org'
 
     // def _snapChannel           = config.snapChannel ?: 'latest/edge'
     def _buildSnap             = edgex.defaultFalse(config.buildSnap)
@@ -459,7 +485,8 @@ def toEnvironment(config) {
         PUBLISH_SWAGGER_DOCS: _publishSwaggerDocs,
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
         // SNAP_CHANNEL: _snapChannel,
-        BUILD_SNAP: _buildSnap
+        BUILD_SNAP: _buildSnap,
+        SECURITY_NOTIFY_LIST: _securityNotify
     ]
 
     edgex.bannerMessage "[edgeXBuildGoParallel] Pipeline Parameters:"
@@ -481,4 +508,13 @@ def getDockersFromFilesystem(dockerFileGlob, imageNamePrefix, imageNameSuffix) {
     println "Generate Dockers from filesystem: ${dockers}"
 
     dockers
+}
+
+def getDockerfilesFromTagged(tagged, dockers) {
+    if(tagged) {
+        tagged.collect {
+            def imageName = it.split('/')[1]
+            [it, dockers.find { imgSpec -> imageName =~ imgSpec.image }.dockerfile]
+        }
+    }
 }
