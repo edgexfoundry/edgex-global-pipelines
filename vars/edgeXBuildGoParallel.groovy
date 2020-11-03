@@ -98,7 +98,7 @@ def call(config) {
                                         // docker.sock bind mount needed due to `make raml_verify` launching a docker image
                                         // docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: 
                                         docker.image("ci-base-image-${env.ARCH}")
-                                            .inside('-u 0:0 -e GOTESTFLAGS= -v /var/run/docker.sock:/var/run/docker.sock --privileged')
+                                            .inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged')
                                         {
                                             testAndVerify()
                                         }
@@ -191,7 +191,7 @@ def call(config) {
                                         // docker.sock bind mount needed due to `make raml_verify` launching a docker image
                                         //docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: 
                                         docker.image("ci-base-image-${env.ARCH}")
-                                            .inside('-u 0:0 -e GOTESTFLAGS= -v /var/run/docker.sock:/var/run/docker.sock --privileged')
+                                            .inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged')
                                         {
                                             testAndVerify()
                                         }
