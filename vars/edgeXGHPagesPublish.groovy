@@ -26,13 +26,16 @@ def call(Map config = [:]) {
     }
 
     try{
+        def originalCommitMsg = sh(script: 'git log --format=%B -n 1 | grep -v Signed-off-by | head -n 1',
+            returnStdout: true)
         cleanWs()
         dir('gh-pages-src') {
             git url: repoUrl, branch: ghPagesBranch, credentialsId: credentialId, changelog: false,
                 poll: false
             unstash stashName
             withEnv(["DRY_RUN=${dryRun}",
-                     "GH_PAGES_BRANCH=${ghPagesBranch}"
+                     "GH_PAGES_BRANCH=${ghPagesBranch}",
+                     "COMMIT_MSG=${originalCommitMsg}"
             ]) {
                 sshagent(credentials: [credentialId]) {
                     sh(script: libraryResource('github-pages-publish.sh'))
