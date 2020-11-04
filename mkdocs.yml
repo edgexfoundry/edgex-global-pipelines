@@ -28,7 +28,7 @@ nav:
     - './tutorials/index.md'
     - './tutorials/manual-bump.md'
     - './tutorials/pr-commit-for-testing.md'
-    - './tutorials/unit-testing-guidance.md'
+    - './tutorials/unit-testing-best-practices.md'
 
 markdown_extensions:
   - codehilite
