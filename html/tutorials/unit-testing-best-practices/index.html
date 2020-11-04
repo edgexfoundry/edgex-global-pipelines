@@ -9,7 +9,7 @@
         <meta name="description" content="Documentation for EdgeX Global Pipelines">
       
       
-        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildGoApp/">
+        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/unit-testing-best-practices/">
       
       
         <meta name="author" content="EdgeX DevOps Team">
@@ -19,7 +19,7 @@
     
     
       
-        <title>edgeXBuildGoApp - EdgeX Global Pipelines Documentation</title>
+        <title>Unit Testing Best Practices - EdgeX Global Pipelines Documentation</title>
       
     
     
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#edgexbuildgoapp" class="md-skip">
+        <a href="#unit-testing-best-practices" class="md-skip">
           Skip to content
         </a>
       
@@ -99,7 +99,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              edgeXBuildGoApp
+              Unit Testing Best Practices
             
           </span>
         </div>
@@ -234,12 +234,10 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+  <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
     
     <label class="md-nav__link" for="nav-2">
       Pipelines
@@ -259,7 +257,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../edgeXBuildCApp/" class="md-nav__link">
+    <a href="../../libraries/edgeXBuildCApp/" class="md-nav__link">
       edgeXBuildCApp
     </a>
   </li>
@@ -271,7 +269,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../edgeXBuildDocker/" class="md-nav__link">
+    <a href="../../libraries/edgeXBuildDocker/" class="md-nav__link">
       edgeXBuildDocker
     </a>
   </li>
@@ -281,76 +279,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-      
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="__toc">
-        edgeXBuildGoApp
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-    
-    <a href="./" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../../libraries/edgeXBuildGoApp/" class="md-nav__link">
       edgeXBuildGoApp
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#parameters" class="md-nav__link">
-    Parameters
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#basic-example" class="md-nav__link">
-    Basic example
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#complex-example" class="md-nav__link">
-    Complex example
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
         
@@ -363,10 +296,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
     
     <label class="md-nav__link" for="nav-3">
       Tutorials
@@ -386,7 +321,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/" class="md-nav__link">
+    <a href="../" class="md-nav__link">
       Tutorials
     </a>
   </li>
@@ -398,7 +333,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/manual-bump/" class="md-nav__link">
+    <a href="../manual-bump/" class="md-nav__link">
       Manual Version Bump Process
     </a>
   </li>
@@ -410,7 +345,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/pr-commit-for-testing/" class="md-nav__link">
+    <a href="../pr-commit-for-testing/" class="md-nav__link">
       Pull Request Sandbox Testing
     </a>
   </li>
@@ -420,11 +355,20 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../../tutorials/unit-testing-best-practices/" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
       Unit Testing Best Practices
     </a>
+    
   </li>
 
         
@@ -450,48 +394,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#parameters" class="md-nav__link">
-    Parameters
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#basic-example" class="md-nav__link">
-    Basic example
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#complex-example" class="md-nav__link">
-    Complex example
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -502,36 +404,100 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/libraries/edgeXBuildGoApp.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/tutorials/unit-testing-best-practices.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="edgexbuildgoapp">edgeXBuildGoApp</h1>
-<p>Shared Library to build Go projects</p>
-<h2 id="parameters">Parameters</h2>
+                <h1 id="unit-testing-best-practices">Unit Testing Best Practices</h1>
+<h1 id="table-of-contents">Table Of Contents</h1>
 <ul>
-<li><strong>project</strong> - Specify your project name</li>
-<li><strong>goVersion</strong> - Go version</li>
+<li><a href="#unit-testing-declarative-pipelines">Unit Testing Declarative Pipelines</a></li>
+<li><a href="#encapsulate-pipeline-logic-within-groovy-functions">Encapsulate Pipeline logic within Groovy functions</a></li>
+<li><a href="#example">Example</a></li>
+<li><a href="#mocking-jenkins-dependencies">Mocking Jenkins Dependencies</a></li>
+<li><a href="#add-plugin-dependency-to-gradle">Add plugin dependency to Gradle</a></li>
+<li><a href="#mocking-environment-variables">Mocking Environment Variables</a></li>
+<li><a href="#testing-environment-variables">Testing environment variables</a></li>
+<li><a href="#mock-external-shared-library-methods">Mock external shared library methods</a></li>
+<li><a href="#integration-testing">Integration Testing</a></li>
+<li><a href="#mock-errors">Mock errors</a></li>
+<li><a href="#mock-external-shared-library-methods-1">Mock external shared library methods</a></li>
+<li><a href="#call-graph-example">Call Graph Example</a></li>
+<li><a href="#references">References</a></li>
 </ul>
-<h2 id="usage">Usage</h2>
-<h3 id="basic-example">Basic example</h3>
-<div class="highlight"><pre><span></span><code><span class="n">edgeXBuildGoApp</span> <span class="o">(</span>
-    <span class="nl">project:</span> <span class="s1">&#39;device-random-go&#39;</span><span class="o">,</span>
-    <span class="nl">goVersion:</span> <span class="s1">&#39;1.15&#39;</span>
-<span class="o">)</span>
+<h1 id="unit-testing-declarative-pipelines">Unit Testing Declarative Pipelines</h1>
+<p>The edgex-global-pipelines shared library leverages the <a href="https://github.com/ExpediaGroup/jenkins-spock">Jenkins Spock framework</a> for unit testing Jenkins pipeline scripts and functions. The Jenkins Spock unit test framework does not currently support unit testing of <a href="https://www.jenkins.io/doc/book/pipeline/syntax/#declarative-pipeline">Jenkins Declarative Pipeline code</a>.</p>
+<h2 id="encapsulate-pipeline-logic-within-groovy-functions">Encapsulate Pipeline logic within Groovy functions</h2>
+<p>In order to facilitate unit testing of the edgex-global-pipelines shared library, the DevOps team has made a deliberate effort to to minimize the amount of scripting logic contained within Jenkins declarative pipelines. This is accomplished by encapsulating pipeline logic within a Groovy function and calling the function in the declarative pipeline step as needed. Localizing pipeline logic within Groovy functions enables the Jenkins Spock framework to provide greater test coverage of Pipeline logic.</p>
+<h2 id="example">Example</h2>
+<p>An example this approach can be seen within the <code>Build -&gt; amd64 -&gt; Prep</code> stage of the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/vars/edgeXBuildCApp.groovy">edgeXBuildCApp Delcarative Pipeline</a>. Note the logic for prepping the base build image is encapsulated into a method named <code>prepBaseBuildImage</code> and it is called within the declarative Pipeline. Also the <code>prepBaseBuildImage</code> function logic is thoroughly unit tested in the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/src/test/groovy/edgeXBuildCAppSpec.groovy">edgeXBuildCApp Spec</a></p>
+<h1 id="mocking-jenkins-dependencies">Mocking Jenkins Dependencies</h1>
+<p>Always leverage the builtin capabilities of the Jenkins-Spock framework for mocking Jenkins plugins. For example, if you come across the following error when unit testing your code:
+<div class="highlight"><pre><span></span><code>java.lang.IllegalStateException: During a test, the pipeline step [stepName] was called but there was no mock for it.
 </code></pre></div>
-<h3 id="complex-example">Complex example</h3>
-<div class="highlight"><pre><span></span><code><span class="n">edgeXBuildGoApp</span> <span class="o">(</span>
-    <span class="nl">project:</span> <span class="s1">&#39;app-functions-sdk-go&#39;</span><span class="o">,</span>
-    <span class="nl">semver:</span> <span class="kc">true</span><span class="o">,</span>
-    <span class="nl">goVersion:</span> <span class="s1">&#39;1.15&#39;</span><span class="o">,</span>
-    <span class="nl">testScript:</span> <span class="s1">&#39;make test&#39;</span><span class="o">,</span>
-    <span class="nl">buildImage:</span> <span class="kc">false</span><span class="o">,</span>
-    <span class="nl">publishSwaggerDocs:</span> <span class="kc">true</span><span class="o">,</span>
-    <span class="nl">swaggerApiFolders:</span> <span class="o">[</span><span class="s1">&#39;openapi/v2&#39;</span><span class="o">]</span>
-<span class="o">)</span>
+The error above denotes that the code under test calls a pipeline step <code>stepName</code> but there is no mock for it. You are able to explicitly mock the pipeline step using <code>explictlyMockPipelineStep</code> method available in the Jenkins-Spock framework. However it is recommended that the plugin that contains the corresponding step be added as a dependency in the <code>build.gradle</code> file. For instructions on how to do this, refer to the <a href="#add-plugin-dependency-to-gradle">Add plugin dependency to Gradle</a> section.</p>
+<h2 id="add-plugin-dependency-to-gradle">Add plugin dependency to Gradle</h2>
+<ol>
+<li>Note the name of the Pipeline Step to add.</li>
+<li>Go to <a href="https://www.jenkins.io/doc/pipeline/steps/">Pipeline Steps Reference</a> page.</li>
+<li>Use your browser and search for the Pipeline Step within the page.</li>
+<li>If the Pipeline Step is found, click on the Pipeline that it belongs to, the page for the respective Pipeline should open.</li>
+<li>Under the heading click on the <code>View this plugin on the Plugins site</code> link, the plugins.jenkins.io page should open.</li>
+<li>In the plugins.jenkins.io page note the ID for the Pipeline. You will use this ID in the next step.</li>
+<li>Go to <a href="https://mvnrepository.com/">Maven Repository</a> page.</li>
+<li>Enter the ID in the search, and locate the result from the results displayed, click on the respective link.</li>
+<li>In the page, click on the <code>Jenkins Releases</code> tab.</li>
+<li>If you know the version then click it, otherwise click on the latest version that is listed.</li>
+<li>In the Gradle tab, note the group, name and version.</li>
+<li>Edit the <code>build.gradle</code> file, add the dependency found above to the dependencies section.</li>
+</ol>
+<h1 id="mocking-environment-variables">Mocking Environment Variables</h1>
+<p>Always ensure the source code under test uses one of the following idioms for getting or setting Environment Variables, doing this will simplify the ability to mock environment variables in the unit test:
+- Getting the value of an environment variable
+  - <code>env.VARIABLE</code>
+  - <code>env[VARIABLE]</code>
+  - <code>"${env.VARIABLE}"</code>
+- Setting the value of an environment variable
+  - <code>env.VARIABLE = VALUE</code>
+  - <code>env[VARIABLE] = VALUE</code></p>
+<h2 id="testing-environment-variables">Testing environment variables</h2>
+<p>Within your unit tests, environment variables are set using the <code>.getBinding().setVariable('name', 'value')</code> idiom. Where the name is <code>env</code> and the value is a map you define within your unit test. The map should define all environment variables the code under test expects, likewise the map can be used to assert any environment variables that the code under test sets.</p>
+<p>A good example of this practice is the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/src/test/groovy/edgeXSetupEnvironmentSpec.groovy">EdgeXSetupEnvironmentSpec</a></p>
+<h1 id="mock-external-shared-library-methods">Mock external shared library methods</h1>
+<p>The <code>edgex-global-pipelines</code> Jenkins shared library consists of multiple scripts exposing methods for various functional areas, where each script is named after the particular functional area it serves. The shared library includes a <code>EdgeX</code> script that serves as utility script containing methods that are shared amongst other scripts. It is common practice for a method in one script call a method in another script, to mock the interaction you use the <code>explictlyMockPipelineVariable</code> to mock the script, then <code>getPipelineMock</code> method to verify the interaction or stub it if necessary. </p>
+<p>Mock the external script named <code>script</code>:
+<div class="highlight"><pre><span></span><code>explictlyMockPipelineVariable(&#39;script&#39;)
 </code></pre></div>
+It is recommended to mock all external scripts called within the script under test in the Test Spec setup.</p>
+<p>Get the script mock and stub the call to <code>method</code> to return <code>'value'</code> for any argument passed in:
+<div class="highlight"><pre><span></span><code>getPipelineMock(&#39;script.method&#39;).call(_) &gt;&gt; &#39;value&#39;
+</code></pre></div></p>
+<h2 id="integration-testing">Integration Testing</h2>
+<p>Integration Testing is defined as a type of testing where software modules are integrated logically and tested as a group. The Jenkins-Spock framework provides the ability to load any number of scripts to test within a given Spec Test. There are instances where performing integration tests is more practical, if you wish to do so then we recommend naming the Spec Test with <code>Int</code> as to differentiate between unit and integration tests.</p>
+<p>A good example of this practice is the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/src/test/groovy/edgeXReleaseDockerImageIntSpec.groovy">EdgeXReleaseDockerImageIntSpec</a></p>
+<h1 id="mock-errors">Mock errors</h1>
+<p>Always leverage <code>error</code> when wanting to conditionally abort part of your script. Error is a Pipeline Step whose plugin has been added as a dependency to our project thus is already mocked by the framework. An example showing how you can assert that an error is thrown with a specific message:
+<div class="highlight"><pre><span></span><code>1 * getPipelineMock(&#39;error&#39;).call(&#39;error message&#39;)
+</code></pre></div></p>
+<h1 id="mock-external-shared-library-methods_1">Mock external shared library methods</h1>
+<p>The difficulties of mocking functions within the same script under test have been described in the following issue: <a href="https://github.com/ExpediaGroup/jenkins-spock/issues/78">Issue 78</a>. Due to the nature of how the scripts that comprise the <code>edgex-global-pipelines</code> shared library are written; where a deliberate intent is made to develop small, functionally cohesive methods that contribute to a single well-defined task. This development intent results in having scripts with multi-layered call graphs, where methods may call multiple methods from within the same script. We find that the workaround provided in the issue is complicated and doesn't scale well in our environment. For these reasons the method outlined below is being suggested.</p>
+<ol>
+<li>For the script under test, document its call graph. A call graph is a control flow graph, which represents calling relationships between methods in a script or program. Each node represents a method and each edge (f, g) indicates that method f calls method g. An example <a href="#call-graph-example">EdgeXReleaseGitTag call graph</a> is depicted below.</li>
+<li>Create a second script with the same name as the original script with the word Util added to the end, for example <code>EdgeXReleaseGitTagUtil.groovy</code>.</li>
+<li>Analyze the call graph, methods that reside in odd numbered layers should continue to reside in the first script, methods at even numbered layers should be moved from the first script into the second script.</li>
+<li>Create a Spec Test for both scripts.</li>
+</ol>
+<p>Mocking of methods between both scripts follow the same pattern described for <a href="#mock-external-shared-library-methods">Mock external shared library methods</a>. The only difference with this approach is that the scripts are (for the lack of a better word) name spaced for the respective functional area.</p>
+<h2 id="call-graph-example">Call Graph Example</h2>
+<p><img src="https://user-images.githubusercontent.com/3664215/88595450-cd92da00-d017-11ea-8838-d2c2f50b831a.png" width=70% height=70%></p>
+<p><strong>NOTE</strong> The approach outlined above is not recommended as the standard development approach, but as an alternative to re-writing the script under test if mocking of the internal method calls becomes unwieldy.</p>
+<h1 id="references">References</h1>
+<ul>
+<li><a href="https://www.javadoc.io/doc/com.homeaway.devtools.jenkins/jenkins-spock/latest/com/homeaway/devtools/jenkins/testing/JenkinsPipelineSpecification.html">Jenkins Spock Documentation</a></li>
+<li><a href="http://spockframework.org/spock/docs/1.3/all_in_one.html">Spock Framework Reference</a></li>
+<li><a href="https://www.jenkins.io/doc/book/pipeline/shared-libraries/">Jenkins Shared Libraries</a></li>
+</ul>
                 
               
               
@@ -550,7 +516,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../edgeXBuildDocker/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../pr-commit-for-testing/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -559,25 +525,11 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                edgeXBuildDocker
+                Pull Request Sandbox Testing
               </div>
             </div>
           </a>
         
-        
-          <a href="../../tutorials/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Tutorials
-              </div>
-            </div>
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-            </div>
-          </a>
         
       </nav>
     </div>
