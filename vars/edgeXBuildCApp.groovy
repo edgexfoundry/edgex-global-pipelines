@@ -81,6 +81,9 @@ def call(config) {
                 steps {
                     script { edgex.releaseInfo() }
                     edgeXSetupEnvironment(_envVarMap)
+                    // docker login for the to make sure all docker commands are authenticated
+                    // in this specific node
+                    edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                 }
             }
 
@@ -111,7 +114,9 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
-                                        // should this be in it's own stage?
+                                        // docker login for the to make sure all docker commands are authenticated
+                                        // in this specific node
+                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                         if(env.USE_SEMVER == 'true') {
                                             unstash 'semver'
                                         }
@@ -198,7 +203,9 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
-                                        // should this be in it's own stage?
+                                        // docker login for the to make sure all docker commands are authenticated
+                                        // in this specific node
+                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                         if(env.USE_SEMVER == 'true') {
                                             unstash 'semver'
                                         }
