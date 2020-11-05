@@ -82,6 +82,9 @@ def call(config) {
                 steps {
                     script { edgex.releaseInfo() }
                     edgeXSetupEnvironment(_envVarMap)
+                    // docker login for the to make sure all docker commands are authenticated
+                    // in this specific node
+                    edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                 }
             }
 
@@ -107,6 +110,9 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        // docker login for the to make sure all docker commands are authenticated
+                                        // in this specific node
+                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                         if(env.USE_SEMVER == 'true') {
                                             unstash 'semver'
                                         }
@@ -132,7 +138,6 @@ def call(config) {
 
                                 steps {
                                     script {
-                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                         taggedAMD64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}", env.DOCKER_PUSH_LATEST == 'true', "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
@@ -170,6 +175,9 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        // docker login for the to make sure all docker commands are authenticated
+                                        // in this specific node
+                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                         if(env.USE_SEMVER == 'true') {
                                             unstash 'semver'
                                         }
@@ -195,7 +203,6 @@ def call(config) {
 
                                 steps {
                                     script {
-                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
                                         taggedARM64Images = edgeXDocker.push("${DOCKER_IMAGE_NAME}-${ARCH}", env.DOCKER_PUSH_LATEST == 'true', "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
