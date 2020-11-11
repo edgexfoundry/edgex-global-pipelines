@@ -108,18 +108,21 @@ pipeline {
             }
         }
 
-        // this will need to happen on an isolated node to not interfere with git-semver
         stage('Publish to GitHub pages') {
             when {
                 beforeAgent true
                 expression { env.BRANCH_NAME =~ /^master$/ }
             }
+            // this will need to happen on an isolated node to not interfere with git-semver
             agent {
                 label 'centos7-docker-4c-2g'
             }
             steps {
                 script {
-                    edgeXGHPagesPublish(repoUrl: 'git@github.com:edgexfoundry/edgex-global-pipelines.git')
+                    edgeXGHPagesPublish(
+                        stashName: 'site-contents', // I want to be explicit here so it's more clear what is happening
+                        repoUrl: 'git@github.com:edgexfoundry/edgex-global-pipelines.git'
+                    )
                 }
             }
         }
