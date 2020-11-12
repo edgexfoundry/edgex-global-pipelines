@@ -14,6 +14,43 @@
 // limitations under the License.
 //
 
+/**
+ #edgeXBuildGoParallel
+ 
+ Shared Library to build Go projects and Docker images in parallel. Utilizes docker-compose --parallel to build Docker images found in the workspace. Currently only used for the **edgex-go** mono-repo.
+ 
+ ## Parameters
+
+ * **project** - **Required** Specify your project name
+ * **dockerFileGlobPath** - **Required** Pattern for finding Dockerfiles to build. Note docker images will be named with the same name as the directory which the Dockerfile was found in with a docker- prefix and -go suffix. Example: `docker-<folder>-go`
+ * more coming soon...
+
+ ## Usage
+ 
+ ### Basic example
+
+ ```groovy
+ edgeXBuildGoParallel (
+     project: 'edgex-go',
+     dockerFileGlobPath: 'cmd/** /Dockerfile',
+ )
+ ```
+ 
+ ### Complex example
+ 
+ ```groovy
+ edgeXBuildGoParallel(
+    project: 'edgex-go',
+    dockerFileGlobPath: 'cmd/** /Dockerfile',
+    testScript: 'make test',
+    buildScript: 'make build',
+    publishSwaggerDocs: true,
+    swaggerApiFolders: ['openapi/v1', 'openapi/v2'],
+    buildSnap: true
+ )
+ ```
+ */
+
 def taggedAMD64Images = []
 def taggedARM64Images = []
 def dockerImagesToBuild
