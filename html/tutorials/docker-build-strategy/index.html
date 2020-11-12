@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/manual-bump/">
+        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/docker-build-strategy/">
       
       
         <meta name="author" content="EdgeX DevOps Team">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Manual Version Bump Process - EdgeX Global Pipelines Documentation</title>
+        <title>Docker Build Strategy - EdgeX Global Pipelines Documentation</title>
       
     
     
@@ -71,7 +71,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#manual-version-bump-process" class="md-skip">
+        <a href="#docker-build-strategy" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              Manual Version Bump Process
+              Docker Build Strategy
             
           </span>
         </div>
@@ -344,18 +344,6 @@
           
           
 
-
-  <li class="md-nav__item">
-    <a href="../docker-build-strategy/" class="md-nav__link">
-      Docker Build Strategy
-    </a>
-  </li>
-
-        
-          
-          
-          
-
   
 
 
@@ -367,12 +355,12 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        Manual Version Bump Process
+        Docker Build Strategy
         <span class="md-nav__icon md-icon"></span>
       </label>
     
     <a href="./" class="md-nav__link md-nav__link--active">
-      Manual Version Bump Process
+      Docker Build Strategy
     </a>
     
       
@@ -389,15 +377,62 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#committer-access-required" class="md-nav__link">
-    Committer Access Required
+  <a href="#local-testing" class="md-nav__link">
+    Local Testing
+  </a>
+  
+    <nav class="md-nav" aria-label="Local Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tooling-caveats" class="md-nav__link">
+    Tooling Caveats
+  </a>
+  
+    <nav class="md-nav" aria-label="Tooling Caveats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#busybox-alpine" class="md-nav__link">
+    BusyBox (Alpine)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gnu-other-linux-distros" class="md-nav__link">
+    GNU (Other linux distros)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-jenkins-way" class="md-nav__link">
+    The Jenkins Way
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#click-on-image-below-to-view-ascii-recording-of-the-manual-version-bump-process" class="md-nav__link">
-    Click on image below to view ASCII recording of the manual version bump process
+  <a href="#next-steps" class="md-nav__link">
+    Next steps
   </a>
   
 </li>
@@ -406,6 +441,18 @@
   
 </nav>
     
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../manual-bump/" class="md-nav__link">
+      Manual Version Bump Process
+    </a>
   </li>
 
         
@@ -462,15 +509,62 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#committer-access-required" class="md-nav__link">
-    Committer Access Required
+  <a href="#local-testing" class="md-nav__link">
+    Local Testing
+  </a>
+  
+    <nav class="md-nav" aria-label="Local Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tooling-caveats" class="md-nav__link">
+    Tooling Caveats
+  </a>
+  
+    <nav class="md-nav" aria-label="Tooling Caveats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#busybox-alpine" class="md-nav__link">
+    BusyBox (Alpine)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gnu-other-linux-distros" class="md-nav__link">
+    GNU (Other linux distros)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-jenkins-way" class="md-nav__link">
+    The Jenkins Way
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#click-on-image-below-to-view-ascii-recording-of-the-manual-version-bump-process" class="md-nav__link">
-    Click on image below to view ASCII recording of the manual version bump process
+  <a href="#next-steps" class="md-nav__link">
+    Next steps
   </a>
   
 </li>
@@ -487,24 +581,93 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/tutorials/manual-bump.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/tutorials/docker-build-strategy.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="manual-version-bump-process">Manual Version Bump Process</h1>
-<p>Sometimes the version of the edgex-global-pipelines needs to be changed between <code>stable</code> and <code>experimental</code> tags in order to enhance and validate that the changes work as expected.</p>
-<p>The process documented here outlines the manual process for bumping the version and tag on the global libraries.</p>
-<h2 id="committer-access-required">Committer Access Required</h2>
-<p>You must have write access to the repo to perform this manual version bump process.
- - Developer must be a member of the devops-core-team as per TSC approval
- - Version info can be obtained through view of the Jenkins Pipeline log for last successful build</p>
-<div class="highlight"><pre><span></span><code>$ git clone git@github.com:edgexfoundry/edgex-global-pipelines.git
-$ <span class="nb">cd</span> edgex-global-pipelines
-$ ./resources/update-named-tag.sh &lt;version&gt; &lt;stable<span class="p">|</span>experimental&gt;
+                <h1 id="docker-build-strategy">Docker Build Strategy</h1>
+<p>Docker is a great tool for the CI/CD ecosystem. As the EdgeX DevOps community, we made the decision early when designing the EdgeX Jenkins pipelines to make Docker the center of our build strategy. The advantage of using Docker as the build context is that it allows for creating reproducible builds from Jenkins to our local build environment. Thus creating a portable build environment and minimizing build errors between environments. The EdgeX Jenkins pipelines use Docker images as the context for any build. This Docker image is generated from the <code>Dockerfile.build</code> found at the root of every EdgeX repository. Any dependencies or packages required for testing or compilation needs to be added to the <code>Dockerfile.build</code> file.</p>
+<h2 id="local-testing">Local Testing</h2>
+<p>If we want to test how the build will run on Jenkins we can follow these steps locally.</p>
+<h3 id="example">Example</h3>
+<p>First we build the "build image" <code>edgex-ci-build-image</code></p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span> app-service-configurable
+docker build -t edgex-ci-build-image -f Dockerfile.build
 </code></pre></div>
-<h2 id="click-on-image-below-to-view-ascii-recording-of-the-manual-version-bump-process">Click on image below to view ASCII recording of the manual version bump process</h2>
-<p><a href="https://asciinema.org/a/362534" title="ASCII Recording of Manual Version Bump Process"><img alt="Manual Bump Process" src="https://asciinema.org/a/362534.svg" /></a></p>
+<p>Now we run the build image with some make targets and bind mount our current directory to a folder called <code>/ws</code> (workspace)</p>
+<div class="highlight"><pre><span></span><code>docker run --rm -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/ws -w /ws edgex-ci-build-image sh -c <span class="s1">&#39;make test build&#39;</span>
+</code></pre></div>
+<p>Or to put it into a convenient one-liner:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span> app-service-configurable
+docker build -t edgex-ci-build-image -f Dockerfile.build . <span class="o">&amp;&amp;</span> docker run --rm -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/ws -w /ws edgex-ci-build-image sh -c <span class="s1">&#39;make test build&#39;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Sending build context to Docker daemon    127kB
+Step 1/8 : ARG BASE=golang:1.15-alpine
+Step 2/8 : FROM ${BASE}
+ ---&gt; 1a87ceb1ace5
+Step 3/8 : LABEL license=&#39;SPDX-License-Identifier: Apache-2.0&#39;   copyright=&#39;Copyright (c) 2019: Intel&#39;
+ ---&gt; Using cache
+ ---&gt; 9f1aa172c1d7
+Step 4/8 : RUN sed -e &#39;s/dl-cdn[.]alpinelinux.org/nl.alpinelinux.org/g&#39; -i~ /etc/apk/repositories
+ ---&gt; Using cache
+ ---&gt; fec4da09e9ec
+Step 5/8 : RUN apk add --no-cache make git gcc libc-dev libsodium-dev zeromq-dev bash
+...
+Successfully built ce2be0b9fe31
+Successfully tagged edgex-ci-build-image:latest
+CGO_ENABLED=1 go test -coverprofile=coverage.out ./...
+?   github.com/edgexfoundry/app-service-configurable
+    [no test files]
+CGO_ENABLED=1 go build -ldflags &quot;-X github.com/edgexfoundry/app-functions-sdk-go/internal.SDKVersion=v1.2.1-dev.35 -X github.com/edgexfoundry/app-functions-sdk-go/internal.ApplicationVersion=0.0.0&quot; app-service-configurable
+</code></pre></div>
+<h2 id="tooling-caveats">Tooling Caveats</h2>
+<p>Docker build images are Alpine based to save on disk space and bandwith and with that comes potential tooling incompatiblities. For example a number of pre-installed base packages on Alpine are the BusyBox versions of the tools. BusyBox versions can sometimes have different arguments than their GNU counterparts. For instance the <code>tar</code> command:</p>
+<h3 id="busybox-alpine">BusyBox (Alpine)</h3>
+<div class="highlight"><pre><span></span><code>$ tar --help
+BusyBox v1.31.1 <span class="o">()</span> multi-call binary.
+
+Usage: tar c<span class="p">|</span>x<span class="p">|</span>t <span class="o">[</span>-ZzJjahmvokO<span class="o">]</span> <span class="o">[</span>-f TARFILE<span class="o">]</span> <span class="o">[</span>-C DIR<span class="o">]</span> <span class="o">[</span>-T FILE<span class="o">]</span> <span class="o">[</span>-X FILE<span class="o">]</span> <span class="o">[</span>--exclude PATTERN<span class="o">]</span>... <span class="o">[</span>FILE<span class="o">]</span>...
+</code></pre></div>
+<h3 id="gnu-other-linux-distros">GNU (Other linux distros)</h3>
+<div class="highlight"><pre><span></span><code>$ tar --help
+Usage: tar <span class="o">[</span>OPTION...<span class="o">]</span> <span class="o">[</span>FILE<span class="o">]</span>...
+GNU <span class="s1">&#39;tar&#39;</span> saves many files together into a single tape or disk archive, and can
+restore individual files from the archive.
+</code></pre></div>
+<p>This can lead to unexpected issues if say, for instance, you are depending on a specific flag provided by the tool. One option to fix this is to just use the BusyBox flags, however this may break when not running inside the Docker build image. Another option is to find the alternative package and install that version. For example, Alpine provides the GNU alternative <code>tar</code> binary under the <code>tar</code> Alpine package:</p>
+<div class="highlight"><pre><span></span><code>$ apk add --update tar
+$ tar --help
+Usage: tar <span class="o">[</span>OPTION...<span class="o">]</span> <span class="o">[</span>FILE<span class="o">]</span>...
+GNU <span class="s1">&#39;tar&#39;</span> saves many files together into a single tape or disk archive, and can
+restore individual files from the archive.
+</code></pre></div>
+<h2 id="the-jenkins-way">The Jenkins Way</h2>
+<p>The above example is similar to how Jenkins runs the build with a few distinctions. First, the make test and make build commands are broken up into two stages. This is an important distinction because it allows for a more granular pipeline allowing for better error handling. The other distinction is that Jenkins takes advantage of a caching base layer image that is passed in at build time. Take a look at the Dockerfile.build. You will notice the <code>BASE</code> docker <code>ARG</code> at the top of the file.</p>
+<div class="highlight"><pre><span></span><code><span class="k">ARG</span> <span class="nv">BASE</span><span class="o">=</span>golang:1.15-alpine
+<span class="k">FROM</span> <span class="s">${BASE}</span>
+...
+</code></pre></div>
+<p>This allows Jenkins to override the base image during the build with an image from Nexus helping to alleviate issues with DockerHub pull limits as well as random Docker pull failures. On Jenkins this happens in the Prep stage:</p>
+<div class="highlight"><pre><span></span><code>docker build -t ci-base-image-x86_64 <span class="se">\</span>
+  -f Dockerfile.build <span class="se">\</span>
+  --build-arg <span class="nv">BASE</span><span class="o">=</span>nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.15-alpine <span class="se">\</span>
+  .
+</code></pre></div>
+<p>The DevOps WG team manages these Golang base images and the Dockerfile for the latest Golang image used can be found here: <a href="https://github.com/edgexfoundry/ci-build-images/tree/golang-1.15">https://github.com/edgexfoundry/ci-build-images/tree/golang-1.15</a>. This cache image contains most of the dependencies used in the majority of the pipelines allowing us to cache dependencies at the base image level and increasing builds speeds.</p>
+<p>After the base image is built the test and build stages run in a similar manner to the local testing scenario:</p>
+<div class="highlight"><pre><span></span><code>docker run -t -u 0:0 \
+  -w /w/workspace/app-service-configurable/60 \
+  -v /w/workspace/app-service-configurable/60:/w/workspace/app-service-configurable/60:rw,z \
+  -v /w/workspace/app-service-configurable/60@tmp:/w/workspace/app-service-configurable/60@tmp:rw,z \
+  ci-base-image-x86_64 ... make test
+</code></pre></div>
+<h2 id="next-steps">Next steps</h2>
+<p>More information can be found by reading the documentation or source code of these pipelines:</p>
+<ul>
+<li><a href="https://edgexfoundry.github.io/edgex-global-pipelines/html/libraries/edgeXBuildGoApp/">edgeXBuildGoApp</a> <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/vars/edgeXBuildGoApp.groovy">source</a></li>
+<li><a href="https://edgexfoundry.github.io/edgex-global-pipelines/html/libraries/edgeXBuildGoParallel/">edgeXBuildGoParallel</a> <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/vars/edgeXBuildGoParallel.groovy">source</a></li>
+</ul>
                 
               
               
@@ -523,7 +686,7 @@ $ ./resources/update-named-tag.sh &lt;version&gt; &lt;stable<span class="p">|</s
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../docker-build-strategy/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -532,19 +695,19 @@ $ ./resources/update-named-tag.sh &lt;version&gt; &lt;stable<span class="p">|</s
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Docker Build Strategy
+                Tutorials
               </div>
             </div>
           </a>
         
         
-          <a href="../pr-commit-for-testing/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../manual-bump/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Pull Request Sandbox Testing
+                Manual Version Bump Process
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">

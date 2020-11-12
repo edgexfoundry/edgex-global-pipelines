@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/manual-bump/">
+        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildGoParallel/">
       
       
         <meta name="author" content="EdgeX DevOps Team">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Manual Version Bump Process - EdgeX Global Pipelines Documentation</title>
+        <title>edgeXBuildGoParallel - EdgeX Global Pipelines Documentation</title>
       
     
     
@@ -71,7 +71,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#manual-version-bump-process" class="md-skip">
+        <a href="#edgexbuildgoparallel" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              Manual Version Bump Process
+              edgeXBuildGoParallel
             
           </span>
         </div>
@@ -235,10 +235,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
     
     <label class="md-nav__link" for="nav-2">
       Pipelines
@@ -258,7 +260,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../libraries/edgeXBuildCApp/" class="md-nav__link">
+    <a href="../edgeXBuildCApp/" class="md-nav__link">
       edgeXBuildCApp
     </a>
   </li>
@@ -270,7 +272,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../libraries/edgeXBuildDocker/" class="md-nav__link">
+    <a href="../edgeXBuildDocker/" class="md-nav__link">
       edgeXBuildDocker
     </a>
   </li>
@@ -282,72 +284,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../libraries/edgeXBuildGoApp/" class="md-nav__link">
+    <a href="../edgeXBuildGoApp/" class="md-nav__link">
       edgeXBuildGoApp
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../libraries/edgeXBuildGoParallel/" class="md-nav__link">
-      edgeXBuildGoParallel
-    </a>
-  </li>
-
-        
-      </ul>
-    </nav>
-  </li>
-
-    
-      
-      
-      
-
-  
-
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-    
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
-    
-    <label class="md-nav__link" for="nav-3">
-      Tutorials
-      <span class="md-nav__icon md-icon"></span>
-    </label>
-    <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
-      <label class="md-nav__title" for="nav-3">
-        <span class="md-nav__icon md-icon"></span>
-        Tutorials
-      </label>
-      <ul class="md-nav__list" data-md-scrollfix>
-        
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../" class="md-nav__link">
-      Tutorials
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../docker-build-strategy/" class="md-nav__link">
-      Docker Build Strategy
     </a>
   </li>
 
@@ -367,12 +305,12 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        Manual Version Bump Process
+        edgeXBuildGoParallel
         <span class="md-nav__icon md-icon"></span>
       </label>
     
     <a href="./" class="md-nav__link md-nav__link--active">
-      Manual Version Bump Process
+      edgeXBuildGoParallel
     </a>
     
       
@@ -389,16 +327,36 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#committer-access-required" class="md-nav__link">
-    Committer Access Required
+  <a href="#parameters" class="md-nav__link">
+    Parameters
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#click-on-image-below-to-view-ascii-recording-of-the-manual-version-bump-process" class="md-nav__link">
-    Click on image below to view ASCII recording of the manual version bump process
+  <a href="#usage" class="md-nav__link">
+    Usage
   </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-example" class="md-nav__link">
+    Basic example
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-example" class="md-nav__link">
+    Complex example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -409,13 +367,75 @@
   </li>
 
         
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Tutorials
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Tutorials
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
           
           
           
 
 
   <li class="md-nav__item">
-    <a href="../pr-commit-for-testing/" class="md-nav__link">
+    <a href="../../tutorials/" class="md-nav__link">
+      Tutorials
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../tutorials/docker-build-strategy/" class="md-nav__link">
+      Docker Build Strategy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../tutorials/manual-bump/" class="md-nav__link">
+      Manual Version Bump Process
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../tutorials/pr-commit-for-testing/" class="md-nav__link">
       Pull Request Sandbox Testing
     </a>
   </li>
@@ -427,7 +447,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../unit-testing-best-practices/" class="md-nav__link">
+    <a href="../../tutorials/unit-testing-best-practices/" class="md-nav__link">
       Unit Testing Best Practices
     </a>
   </li>
@@ -462,16 +482,36 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#committer-access-required" class="md-nav__link">
-    Committer Access Required
+  <a href="#parameters" class="md-nav__link">
+    Parameters
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#click-on-image-below-to-view-ascii-recording-of-the-manual-version-bump-process" class="md-nav__link">
-    Click on image below to view ASCII recording of the manual version bump process
+  <a href="#usage" class="md-nav__link">
+    Usage
   </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-example" class="md-nav__link">
+    Basic example
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-example" class="md-nav__link">
+    Complex example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -487,24 +527,37 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/tutorials/manual-bump.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/libraries/edgeXBuildGoParallel.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="manual-version-bump-process">Manual Version Bump Process</h1>
-<p>Sometimes the version of the edgex-global-pipelines needs to be changed between <code>stable</code> and <code>experimental</code> tags in order to enhance and validate that the changes work as expected.</p>
-<p>The process documented here outlines the manual process for bumping the version and tag on the global libraries.</p>
-<h2 id="committer-access-required">Committer Access Required</h2>
-<p>You must have write access to the repo to perform this manual version bump process.
- - Developer must be a member of the devops-core-team as per TSC approval
- - Version info can be obtained through view of the Jenkins Pipeline log for last successful build</p>
-<div class="highlight"><pre><span></span><code>$ git clone git@github.com:edgexfoundry/edgex-global-pipelines.git
-$ <span class="nb">cd</span> edgex-global-pipelines
-$ ./resources/update-named-tag.sh &lt;version&gt; &lt;stable<span class="p">|</span>experimental&gt;
+                <h1 id="edgexbuildgoparallel">edgeXBuildGoParallel</h1>
+<p>Shared Library to build Go projects and Docker images in parallel. Utilizes docker-compose --parallel to build Docker images found in the workspace. Currently only used for the <strong>edgex-go</strong> mono-repo.</p>
+<h2 id="parameters">Parameters</h2>
+<ul>
+<li><strong>project</strong> - <strong>Required</strong> Specify your project name</li>
+<li><strong>dockerFileGlobPath</strong> - <strong>Required</strong> Pattern for finding Dockerfiles to build. Note docker images will be named with the same name as the directory which the Dockerfile was found in with a docker- prefix and -go suffix. Example: <code>docker-&lt;folder&gt;-go</code></li>
+<li>more coming soon...</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<h3 id="basic-example">Basic example</h3>
+<div class="highlight"><pre><span></span><code><span class="n">edgeXBuildGoParallel</span> <span class="o">(</span>
+    <span class="nl">project:</span> <span class="s1">&#39;edgex-go&#39;</span><span class="o">,</span>
+    <span class="nl">dockerFileGlobPath:</span> <span class="s1">&#39;cmd/** /Dockerfile&#39;</span><span class="o">,</span>
+<span class="o">)</span>
 </code></pre></div>
-<h2 id="click-on-image-below-to-view-ascii-recording-of-the-manual-version-bump-process">Click on image below to view ASCII recording of the manual version bump process</h2>
-<p><a href="https://asciinema.org/a/362534" title="ASCII Recording of Manual Version Bump Process"><img alt="Manual Bump Process" src="https://asciinema.org/a/362534.svg" /></a></p>
+<h3 id="complex-example">Complex example</h3>
+<div class="highlight"><pre><span></span><code><span class="n">edgeXBuildGoParallel</span><span class="o">(</span>
+   <span class="nl">project:</span> <span class="s1">&#39;edgex-go&#39;</span><span class="o">,</span>
+   <span class="nl">dockerFileGlobPath:</span> <span class="s1">&#39;cmd/** /Dockerfile&#39;</span><span class="o">,</span>
+   <span class="nl">testScript:</span> <span class="s1">&#39;make test&#39;</span><span class="o">,</span>
+   <span class="nl">buildScript:</span> <span class="s1">&#39;make build&#39;</span><span class="o">,</span>
+   <span class="nl">publishSwaggerDocs:</span> <span class="kc">true</span><span class="o">,</span>
+   <span class="nl">swaggerApiFolders:</span> <span class="o">[</span><span class="s1">&#39;openapi/v1&#39;</span><span class="o">,</span> <span class="s1">&#39;openapi/v2&#39;</span><span class="o">],</span>
+   <span class="nl">buildSnap:</span> <span class="kc">true</span>
+<span class="o">)</span>
+</code></pre></div>
                 
               
               
@@ -523,7 +576,7 @@ $ ./resources/update-named-tag.sh &lt;version&gt; &lt;stable<span class="p">|</s
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../docker-build-strategy/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../edgeXBuildGoApp/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -532,19 +585,19 @@ $ ./resources/update-named-tag.sh &lt;version&gt; &lt;stable<span class="p">|</s
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Docker Build Strategy
+                edgeXBuildGoApp
               </div>
             </div>
           </a>
         
         
-          <a href="../pr-commit-for-testing/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../../tutorials/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Pull Request Sandbox Testing
+                Tutorials
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">
