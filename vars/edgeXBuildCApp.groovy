@@ -49,6 +49,10 @@
  )
  ```
  */
+
+def taggedAMD64Images
+def taggedARM64Images
+
 def call(config) {
     edgex.bannerMessage "[edgeXBuildCApp] RAW Config: ${config}"
 
@@ -156,7 +160,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        edgeXDocker.push("${env.DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
+                                        taggedAMD64Images = edgeXDocker.push("${env.DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -245,7 +249,7 @@ def call(config) {
                                 steps {
                                     script {
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        edgeXDocker.push("${env.DOCKER_IMAGE_NAME}-${env.ARCH}", true, "${env.DOCKER_NEXUS_REPO}")
+                                        taggedARM64Images = edgeXDocker.push("${env.DOCKER_IMAGE_NAME}-${env.ARCH}", true, "${env.DOCKER_NEXUS_REPO}")
                                     }
                                 }
                             }
@@ -300,12 +304,10 @@ def call(config) {
                 }
                 steps {
                     script {
-                        if(edgex.nodeExists(config, 'amd64')) {
-                            def amd64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")
-
+                        if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
                             edgeXSnyk(
                                 command: 'test',
-                                dockerImage: "${DOCKER_REGISTRY}/${amd64Image}:${GIT_COMMIT}",
+                                dockerImage: taggedAMD64Images.first(),
                                 dockerFile: env.DOCKER_FILE_PATH,
                                 severity: 'high',
                                 sendEmail: true,
@@ -316,11 +318,10 @@ def call(config) {
 
                         // While ARM64 images can be scanned, this would double the amount of tests run
                         // so we are disabling arm64 scans for now
-                        // if(edgex.nodeExists(config, 'arm64')) {
-                        //     def arm64Image = edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-arm64")
+                        // if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
                         //     edgeXSnyk(
                         //         command: 'test',
-                        //         dockerImage: "${DOCKER_REGISTRY}/${arm64Image}:${GIT_COMMIT}",
+                        //         dockerImage: taggedARM64Images.first(),
                         //         dockerFile: env.DOCKER_FILE_PATH,
                         //         severity: 'high',
                         //         sendEmail: true,
