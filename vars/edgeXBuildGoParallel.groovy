@@ -121,6 +121,7 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // builds ci-base-image used to cache dependencies and system libs
                                         prepBaseBuildImage()
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') { sh 'go version' }
@@ -212,6 +213,7 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
@@ -559,4 +561,11 @@ def getDockerfilesFromTagged(tagged, dockers) {
             [it, dockers.find { imgSpec -> imageName =~ imgSpec.image }.dockerfile]
         }
     }
+}
+
+// Temp fix while LF updates base packer images
+def enableDockerProxy(proxyHost, debug = false) {
+    sh "sudo jq \'. + {\"registry-mirrors\": [\"${proxyHost}\"], debug: ${debug}}\' /etc/docker/daemon.json > /tmp/daemon.json"
+    sh 'sudo mv /tmp/daemon.json /etc/docker/daemon.json'
+    sh 'sudo service docker restart | true'
 }
