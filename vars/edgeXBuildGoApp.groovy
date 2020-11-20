@@ -141,6 +141,7 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
@@ -233,6 +234,7 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
@@ -645,4 +647,11 @@ def toEnvironment(config) {
     edgex.printMap envMap
 
     envMap
+}
+
+// Temp fix while LF updates base packer images
+def enableDockerProxy(proxyHost, debug = false) {
+    sh "sudo jq \'. + {\"registry-mirrors\": [\"${proxyHost}\"], debug: ${debug}}\' /etc/docker/daemon.json > /tmp/daemon.json"
+    sh 'sudo mv /tmp/daemon.json /etc/docker/daemon.json'
+    sh 'sudo service docker restart | true'
 }

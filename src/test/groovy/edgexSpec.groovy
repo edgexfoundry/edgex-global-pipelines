@@ -25,6 +25,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.isReleaseStream('edinburgh') == true
             edgeX.isReleaseStream('fuji') == true
             edgeX.isReleaseStream('geneva') == true
+            edgeX.isReleaseStream('hanoi') == true
             edgeX.isReleaseStream('xyzmaster') == false
             edgeX.isReleaseStream('masterxyz') == false
             edgeX.isReleaseStream('xyzmasterxyz') == false
@@ -45,6 +46,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.isReleaseStream('edinburgh') == false
             edgeX.isReleaseStream('fuji') == false
             edgeX.isReleaseStream('geneva') == false
+            edgeX.isReleaseStream('hanoi') == false
             edgeX.isReleaseStream('xyzmaster') == false
             edgeX.isReleaseStream('masterxyz') == false
             edgeX.isReleaseStream('xyzmasterxyz') == false

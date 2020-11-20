@@ -14,6 +14,43 @@
 // limitations under the License.
 //
 
+/**
+ #edgeXBuildGoParallel
+ 
+ Shared Library to build Go projects and Docker images in parallel. Utilizes docker-compose --parallel to build Docker images found in the workspace. Currently only used for the **edgex-go** mono-repo.
+ 
+ ## Parameters
+
+ * **project** - **Required** Specify your project name
+ * **dockerFileGlobPath** - **Required** Pattern for finding Dockerfiles to build. Note docker images will be named with the same name as the directory which the Dockerfile was found in with a docker- prefix and -go suffix. Example: `docker-<folder>-go`
+ * more coming soon...
+
+ ## Usage
+ 
+ ### Basic example
+
+ ```groovy
+ edgeXBuildGoParallel (
+     project: 'edgex-go',
+     dockerFileGlobPath: 'cmd/** /Dockerfile',
+ )
+ ```
+ 
+ ### Complex example
+ 
+ ```groovy
+ edgeXBuildGoParallel(
+    project: 'edgex-go',
+    dockerFileGlobPath: 'cmd/** /Dockerfile',
+    testScript: 'make test',
+    buildScript: 'make build',
+    publishSwaggerDocs: true,
+    swaggerApiFolders: ['openapi/v1', 'openapi/v2'],
+    buildSnap: true
+ )
+ ```
+ */
+
 def taggedAMD64Images = []
 def taggedARM64Images = []
 def dockerImagesToBuild
@@ -84,6 +121,7 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // builds ci-base-image used to cache dependencies and system libs
                                         prepBaseBuildImage()
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') { sh 'go version' }
@@ -175,6 +213,7 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
@@ -522,4 +561,11 @@ def getDockerfilesFromTagged(tagged, dockers) {
             [it, dockers.find { imgSpec -> imageName =~ imgSpec.image }.dockerfile]
         }
     }
+}
+
+// Temp fix while LF updates base packer images
+def enableDockerProxy(proxyHost, debug = false) {
+    sh "sudo jq \'. + {\"registry-mirrors\": [\"${proxyHost}\"], debug: ${debug}}\' /etc/docker/daemon.json > /tmp/daemon.json"
+    sh 'sudo mv /tmp/daemon.json /etc/docker/daemon.json'
+    sh 'sudo service docker restart | true'
 }

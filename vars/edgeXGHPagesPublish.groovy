@@ -15,27 +15,36 @@
 //
 
 def call(Map config = [:]) {
-    def dryRun = ['1', 'true'].contains(env.DRY_RUN)
-    def repoUrl = config.repoUrl ?: null
-    def credentialId = config.credentialId ?: 'edgex-jenkins-ssh'
-    def ghPagesBranch = config.ghPagesBranch ?: 'gh-pages'
-    def stashName = config.stashName ?: 'site-contents'
+    def dryRun         = ['1', 'true'].contains(env.DRY_RUN)
+    def repoUrl        = config.repoUrl ?: null
+    def credentialId   = config.credentialId ?: 'edgex-jenkins-ssh'
+    def ghPagesBranch  = config.ghPagesBranch ?: 'gh-pages'
+    def stashName      = config.stashName ?: 'site-contents'
 
     if (!repoUrl){
         error("[edgeXGHPagesPublish]: Repository URL missing in config")
     }
 
-    try{
-        def originalCommitMsg = sh(script: 'git log --format=%B -n 1 | grep -v Signed-off-by | head -n 1',
-            returnStdout: true)
+    try {
+        def originalCommitMsg = sh(
+            script: 'git log --format=%B -n 1 | grep -v Signed-off-by | head -n 1',
+            returnStdout: true
+        )
+
+        // This is precaution to remove any files not needing to be published
         cleanWs()
+
         dir('gh-pages-src') {
-            git url: repoUrl, branch: ghPagesBranch, credentialsId: credentialId, changelog: false,
-                poll: false
+            // clone repo we are publishing to
+            git url: repoUrl, branch: ghPagesBranch,
+                credentialsId: credentialId, changelog: false, poll: false
+
             unstash stashName
-            withEnv(["DRY_RUN=${dryRun}",
-                     "GH_PAGES_BRANCH=${ghPagesBranch}",
-                     "COMMIT_MSG=${originalCommitMsg}"
+
+            withEnv([
+                "DRY_RUN=${dryRun}",
+                "GH_PAGES_BRANCH=${ghPagesBranch}",
+                "COMMIT_MSG=${originalCommitMsg}"
             ]) {
                 sshagent(credentials: [credentialId]) {
                     sh(script: libraryResource('github-pages-publish.sh'))

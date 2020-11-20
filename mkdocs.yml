@@ -24,8 +24,10 @@ nav:
     - './libraries/edgeXBuildCApp.md'
     - './libraries/edgeXBuildDocker.md'
     - './libraries/edgeXBuildGoApp.md'
+    - './libraries/edgeXBuildGoParallel.md'
   - Tutorials:
     - './tutorials/index.md'
+    - './tutorials/docker-build-strategy.md'
     - './tutorials/manual-bump.md'
     - './tutorials/pr-commit-for-testing.md'
     - './tutorials/unit-testing-best-practices.md'
