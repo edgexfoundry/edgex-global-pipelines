@@ -83,11 +83,15 @@ def call(config) {
         stages {
             stage('Prepare') {
                 steps {
-                    script { edgex.releaseInfo() }
-                    edgeXSetupEnvironment(_envVarMap)
-                    // docker login for the to make sure all docker commands are authenticated
-                    // in this specific node
-                    edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
+                    script {
+                        edgex.releaseInfo()
+                        edgeXSetupEnvironment(_envVarMap)
+                        // docker login for the to make sure all docker commands are authenticated
+                        // in this specific node
+                        if(env.BUILD_DOCKER_IMAGE == 'true') {
+                            edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
+                        }
+                    }
                 }
             }
 
@@ -121,7 +125,9 @@ def call(config) {
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
-                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
+                                        if(env.BUILD_DOCKER_IMAGE == 'true') {
+                                            edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
+                                        }
                                         if(env.USE_SEMVER == 'true') {
                                             unstash 'semver'
                                         }
@@ -160,7 +166,7 @@ def call(config) {
 
                                 steps {
                                     script {
-                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
+                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS) // TODO: this should not be needed anymore
                                         taggedAMD64Images = edgeXDocker.push("${env.DOCKER_IMAGE_NAME}", true, "${DOCKER_NEXUS_REPO}")
                                     }
                                 }
@@ -211,7 +217,9 @@ def call(config) {
                                         enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
-                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
+                                        if(env.BUILD_DOCKER_IMAGE == 'true') {
+                                            edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
+                                        }
                                         if(env.USE_SEMVER == 'true') {
                                             unstash 'semver'
                                         }
@@ -250,7 +258,7 @@ def call(config) {
 
                                 steps {
                                     script {
-                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
+                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS) // TODO: this should not be needed anymore
                                         taggedARM64Images = edgeXDocker.push("${env.DOCKER_IMAGE_NAME}-${env.ARCH}", true, "${env.DOCKER_NEXUS_REPO}")
                                     }
                                 }
