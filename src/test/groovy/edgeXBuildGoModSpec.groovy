@@ -21,8 +21,7 @@ public class EdgeXBuildGoModSpec extends JenkinsPipelineSpecification {
                 project:'go-mod-bootstrap',
                 goVersion:'1.11',
                 buildImage:false,
-                pushImage:false,
-                semverBump:'patch'])
+                pushImage:false])
     }
 
 }
