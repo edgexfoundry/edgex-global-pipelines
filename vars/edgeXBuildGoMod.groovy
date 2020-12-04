@@ -18,7 +18,8 @@ def call(config = [:]) {
     // per DevOps WG meeting on 12/3/20 go mod does not bump the patch version anymore
     def goModDefaults = [
         buildImage: false,
-        pushImage: false
+        pushImage: false,
+        semverBump: 'patch' // reverting for now until /v2 decision is made
     ]
 
     config << goModDefaults
