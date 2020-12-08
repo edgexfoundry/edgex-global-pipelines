@@ -175,7 +175,7 @@ def call(config) {
                             stage('Snap') {
                                 agent {
                                     node {
-                                        label 'centos7-docker-8c-8g'
+                                        label 'ubuntu18.04-docker-8c-8g'
                                         customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
                                     }
                                 }
@@ -189,7 +189,7 @@ def call(config) {
                                 }
                                 steps {
                                     script {
-                                        edgeXSnap(jobType: 'build')
+                                        edgeXSnap()
                                     }
                                 }
                             }
@@ -264,7 +264,8 @@ def call(config) {
                                 }
                             }
 
-                            stage('Snap') {
+                            // Turning off arm64 Snap stage Per WG meeting 10/29/20
+                            /*stage('Snap') {
                                 agent {
                                     node {
                                         label 'ubuntu18.04-docker-arm64-16c-16g'
@@ -281,10 +282,10 @@ def call(config) {
                                 }
                                 steps {
                                     script {
-                                        edgeXSnap(jobType: 'build')
+                                        edgeXSnap()
                                     }
                                 }
-                            }
+                            }*/
                         }
                     }
                 }

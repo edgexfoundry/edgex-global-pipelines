@@ -178,7 +178,7 @@ def call(config) {
                             stage('Snap') {
                                 agent {
                                     node {
-                                        label 'centos7-docker-8c-8g'
+                                        label 'ubuntu18.04-docker-8c-8g'
                                         customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
                                     }
                                 }
@@ -191,7 +191,7 @@ def call(config) {
                                     }
                                 }
                                 steps {
-                                    edgeXSnap(jobType: 'build')
+                                    edgeXSnap()
                                 }
                             }
                         }
@@ -274,25 +274,25 @@ def call(config) {
                             }
 
                             // Turning off arm64 Snap stage Per WG meeting 08/27/20
-                            // stage('Snap') {
-                            //     agent {
-                            //         node {
-                            //             label 'ubuntu18.04-docker-arm64-16c-16g'
-                            //             customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
-                            //         }
-                            //     }
-                            //     when {
-                            //         beforeAgent true
-                            //         allOf {
-                            //             environment name: 'BUILD_SNAP', value: 'true'
-                            //             expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
-                            //             expression { !edgex.isReleaseStream() }
-                            //         }
-                            //     }
-                            //     steps {
-                            //         edgeXSnap(jobType: 'build')
-                            //     }
-                            // }
+                            /*stage('Snap') {
+                                agent {
+                                    node {
+                                        label 'ubuntu18.04-docker-arm64-16c-16g'
+                                        customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                                    }
+                                }
+                                when {
+                                    beforeAgent true
+                                    allOf {
+                                        environment name: 'BUILD_SNAP', value: 'true'
+                                        expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                        expression { !edgex.isReleaseStream() }
+                                    }
+                                }
+                                steps {
+                                    edgeXSnap()
+                                }
+                            }*/
                         }
                     }
                 }
