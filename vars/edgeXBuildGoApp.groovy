@@ -352,6 +352,7 @@ def call(config) {
                     allOf {
                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                        environment name: 'SNYK_DOCKER_SCAN', value: 'true'
                         expression { edgex.isReleaseStream() }
                     }
                 }
@@ -611,6 +612,8 @@ def toEnvironment(config) {
         _pushImage = false
     }
 
+    def _snykDockerScan = edgex.defaultFalse(config.snykDockerScan)
+
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
         PROJECT: _projectName,
@@ -638,7 +641,8 @@ def toEnvironment(config) {
         ARTIFACT_ROOT: _artifactRoot,
         ARTIFACT_TYPES: _artifactTypes.join(' '),
         SHOULD_BUILD: _shouldBuild,
-        SECURITY_NOTIFY_LIST: _securityNotify
+        SECURITY_NOTIFY_LIST: _securityNotify,
+        SNYK_DOCKER_SCAN: _snykDockerScan
     ]
 
     // encode with comma in case build arg has space

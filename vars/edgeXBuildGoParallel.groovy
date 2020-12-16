@@ -328,6 +328,7 @@ def call(config) {
                     allOf {
                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                        environment name: 'SNYK_DOCKER_SCAN', value: 'true'
                         expression { edgex.isReleaseStream() }
                     }
                 }
@@ -505,6 +506,7 @@ def toEnvironment(config) {
 
     // def _snapChannel           = config.snapChannel ?: 'latest/edge'
     def _buildSnap             = edgex.defaultFalse(config.buildSnap)
+    def _snykDockerScan        = edgex.defaultFalse(config.snykDockerScan)
 
     // no image to build, no image to push
     if(!_buildImage) {
@@ -534,7 +536,8 @@ def toEnvironment(config) {
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
         // SNAP_CHANNEL: _snapChannel,
         BUILD_SNAP: _buildSnap,
-        SECURITY_NOTIFY_LIST: _securityNotify
+        SECURITY_NOTIFY_LIST: _securityNotify,
+        SNYK_DOCKER_SCAN: _snykDockerScan
     ]
 
     edgex.bannerMessage "[edgeXBuildGoParallel] Pipeline Parameters:"

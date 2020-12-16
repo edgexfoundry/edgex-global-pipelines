@@ -102,7 +102,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     ARTIFACT_ROOT: "archives/bin",
                     ARTIFACT_TYPES: 'docker',
                     SHOULD_BUILD: true,
-                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org',
+                    SNYK_DOCKER_SCAN: false
                 ]
             ]
     }
@@ -171,7 +172,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     ARTIFACT_ROOT: "archives/bin",
                     ARTIFACT_TYPES: 'docker',
                     SHOULD_BUILD: true,
-                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org',
+                    SNYK_DOCKER_SCAN: false
                 ]
             ]
     }
@@ -228,7 +230,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     ARTIFACT_TYPES: 'archive',
                     SHOULD_BUILD: true,
                     ARCHIVE_ARTIFACTS: '**/*.tar.gz **/*.zip',
-                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org',
+                    SNYK_DOCKER_SCAN: false
                 ]
             ]
     }
@@ -283,7 +286,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     ARTIFACT_ROOT: 'archives/bin',
                     ARTIFACT_TYPES: 'foo',
                     SHOULD_BUILD: false,
-                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org',
+                    SNYK_DOCKER_SCAN: false
                 ]
             ]
     }
