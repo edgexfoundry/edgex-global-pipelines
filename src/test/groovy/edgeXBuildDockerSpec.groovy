@@ -62,7 +62,8 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
                     ARCHIVE_IMAGE: false,
                     ARCHIVE_NAME: 'MyProject-archive.tar.gz',
                     SEMVER_BUMP_LEVEL: 'patch',
-                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org',
+                    SNYK_DOCKER_SCAN: false
                 ], [
                     MAVEN_SETTINGS: 'MyProject-settings',
                     PROJECT: 'MyProject',
@@ -79,7 +80,8 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
                     DOCKER_CUSTOM_TAGS: 'MyTag1 MyTag2',
                     DOCKER_BUILD_ARGS: 'MyArg1,MyArg2',
                     SEMVER_BUMP_LEVEL: 'pre',
-                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org',
+                    SNYK_DOCKER_SCAN: false
                 ], [
                     MAVEN_SETTINGS: 'MyProject-settings',
                     PROJECT: 'MyProject',
@@ -95,7 +97,8 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
                     ARCHIVE_NAME: 'MyProject-archive.tar.gz',
                     SEMVER_BUMP_LEVEL: 'pre',
                     RELEASE_BRANCH_OVERRIDE: 'golang',
-                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org',
+                    SNYK_DOCKER_SCAN: false
                 ], [
                     MAVEN_SETTINGS: 'MyProject-settings',
                     PROJECT: 'MyProject',
@@ -111,7 +114,8 @@ public class EdgeXBuildDockerSpec extends JenkinsPipelineSpecification {
                     ARCHIVE_NAME: 'MyProject-archive.tar.gz',
                     SEMVER_BUMP_LEVEL: 'pre',
                     RELEASE_BRANCH_OVERRIDE: 'golang',
-                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org'
+                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org',
+                    SNYK_DOCKER_SCAN: false
                 ]
             ]
     }

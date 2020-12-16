@@ -234,6 +234,7 @@ def call(config) {
                 when { 
                     allOf {
                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                        environment name: 'SNYK_DOCKER_SCAN', value: 'true'
                         expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
                     }
                 }
@@ -361,6 +362,7 @@ def toEnvironment(config) {
     def _semverBump            = config.semverBump ?: 'pre'
     def _releaseBranchOverride = config.releaseBranchOverride
     def _securityNotify        = 'security-issues@lists.edgexfoundry.org'
+    def _snykDockerScan        = edgex.defaultFalse(config.snykDockerScan)
 
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
@@ -376,7 +378,8 @@ def toEnvironment(config) {
         ARCHIVE_IMAGE: _archiveImage,
         ARCHIVE_NAME: _archiveName,
         SEMVER_BUMP_LEVEL: _semverBump,
-        SECURITY_NOTIFY_LIST: _securityNotify
+        SECURITY_NOTIFY_LIST: _securityNotify,
+        SNYK_DOCKER_SCAN: _snykDockerScan
     ]
 
     if(_releaseBranchOverride) {

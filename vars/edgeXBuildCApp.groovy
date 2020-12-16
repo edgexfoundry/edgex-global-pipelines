@@ -310,6 +310,7 @@ def call(config) {
                     allOf {
                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                        environment name: 'SNYK_DOCKER_SCAN', value: 'true'
                         expression { edgex.isReleaseStream() }
                     }
                 }
@@ -468,6 +469,8 @@ def toEnvironment(config) {
         _pushImage = false
     }
 
+    def _snykDockerScan = edgex.defaultFalse(config.snykDockerScan)
+
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
         PROJECT: _projectName,
@@ -486,7 +489,8 @@ def toEnvironment(config) {
         SEMVER_BUMP_LEVEL: _semverBump,
         //SNAP_CHANNEL: _snapChannel,
         BUILD_SNAP: _buildSnap,
-        SECURITY_NOTIFY_LIST: _securityNotify
+        SECURITY_NOTIFY_LIST: _securityNotify,
+        SNYK_DOCKER_SCAN: _snykDockerScan
     ]
 
     // encode with comma in case build arg has space
