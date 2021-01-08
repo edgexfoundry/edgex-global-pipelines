@@ -22,6 +22,7 @@ releaseYaml:
 name: 'sample-service'
 version: '1.1.2'
 releaseStream: 'master'
+commitId: '0cc1d67607642c9413e4a80d25a2df35ecc76d41'
 repo: 'https://github.com/edgexfoundry/sample-service.git'
 gitTag: true
 semverBumpLevel: 'patch'  # optional and defaults to '-pre=dev pre'
@@ -39,20 +40,21 @@ def call(releaseInfo, releaseGitTagOptions) {
     edgeXReleaseGitTagUtil.releaseGitTag(releaseInfo, credentials, bump, tag)
 }
 
-def cloneRepo(repo, branch, name, credentials) {
+def cloneRepo(repo, branch, name, commitId, credentials) {
     // clone the repo branch to name using the specified ssh credentials
     def ssh_repo = edgeXReleaseGitTagUtil.getSSHRepoName(repo)
     println "[edgeXReleaseGitTag]: git cloning ${ssh_repo} : ${branch} to ${name} - DRY_RUN: ${env.DRY_RUN}"
-    def commands = [
-        "git clone -b ${branch} ${ssh_repo} ${env.WORKSPACE}/${name} || true",
-    ]
+
     sshagent(credentials: [credentials]) {
         if(edgex.isDryRun()) {
-            echo(commands.collect {"sh ${it}"}.join('\n'))
+            echo("git clone -b ${branch} ${ssh_repo} ${env.WORKSPACE}/${name} || true")
+            echo("dir ${name}")
+            echo("git checkout ${commitId}")
         }
         else {
-            commands.each { command ->  // named variable required due to LOL
-                sh command
+            sh "git clone -b ${branch} ${ssh_repo} ${env.WORKSPACE}/${name} || true"
+            dir("${name}") {
+                sh "git checkout ${commitId}"
             }
         }
     }
@@ -79,12 +81,11 @@ def bumpAndPushGitTag(name, version, bumpLevel, bump = true) {
     println "[edgeXReleaseGitTag]: pushing git tag for ${name}: ${version} - DRY_RUN: ${env.DRY_RUN}"
     
     def commands = [
-        "bump ${bumpLevel}",
         "push"
     ]
     
-    if (!bump){
-        commands = ["push"]
+    if(bump) {
+        commands.add(0, "bump ${bumpLevel}")
     }
     
     if(edgex.isDryRun()) {

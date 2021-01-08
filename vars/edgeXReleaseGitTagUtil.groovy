@@ -22,6 +22,7 @@ releaseYaml:
 name: 'sample-service'
 version: '1.1.2'
 releaseStream: 'master'
+commitId: '0cc1d67607642c9413e4a80d25a2df35ecc76d41'
 repo: 'https://github.com/edgexfoundry/sample-service.git'
 gitTag: true
 semverBumpLevel: 'patch'  # optional and defaults to '-pre=dev pre'
@@ -43,6 +44,9 @@ def validate(releaseInfo) {
     }
     if(!releaseInfo.repo) {
         error("[edgeXReleaseGitTag]: Release yaml does not contain 'repo'")
+    }
+    if(!releaseInfo.commitId) {
+        error("[edgeXReleaseGitTag]: Release yaml does not contain 'commitId'")
     }
 }
 
@@ -67,7 +71,7 @@ def signGitTag(version, name) {
 def releaseGitTag(releaseInfo, credentials, bump = true, tag = true) {
     // exception handled function that clones, sets and signs git tag version
     try {
-        edgeXReleaseGitTag.cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, releaseInfo.name, credentials)
+        edgeXReleaseGitTag.cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, releaseInfo.name, releaseInfo.commitId, credentials)
         withEnv(["SEMVER_BRANCH=${releaseInfo.releaseStream}"]) {
             if (tag){
                 edgeXReleaseGitTag.setAndSignGitTag(releaseInfo.name, releaseInfo.version)

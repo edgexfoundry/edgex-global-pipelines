@@ -38,12 +38,13 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             getPipelineMock('edgex.isDryRun').call() >> false
             getPipelineMock('edgeXReleaseGitTagUtil.getSSHRepoName').call('http-repo-name') >> 'git-repo-name'
         when:
-            edgeXReleaseGitTag.cloneRepo('http-repo-name', 'master', 'sample-service', 'MyCredentials')
+            edgeXReleaseGitTag.cloneRepo('http-repo-name', 'master', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
         then:
             1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
                 assert ['credentials':['MyCredentials']] == _arguments[0][0]
             }
             1 * getPipelineMock('sh').call('git clone -b master git-repo-name /w/thecars/sample-service || true')
+            1 * getPipelineMock('sh').call('git checkout f33f986d90bbf8c9cd5dc4c341daab837968a04e')
     }
 
     def "Test cloneRepo [Should] echo sh and sshagent with expected arguments [When] DRY_RUN is true" () {
@@ -51,12 +52,13 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             getPipelineMock('edgex.isDryRun').call() >> true
             getPipelineMock('edgeXReleaseGitTagUtil.getSSHRepoName').call('http-repo-name') >> 'git-repo-name'
         when:
-            edgeXReleaseGitTag.cloneRepo('http-repo-name', 'master', 'sample-service', 'MyCredentials')
+            edgeXReleaseGitTag.cloneRepo('http-repo-name', 'master', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
         then:
             1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
                 assert ['credentials':['MyCredentials']] == _arguments[0][0]
             }
-            1 * getPipelineMock('echo').call('sh git clone -b master git-repo-name /w/thecars/sample-service || true')
+            1 * getPipelineMock('echo').call('git clone -b master git-repo-name /w/thecars/sample-service || true')
+            1 * getPipelineMock('echo').call('git checkout f33f986d90bbf8c9cd5dc4c341daab837968a04e')
     }
 
     def "Test setAndSignGitTag [Should] call edgeXSemver init, tag and edgeXInfraLFToolsSign with expected arguments [When] DRY_RUN is false" () {
@@ -97,6 +99,19 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             }
     }
 
+    def "Test bumpAndPushGitTag [Should] call edgeXSemver bump and push [When] DRY_RUN is false and bump is false" () {
+        setup:
+            getPipelineMock('edgex.isDryRun').call() >> false
+        when:
+            edgeXReleaseGitTag.bumpAndPushGitTag('sample-service', '1.2.3', 'pre', false)
+        then:
+            1 * getPipelineMock('edgeXSemver.call')('push')
+            0 * getPipelineMock('edgeXSemver.call')('bump pre')
+            1 * getPipelineMock('dir').call(_) >> { _arguments ->
+                assert 'sample-service' == _arguments[0][0]
+            }
+    }
+
     def "Test bumpAndPushGitTag [Should] echo edgeXSemver bump and push [When] DRY_RUN is true" () {
         setup:
             getPipelineMock('edgex.isDryRun').call() >> true
@@ -114,6 +129,5 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('edgeXReleaseGitTagUtil.validate').call(validReleaseInfo)
             1 * getPipelineMock('edgeXReleaseGitTagUtil.releaseGitTag').call(validReleaseInfo, 'edgex-jenkins-ssh', true, true)
     }
-
 
 }
