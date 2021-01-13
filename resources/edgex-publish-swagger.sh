@@ -20,16 +20,15 @@ publishToSwagger() {
     if [ -d "$apiPath" ]; then
         for file in "${apiPath}"/*.+(yml|yaml); do
             apiName=$(basename "${file}" | cut -d "." -f 1)
-            apiContent=$(cat "${file}")
 
-            echo "[publishToSwagger] Publishing API Name [$apiName]"
+            echo "[publishToSwagger] Publishing API Name [$apiName] [$file]"
 
             if [ "$dryRun" == "false" ]; then
                 curl -X POST "https://api.swaggerhub.com/apis/${owner}/${apiName}?oas=${oasVersion}&isPrivate=${isPrivate}&force=true" \
                     -H "accept:application/json" \
                     -H "Authorization:${apiKey}" \
                     -H "Content-Type:application/yaml" \
-                    -d "${apiContent}"
+                    -d "@${file}"
                 echo $'\n'
             else
                 echo "[publishToSwagger] Dry Run enabled...Simulating upload"
