@@ -28,7 +28,7 @@ publishToSwagger() {
                     -H "accept:application/json" \
                     -H "Authorization:${apiKey}" \
                     -H "Content-Type:application/yaml" \
-                    -d "@${file}"
+                    --data-binary "@${file}"
                 echo $'\n'
             else
                 echo "[publishToSwagger] Dry Run enabled...Simulating upload"
