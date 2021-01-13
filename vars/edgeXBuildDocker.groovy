@@ -352,7 +352,7 @@ def toEnvironment(config) {
     def _dockerBuildContext    = config.dockerBuildContext ?: '.'
     def _dockerBuildArgs       = config.dockerBuildArgs ?: []
     def _dockerNamespace       = config.dockerNamespace ?: ''
-    def _dockerImageName       = config.dockerImageName ?: "docker-${_projectName}"
+    def _dockerImageName       = config.dockerImageName ?: _projectName
     def _dockerTags            = config.dockerTags ?: []
     def _dockerPushLatest      = edgex.defaultTrue(config.dockerPushLatest)
     def _dockerNexusRepo       = config.dockerNexusRepo ?: 'staging'
