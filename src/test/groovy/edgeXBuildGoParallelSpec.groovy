@@ -88,8 +88,8 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     GO_VERSION: '1.15',
                     DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.15-alpine',
                     DOCKER_FILE_GLOB: 'cmd/**/Dockerfile',
-                    DOCKER_IMAGE_NAME_PREFIX: '',
-                    DOCKER_IMAGE_NAME_SUFFIX: '',
+                    DOCKER_IMAGE_NAME_PREFIX: 'docker-',
+                    DOCKER_IMAGE_NAME_SUFFIX: '-go',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
                     DOCKER_REGISTRY_NAMESPACE: '',
@@ -176,15 +176,15 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                 ['example-1,cmd/example-1/Dockerfile', 'example-2,cmd/example-2/Dockerfile'].join('\n')
             }
         expect:
-            edgeXBuildGoParallel.getDockersFromFilesystem(globPattern, '', '') == expectedResult
+            edgeXBuildGoParallel.getDockersFromFilesystem(globPattern, 'docker-', '-go') == expectedResult
         where:
             globPattern << [
                 'cmd/**/Dockerfile'
             ]
             expectedResult << [
                 [
-                    [ image: 'example-1', dockerfile: 'cmd/example-1/Dockerfile' ],
-                    [ image: 'example-2', dockerfile: 'cmd/example-2/Dockerfile' ]
+                    [ image: 'docker-example-1-go', dockerfile: 'cmd/example-1/Dockerfile' ],
+                    [ image: 'docker-example-2-go', dockerfile: 'cmd/example-2/Dockerfile' ]
                 ]
             ]
     }
