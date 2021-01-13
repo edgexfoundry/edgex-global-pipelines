@@ -100,7 +100,7 @@ def buildInParallel(dockerImages, imageNamePrefix, baseImage = null) {
                 sh 'docker-compose -f ./docker-compose-build.yml build --parallel'
             }
 
-            sh 'docker images' //debug
+            sh 'docker images | grep docker' //debug
         }
     } else {
         error '[edgeXDocker] --parallel build is not supported in this version of docker-compose'

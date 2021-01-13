@@ -87,7 +87,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
-                    DOCKER_IMAGE_NAME: 'device-sdk-c',
+                    DOCKER_IMAGE_NAME: 'docker-device-sdk-c',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
                     BUILD_DOCKER_IMAGE: true,

@@ -490,8 +490,8 @@ def toEnvironment(config) {
     def _dockerBaseImage = edgex.getGoLangBaseImage(_goVersion, _useAlpine)
 
     def _dockerFileGlob        = config.dockerFileGlobPath ?: 'cmd/**/Dockerfile'
-    def _dockerImageNamePrefix = config.dockerImageNamePrefix ?: '' //'docker-'
-    def _dockerImageNameSuffix = config.dockerImageNameSuffix ?: '' //'-go'
+    def _dockerImageNamePrefix = config.dockerImageNamePrefix ?: "docker-"
+    def _dockerImageNameSuffix = config.dockerImageNameSuffix ?: "-go"
     def _dockerBuildFilePath   = config.dockerBuildFilePath ?: 'Dockerfile.build'
     def _dockerBuildContext    = config.dockerBuildContext ?: '.'
     def _dockerNamespace       = config.dockerNamespace ?: '' //default for edgex is empty string
