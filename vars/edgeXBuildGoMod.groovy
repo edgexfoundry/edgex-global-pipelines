@@ -19,7 +19,7 @@ def call(config = [:]) {
     def goModDefaults = [
         buildImage: false,
         pushImage: false,
-        semverBump: 'patch' // reverting for now until /v2 decision is made
+        semverBump: 'pre'
     ]
 
     config << goModDefaults
