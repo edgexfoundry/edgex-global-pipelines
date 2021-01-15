@@ -38,13 +38,13 @@ def parallelStepFactoryTransform(step) {
         stage(step.name.toString()) {
             if(step.gitTag == true) {
                 stage("Git Tag Publish") {
-                    edgeXReleaseGitTag(step, [credentials:"edgex-jenkins-ssh", bump:false, tag:true])
+                    edgeXReleaseGitTag(step, [credentials: "edgex-jenkins-ssh", bump: false, tag: true])
                 }
                 stage("Stage Artifact") {
                     stageArtifact(step)
                 }
                 stage("Bump Semver") {
-                    edgeXReleaseGitTag(step, [credentials:"edgex-jenkins-ssh", bump:true, tag:false])
+                    edgeXReleaseGitTag(step, [credentials: "edgex-jenkins-ssh", bump: true, tag: false])
                 }
             }
             
@@ -67,8 +67,13 @@ def stageArtifact(step) {
     rebuildRepo = step.repo.split('/')[-1].split('.git')[0]
     println "[edgeXRelease]: building/staging for ${rebuildRepo} - DRY_RUN: ${env.DRY_RUN}"
     if(edgex.isDryRun()) {
-        println("build job: '../${rebuildRepo}/${step.releaseStream}, propagate: true, wait: true)")
-    }else{
-        build(job: '../'+rebuildRepo+'/'+step.releaseStream, propagate: true, wait: true)
+        println("build job: '../${rebuildRepo}/${step.releaseStream}, parameters: [CommitId: ${step.commitId}], propagate: true, wait: true)")
+    }
+    else {
+        build(
+            job: '../' + rebuildRepo + '/' + step.releaseStream,
+            parameters: [[$class: 'StringParameterValue', name: 'CommitId', value: step.commitId]],
+            propagate: true,
+            wait: true)
     }
 }

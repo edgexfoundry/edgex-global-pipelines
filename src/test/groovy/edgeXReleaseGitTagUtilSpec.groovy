@@ -18,6 +18,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
             'name': 'sample-service',
             'version': '1.2.3',
             'releaseStream': 'master',
+            'commitId': 'f33f986d90bbf8c9cd5dc4c341daab837968a04e',
             'repo': 'https://github.com/edgexfoundry/sample-service.git'
         ]
     }
@@ -52,6 +53,14 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
             edgeXReleaseGitTagUtil.validate(validReleaseInfo.findAll {it.key != 'repo'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseGitTag]: Release yaml does not contain \'repo\'')
+    }
+
+    def "Test validate [Should] raise error [When] release info yaml does not have a commitId attribute" () {
+        setup:
+        when:
+            edgeXReleaseGitTagUtil.validate(validReleaseInfo.findAll {it.key != 'commitId'})
+        then:
+            1 * getPipelineMock('error').call('[edgeXReleaseGitTag]: Release yaml does not contain \'commitId\'')
     }
 
     def "Test getSSHRepoName [Should] return expected #expectedResult [When] called" () {
@@ -112,7 +121,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
         when:
             edgeXReleaseGitTagUtil.releaseGitTag(validReleaseInfo, 'MyCredentials')
         then:
-            1 * getPipelineMock('edgeXReleaseGitTag.cloneRepo').call('https://github.com/edgexfoundry/sample-service.git', 'master', 'sample-service', 'MyCredentials')
+            1 * getPipelineMock('edgeXReleaseGitTag.cloneRepo').call('https://github.com/edgexfoundry/sample-service.git', 'master', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
                     assert _arguments[0][0][0] == 'SEMVER_BRANCH=master'
                 }

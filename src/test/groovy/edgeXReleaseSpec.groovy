@@ -440,6 +440,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
                     version:'v1.2.0', 
                     releaseName:'geneva', 
                     releaseStream:'master',
+                    commitId:'0123456789',
                     repo:'https://github.com/edgexfoundry/app-functions-sdk-go.git', 
                     gitTag:false,
                     gitTagDestination:'https://github.com/edgexfoundry/app-functions-sdk-go.git', 
@@ -456,7 +457,6 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
             0 * getPipelineMock("build").call(_)
     }
 
-
     def "Test stageArtifact [Should] call expected [When] DRY_RUN is false" () {
         setup:
             getPipelineMock('edgex.isDryRun').call() >> false
@@ -466,6 +466,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
                     version:'v1.2.0', 
                     releaseName:'geneva', 
                     releaseStream:'master',
+                    commitId:'0123456789',
                     repo:'https://github.com/edgexfoundry/app-functions-sdk-go.git', 
                     gitTag:false,
                     gitTagDestination:'https://github.com/edgexfoundry/app-functions-sdk-go.git', 
@@ -479,7 +480,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
         when:
             edgeXRelease.stageArtifact(step)
         then:
-            1 * getPipelineMock("build").call(["job":"../app-functions-sdk-go/master","propagate":true, "wait":true])
+            1 * getPipelineMock("build").call(["job": "../app-functions-sdk-go/master", "parameters": [[$class: 'StringParameterValue', name: 'CommitId', value: '0123456789']], "propagate": true, "wait": true])
     }
 
 }

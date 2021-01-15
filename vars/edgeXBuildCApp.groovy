@@ -79,7 +79,12 @@ def call(config) {
         triggers {
             issueCommentTrigger('.*^recheck$.*')
         }
-
+        parameters {
+            string(
+                name: 'CommitId',
+                defaultValue: '',
+                description: 'The commitId in the code repository from where to initiate the build - should be used only if building via edgeXRelease')
+        }
         stages {
             stage('Prepare') {
                 steps {
@@ -122,6 +127,9 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        if(params.CommitId) {
+                                            sh "git checkout ${params.CommitId}"
+                                        }
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
@@ -214,6 +222,9 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        if(params.CommitId) {
+                                            sh "git checkout ${params.CommitId}"
+                                        }
                                         enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
