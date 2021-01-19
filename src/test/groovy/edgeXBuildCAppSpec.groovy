@@ -50,7 +50,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
             edgeXBuildCApp.prepBaseBuildImage()
         then:
             1 * getPipelineMock('docker.build').call([
-                    'ci-base-image-arm64', 
+                    'ci-base-image-arm64',
                     '-f MyDockerBuildFilePath  --build-arg BASE=nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base-arm64:latest --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
     }
 
@@ -87,7 +87,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
-                    DOCKER_IMAGE_NAME: 'docker-device-sdk-c',
+                    DOCKER_IMAGE_NAME: 'device-sdk',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
                     BUILD_DOCKER_IMAGE: true,
