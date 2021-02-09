@@ -470,7 +470,13 @@ def call(config) {
 
         post {
             failure {
-                script { currentBuild.result = "FAILED" }
+                script {
+                    currentBuild.result = 'FAILED'
+                    // only send email when on a release stream branch i.e. main, hanoi, ireland, etc.
+                    if(edgex.isReleaseStream()) {
+                        edgeXEmailHelper.sendBuildDetailsEmail(emailTo: env.BUILD_FAILURE_NOTIFY_LIST)
+                    }
+                }
             }
             always {
                 edgeXInfraPublish()
@@ -557,7 +563,7 @@ def toEnvironment(config) {
     def _buildSnap           = edgex.defaultFalse(config.buildSnap)
     def _publishSwaggerDocs  = edgex.defaultFalse(config.publishSwaggerDocs)
     def _swaggerApiFolders   = config.swaggerApiFolders ?: ['openapi/v1']
-    def _securityNotify      = 'security-issues@lists.edgexfoundry.org'
+    def _failureNotify       = config.failureNotify ?: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
 
     def _buildExperimentalDockerImage  = edgex.defaultFalse(config.buildExperimentalDockerImage)
     def _buildStableDockerImage        = false
@@ -622,7 +628,8 @@ def toEnvironment(config) {
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
         ARTIFACT_ROOT: _artifactRoot,
         ARTIFACT_TYPES: _artifactTypes.join(' '),
-        SHOULD_BUILD: _shouldBuild
+        SHOULD_BUILD: _shouldBuild,
+        BUILD_FAILURE_NOTIFY_LIST: _failureNotify
     ]
 
     // encode with comma in case build arg has space

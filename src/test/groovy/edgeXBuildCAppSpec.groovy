@@ -93,7 +93,8 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
                     SEMVER_BUMP_LEVEL: 'pre',
-                    BUILD_SNAP: false
+                    BUILD_SNAP: false,
+                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
                 ]
             ]
     }
@@ -136,7 +137,8 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     PUSH_DOCKER_IMAGE: true,
                     SEMVER_BUMP_LEVEL: 'patch',
                     BUILD_SNAP: false,
-                    DOCKER_BUILD_ARGS: 'MyArg1=Value1,MyArg2="Value2"'
+                    DOCKER_BUILD_ARGS: 'MyArg1=Value1,MyArg2="Value2"',
+                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
                 ]
             ]
     }

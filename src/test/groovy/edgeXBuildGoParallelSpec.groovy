@@ -101,7 +101,8 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     PUBLISH_SWAGGER_DOCS: false,
                     SWAGGER_API_FOLDERS: 'openapi/v1 openapi/v2',
                     // SNAP_CHANNEL: 'latest/edge',
-                    BUILD_SNAP: false
+                    BUILD_SNAP: false,
+                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
                 ]
             ]
     }
@@ -130,7 +131,8 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     goProxy: 'https://www.example.com/repository/go-proxy/',
                     useAlpineBase: true,
                     publishSwaggerDocs: true,
-                    swaggerApiFolders: ['api/v20', 'api/v30']
+                    swaggerApiFolders: ['api/v20', 'api/v30'],
+                    failureNotify: 'mock@lists.edgexfoundry.org'
                 ]
             ]
             expectedResult << [
@@ -156,7 +158,8 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     PUBLISH_SWAGGER_DOCS: true,
                     SWAGGER_API_FOLDERS: 'api/v20 api/v30',
                     // SNAP_CHANNEL: 'edge',
-                    BUILD_SNAP: false
+                    BUILD_SNAP: false,
+                    BUILD_FAILURE_NOTIFY_LIST: 'mock@lists.edgexfoundry.org'
                 ]
             ]
     }
