@@ -241,45 +241,6 @@ def call(config) {
                 }
             }
 
-            stage('Snyk Docker Image Scan') {
-                when { 
-                    allOf {
-                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                        environment name: 'SNYK_DOCKER_SCAN', value: 'true'
-                        expression { edgex.isReleaseStream() || (env.GIT_BRANCH == env.RELEASE_BRANCH_OVERRIDE) }
-                    }
-                }
-                steps {
-                    script {
-                        if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
-                            edgeXSnyk(
-                                command: 'test',
-                                dockerImage: taggedAMD64Images.first(),
-                                dockerFile: env.DOCKER_FILE_PATH,
-                                severity: 'high',
-                                sendEmail: false, // for now do not send a message. This mostly applies to devops images
-                                emailTo: env.SECURITY_NOTIFY_LIST,
-                                htmlReport: true
-                            )
-                        }
-
-                        // While ARM64 images can be scanned, this would double the amount of tests run
-                        // so we are disabling arm64 scans for now
-                        // if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
-                        //     edgeXSnyk(
-                        //         command: 'test',
-                        //         taggedARM64Images.first(),
-                        //         dockerFile: env.DOCKER_FILE_PATH,
-                        //         severity: 'high',
-                        //         sendEmail: true,
-                        //         emailTo: env.SECURITY_NOTIFY_LIST,
-                        //         htmlReport: true
-                        //     )
-                        // }
-                    }
-                }
-            }
-
             // Comment this out in favor of Snyk scanning
             // When scanning the clair image, the FQDN is needed
             // stage('Clair Scan') {
@@ -372,8 +333,6 @@ def toEnvironment(config) {
     def _archiveName           = config.archiveName ?: "${_projectName}-archive.tar.gz"
     def _semverBump            = config.semverBump ?: 'pre'
     def _releaseBranchOverride = config.releaseBranchOverride
-    def _securityNotify        = 'security-issues@lists.edgexfoundry.org'
-    def _snykDockerScan        = edgex.defaultFalse(config.snykDockerScan)
 
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
@@ -388,9 +347,7 @@ def toEnvironment(config) {
         PUSH_DOCKER_IMAGE: _pushImage,
         ARCHIVE_IMAGE: _archiveImage,
         ARCHIVE_NAME: _archiveName,
-        SEMVER_BUMP_LEVEL: _semverBump,
-        SECURITY_NOTIFY_LIST: _securityNotify,
-        SNYK_DOCKER_SCAN: _snykDockerScan
+        SEMVER_BUMP_LEVEL: _semverBump
     ]
 
     if(_releaseBranchOverride) {

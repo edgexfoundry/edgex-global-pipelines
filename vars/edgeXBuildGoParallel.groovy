@@ -334,56 +334,6 @@ def call(config) {
                 }
             }
 
-            stage('Snyk Docker Image Scan') {
-                when { 
-                    allOf {
-                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
-                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                        environment name: 'SNYK_DOCKER_SCAN', value: 'true'
-                        expression { edgex.isReleaseStream() }
-                    }
-                }
-                steps {
-                    script {
-                        if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
-                            def tagged = getDockerfilesFromTagged(taggedAMD64Images, dockerImagesToBuild)
-                            if(tagged) {
-                                tagged.each {
-                                    edgeXSnyk(
-                                        command: 'test',
-                                        dockerImage: it[0],
-                                        dockerFile: it[1],
-                                        severity: 'high',
-                                        sendEmail: true,
-                                        emailTo: env.SECURITY_NOTIFY_LIST,
-                                        htmlReport: true
-                                    )
-                                }
-                            }
-                        }
-
-                        // While ARM64 images can be scanned, this would double the amount of tests run
-                        // so we are disabling arm64 scans for now
-                        // if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
-                        //     def tagged = getDockerfilesFromTagged(taggedARM64Images, dockerImagesToBuild)
-                        //     if(tagged) {
-                        //         tagged.each {
-                        //             edgeXSnyk(
-                        //                 command: 'test',
-                        //                 dockerImage: it[0],
-                        //                 dockerFile: it[1],
-                        //                 severity: 'high',
-                        //                 sendEmail: true,
-                        //                 emailTo: env.SECURITY_NOTIFY_LIST,
-                        //                 htmlReport: true
-                        //             )
-                        //         }
-                        //     }
-                        // }
-                    }
-                }
-            }
-
             stage('Publish Swagger') {
                 when {
                     allOf {
@@ -517,7 +467,6 @@ def toEnvironment(config) {
 
     // def _snapChannel           = config.snapChannel ?: 'latest/edge'
     def _buildSnap             = edgex.defaultFalse(config.buildSnap)
-    def _snykDockerScan        = edgex.defaultFalse(config.snykDockerScan)
 
     // no image to build, no image to push
     if(!_buildImage) {
@@ -546,9 +495,7 @@ def toEnvironment(config) {
         PUBLISH_SWAGGER_DOCS: _publishSwaggerDocs,
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
         // SNAP_CHANNEL: _snapChannel,
-        BUILD_SNAP: _buildSnap,
-        SECURITY_NOTIFY_LIST: _securityNotify,
-        SNYK_DOCKER_SCAN: _snykDockerScan
+        BUILD_SNAP: _buildSnap
     ]
 
     edgex.bannerMessage "[edgeXBuildGoParallel] Pipeline Parameters:"
