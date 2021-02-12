@@ -359,46 +359,6 @@ def call(config) {
                 }
             }
 
-            stage('Snyk Docker Image Scan') {
-                when { 
-                    allOf {
-                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
-                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                        environment name: 'SNYK_DOCKER_SCAN', value: 'true'
-                        expression { edgex.isReleaseStream() }
-                    }
-                }
-                steps {
-                    script {
-                        if(edgex.nodeExists(config, 'amd64') && taggedAMD64Images) {
-                            edgeXSnyk(
-                                command: 'test',
-                                dockerImage: taggedAMD64Images.first(),
-                                dockerFile: env.DOCKER_FILE_PATH,
-                                severity: 'high',
-                                sendEmail: true,
-                                emailTo: env.SECURITY_NOTIFY_LIST,
-                                htmlReport: true
-                            )
-                        }
-
-                        // While ARM64 images can be scanned, this would double the amount of tests run
-                        // so we are disabling arm64 scans for now
-                        // if(edgex.nodeExists(config, 'arm64') && taggedARM64Images) {
-                            //     edgeXSnyk(
-                            //     command: 'test',
-                            //     dockerImage: taggedARM64Images.first(),
-                            //     dockerFile: env.DOCKER_FILE_PATH,
-                            //     severity: 'high',
-                            //     sendEmail: true,
-                            //     emailTo: env.SECURITY_NOTIFY_LIST,
-                            //     htmlReport: true
-                            // )
-                        // }
-                    }
-                }
-            }
-
             stage('Archive Prep') {
                 when {
                     expression { env.ARTIFACT_TYPES.split(' ').contains('archive') }
@@ -624,8 +584,6 @@ def toEnvironment(config) {
         _pushImage = false
     }
 
-    def _snykDockerScan = edgex.defaultFalse(config.snykDockerScan)
-
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
         PROJECT: _projectName,
@@ -652,9 +610,7 @@ def toEnvironment(config) {
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
         ARTIFACT_ROOT: _artifactRoot,
         ARTIFACT_TYPES: _artifactTypes.join(' '),
-        SHOULD_BUILD: _shouldBuild,
-        SECURITY_NOTIFY_LIST: _securityNotify,
-        SNYK_DOCKER_SCAN: _snykDockerScan
+        SHOULD_BUILD: _shouldBuild
     ]
 
     // encode with comma in case build arg has space

@@ -101,9 +101,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     PUBLISH_SWAGGER_DOCS: false,
                     SWAGGER_API_FOLDERS: 'openapi/v1 openapi/v2',
                     // SNAP_CHANNEL: 'latest/edge',
-                    BUILD_SNAP: false,
-                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org',
-                    SNYK_DOCKER_SCAN: false
+                    BUILD_SNAP: false
                 ]
             ]
     }
@@ -158,9 +156,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     PUBLISH_SWAGGER_DOCS: true,
                     SWAGGER_API_FOLDERS: 'api/v20 api/v30',
                     // SNAP_CHANNEL: 'edge',
-                    BUILD_SNAP: false,
-                    SECURITY_NOTIFY_LIST: 'security-issues@lists.edgexfoundry.org',
-                    SNYK_DOCKER_SCAN: false
+                    BUILD_SNAP: false
                 ]
             ]
     }
