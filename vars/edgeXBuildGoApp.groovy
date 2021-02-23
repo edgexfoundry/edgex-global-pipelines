@@ -1,5 +1,6 @@
+import org.jenkinsci.plugins.workflow.libs.Library
 //
-// Copyright (c) 2019 Intel Corporation
+// Copyright (c) 2019-2021 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,19 +14,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+@Library("lf-pipelines") _
 
 /**
  #edgeXBuildGoApp
- 
+
  Shared Library to build Go projects
- 
+
  ## Parameters
 
  * **project** - Specify your project name
  * **goVersion** - Go version
- 
+
  ## Usage
- 
+
  ### Basic example
 
  ```groovy
@@ -34,9 +36,9 @@
      goVersion: '1.15'
  )
  ```
- 
+
  ### Complex example
- 
+
  ```groovy
  edgeXBuildGoApp (
      project: 'app-functions-sdk-go',
@@ -89,7 +91,7 @@ def call(config) {
             stage('Prepare') {
                 steps {
                     script {
-                        edgex.releaseInfo() 
+                        edgex.releaseInfo()
                         edgeXSetupEnvironment(_envVarMap)
                         // docker login for the to make sure all docker commands are authenticated
                         // in this specific node
@@ -193,7 +195,7 @@ def call(config) {
                             }
 
                             stage('Docker Push') {
-                                when { 
+                                when {
                                     allOf {
                                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -227,6 +229,11 @@ def call(config) {
                                 steps {
                                     edgeXSnap()
                                 }
+                            }
+                        }
+                        post {
+                            always {
+                                lfParallelCostCapture()
                             }
                         }
                     }
@@ -293,7 +300,7 @@ def call(config) {
                             }
 
                             stage('Docker Push') {
-                                when { 
+                                when {
                                     allOf {
                                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -329,6 +336,11 @@ def call(config) {
                                     edgeXSnap()
                                 }
                             }*/
+                        }
+                        post {
+                            always {
+                                lfParallelCostCapture()
+                            }
                         }
                     }
                 }

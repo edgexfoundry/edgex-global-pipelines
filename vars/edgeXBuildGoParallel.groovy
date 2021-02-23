@@ -1,5 +1,6 @@
+import org.jenkinsci.plugins.workflow.libs.Library
 //
-// Copyright (c) 2020 Intel Corporation
+// Copyright (c) 2019-2021 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+@Library("lf-pipelines") _
 
 /**
  #edgeXBuildGoParallel
- 
+
  Shared Library to build Go projects and Docker images in parallel. Utilizes docker-compose --parallel to build Docker images found in the workspace. Currently only used for the **edgex-go** mono-repo.
- 
+
  ## Parameters
 
  * **project** - **Required** Specify your project name
@@ -26,7 +28,7 @@
  * more coming soon...
 
  ## Usage
- 
+
  ### Basic example
 
  ```groovy
@@ -35,9 +37,9 @@
      dockerFileGlobPath: 'cmd/** /Dockerfile',
  )
  ```
- 
+
  ### Complex example
- 
+
  ```groovy
  edgeXBuildGoParallel(
     project: 'edgex-go',
@@ -147,7 +149,7 @@ def call(config) {
                                 steps {
                                     script {
                                         // docker.sock bind mount needed due to `make raml_verify` launching a docker image
-                                        // docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: 
+                                        // docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:
                                         docker.image("ci-base-image-${env.ARCH}")
                                             .inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged')
                                         {
@@ -167,7 +169,7 @@ def call(config) {
                             }
 
                             stage('Docker Push') {
-                                when { 
+                                when {
                                     allOf {
                                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -248,7 +250,7 @@ def call(config) {
                                 steps {
                                     script {
                                         // docker.sock bind mount needed due to `make raml_verify` launching a docker image
-                                        //docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: 
+                                        //docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:
                                         docker.image("ci-base-image-${env.ARCH}")
                                             .inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged')
                                         {
@@ -268,7 +270,7 @@ def call(config) {
                             }
 
                             stage('Docker Push') {
-                                when { 
+                                when {
                                     allOf {
                                         environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                         environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
@@ -304,6 +306,11 @@ def call(config) {
                                     edgeXSnap()
                                 }
                             }*/
+                        }
+                        post {
+                            always {
+                                lfParallelCostCapture()
+                            }
                         }
                     }
                 }
