@@ -367,7 +367,13 @@ def call(config) {
 
         post {
             failure {
-                script { currentBuild.result = "FAILED" }
+                script {
+                    currentBuild.result = 'FAILED'
+                    // only send email when on a release stream branch i.e. main, hanoi, ireland, etc.
+                    if(edgex.isReleaseStream()) {
+                        edgeXEmailHelper.sendBuildDetailsEmail(emailTo: env.BUILD_FAILURE_NOTIFY_LIST)
+                    }
+                }
             }
             always {
                 edgeXInfraPublish()
@@ -432,7 +438,7 @@ def toEnvironment(config) {
     def _semverBump          = config.semverBump ?: 'pre'
     //def _snapChannel         = config.snapChannel ?: 'latest/edge'
     def _buildSnap           = edgex.defaultFalse(config.buildSnap)
-    def _securityNotify      = 'security-issues@lists.edgexfoundry.org'
+    def _failureNotify       = config.failureNotify ?: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
 
     // no image to build, no image to push
     if(!_buildImage) {
@@ -456,7 +462,8 @@ def toEnvironment(config) {
         PUSH_DOCKER_IMAGE: _pushImage,
         SEMVER_BUMP_LEVEL: _semverBump,
         //SNAP_CHANNEL: _snapChannel,
-        BUILD_SNAP: _buildSnap
+        BUILD_SNAP: _buildSnap,
+        BUILD_FAILURE_NOTIFY_LIST: _failureNotify
     ]
 
     // encode with comma in case build arg has space

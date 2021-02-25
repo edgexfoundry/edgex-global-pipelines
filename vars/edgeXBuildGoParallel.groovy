@@ -381,7 +381,13 @@ def call(config) {
 
         post {
             failure {
-                script { currentBuild.result = "FAILED" }
+                script {
+                    currentBuild.result = 'FAILED'
+                    // only send email when on a release stream branch i.e. main, hanoi, ireland, etc.
+                    if(edgex.isReleaseStream()) {
+                        edgeXEmailHelper.sendBuildDetailsEmail(emailTo: env.BUILD_FAILURE_NOTIFY_LIST)
+                    }
+                }
             }
             always {
                 edgeXInfraPublish()
@@ -470,7 +476,7 @@ def toEnvironment(config) {
     def _goProxy               = config.goProxy ?: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
     def _publishSwaggerDocs    = edgex.defaultFalse(config.publishSwaggerDocs)
     def _swaggerApiFolders     = config.swaggerApiFolders ?: ['openapi/v1', 'openapi/v2']
-    def _securityNotify        = 'security-issues@lists.edgexfoundry.org'
+    def _failureNotify         = config.failureNotify ?: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
 
     // def _snapChannel           = config.snapChannel ?: 'latest/edge'
     def _buildSnap             = edgex.defaultFalse(config.buildSnap)
@@ -502,7 +508,8 @@ def toEnvironment(config) {
         PUBLISH_SWAGGER_DOCS: _publishSwaggerDocs,
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
         // SNAP_CHANNEL: _snapChannel,
-        BUILD_SNAP: _buildSnap
+        BUILD_SNAP: _buildSnap,
+        BUILD_FAILURE_NOTIFY_LIST: _failureNotify
     ]
 
     edgex.bannerMessage "[edgeXBuildGoParallel] Pipeline Parameters:"

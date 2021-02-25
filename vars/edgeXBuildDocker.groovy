@@ -290,7 +290,13 @@ def call(config) {
 
         post {
             failure {
-                script { currentBuild.result = "FAILED" }
+                script {
+                    currentBuild.result = 'FAILED'
+                    // only send email when on a release stream branch i.e. main, hanoi, ireland, etc.
+                    if(edgex.isReleaseStream()) {
+                        edgeXEmailHelper.sendBuildDetailsEmail(emailTo: env.BUILD_FAILURE_NOTIFY_LIST)
+                    }
+                }
             }
             always {
                 edgeXInfraPublish()
@@ -333,6 +339,7 @@ def toEnvironment(config) {
     def _archiveName           = config.archiveName ?: "${_projectName}-archive.tar.gz"
     def _semverBump            = config.semverBump ?: 'pre'
     def _releaseBranchOverride = config.releaseBranchOverride
+    def _failureNotify       = config.failureNotify ?: 'edgex-tsc-devops@lists.edgexfoundry.org'
 
     def envMap = [
         MAVEN_SETTINGS: _mavenSettings,
@@ -347,7 +354,8 @@ def toEnvironment(config) {
         PUSH_DOCKER_IMAGE: _pushImage,
         ARCHIVE_IMAGE: _archiveImage,
         ARCHIVE_NAME: _archiveName,
-        SEMVER_BUMP_LEVEL: _semverBump
+        SEMVER_BUMP_LEVEL: _semverBump,
+        BUILD_FAILURE_NOTIFY_LIST: _failureNotify
     ]
 
     if(_releaseBranchOverride) {

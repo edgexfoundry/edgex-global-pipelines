@@ -65,8 +65,6 @@ def call(body) {
                 println "[edgeXInfraPublish] An error occurd while publishing logs: ${e.message}"
             }
         }
-
-        cleanWs()
     }
 }
 

@@ -101,7 +101,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     SWAGGER_API_FOLDERS: 'openapi/v1',
                     ARTIFACT_ROOT: "archives/bin",
                     ARTIFACT_TYPES: 'docker',
-                    SHOULD_BUILD: true
+                    SHOULD_BUILD: true,
+                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
                 ]
             ]
     }
@@ -138,7 +139,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     // snapChannel: 'edge',
                     publishSwaggerDocs: true,
                     swaggerApiFolders: ['api/v20', 'api/v30'],
-                    artifactTypes: ['docker']
+                    artifactTypes: ['docker'],
+                    failureNotify: 'mock@lists.edgexfoundry.org'
                 ]
             ]
             expectedResult << [
@@ -169,7 +171,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_BUILD_ARGS: 'MyArg1=Value1,MyArg2="Value2"',
                     ARTIFACT_ROOT: "archives/bin",
                     ARTIFACT_TYPES: 'docker',
-                    SHOULD_BUILD: true
+                    SHOULD_BUILD: true,
+                    BUILD_FAILURE_NOTIFY_LIST: 'mock@lists.edgexfoundry.org'
                 ]
             ]
     }
@@ -225,7 +228,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     ARTIFACT_ROOT: 'archives/bin',
                     ARTIFACT_TYPES: 'archive',
                     SHOULD_BUILD: true,
-                    ARCHIVE_ARTIFACTS: '**/*.tar.gz **/*.zip'
+                    ARCHIVE_ARTIFACTS: '**/*.tar.gz **/*.zip',
+                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
                 ]
             ]
     }
@@ -279,7 +283,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     SWAGGER_API_FOLDERS: 'openapi/v1',
                     ARTIFACT_ROOT: 'archives/bin',
                     ARTIFACT_TYPES: 'foo',
-                    SHOULD_BUILD: false
+                    SHOULD_BUILD: false,
+                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
                 ]
             ]
     }
