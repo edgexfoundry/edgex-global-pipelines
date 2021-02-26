@@ -385,7 +385,7 @@ def call(config) {
                     currentBuild.result = 'FAILED'
                     // only send email when on a release stream branch i.e. main, hanoi, ireland, etc.
                     if(edgex.isReleaseStream()) {
-                        edgeXEmailHelper.sendBuildDetailsEmail(emailTo: env.BUILD_FAILURE_NOTIFY_LIST)
+                        edgeXEmail(emailTo: env.BUILD_FAILURE_NOTIFY_LIST)
                     }
                 }
             }
