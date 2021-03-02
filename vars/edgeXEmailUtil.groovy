@@ -107,7 +107,7 @@ def getJobDetailsJson() {
 
 // my approach for this is to write the job details to a JSON file
 // then use a templating tool to merge a tem
-def generateEmailTemplate(jobDetails) {
+def generateEmailTemplate(jobDetails = null) {
     // allow jobDetails to be passed in for easier unit testing
     jobDetails = jobDetails == null ? getJobDetailsJson() : jobDetails
 
