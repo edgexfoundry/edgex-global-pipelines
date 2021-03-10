@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildGoApp/">
       
       <link rel="shortcut icon" href="../../assets/logo_edgex.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.3">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.5">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.1655a90d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.77f3fd56.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.7fa14f5b.min.css">
@@ -331,6 +331,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#parameters" class="md-nav__link">
     Parameters
   </a>
@@ -355,6 +362,13 @@
           <li class="md-nav__item">
   <a href="#complex-example" class="md-nav__link">
     Complex example
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-example" class="md-nav__link">
+    Full example
   </a>
   
 </li>
@@ -505,6 +519,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#parameters" class="md-nav__link">
     Parameters
   </a>
@@ -533,6 +554,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#full-example" class="md-nav__link">
+    Full example
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -557,11 +585,177 @@
                 
                 <h1 id="edgexbuildgoapp">edgeXBuildGoApp</h1>
 <p>Shared Library to build Go projects</p>
+<h2 id="overview">Overview</h2>
+<p><img alt="edgeXBuildGoApp" src="../images/edgeXBuildGoApp.png" /></p>
 <h2 id="parameters">Parameters</h2>
-<ul>
-<li><strong>project</strong> - Specify your project name</li>
-<li><strong>goVersion</strong> - Go version</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description and Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>project</td>
+<td>required</td>
+<td>str</td>
+<td>The name of your project.</td>
+</tr>
+<tr>
+<td>mavenSettings</td>
+<td>optional</td>
+<td>str</td>
+<td>The maven settings file in Jenkins that has been created for your project. <strong>Note</strong> the maven settings file specified must exist in Jenkins in order for your project to build.<br /><br /><strong>Default</strong>: <code>${project}-settings</code></td>
+</tr>
+<tr>
+<td>semver</td>
+<td>optional</td>
+<td>bool</td>
+<td>Specify if semantic versioning will be used to version your project. <strong>Note</strong> edgeX utilizes <a href="https://github.com/edgexfoundry/git-semver">git-semver</a> for semantic versioning.<br /><br /><strong>Default</strong>: <code>true</code></td>
+</tr>
+<tr>
+<td>testScript</td>
+<td>optional</td>
+<td>str</td>
+<td>The command the build will use to test your project. <strong>Note</strong> the specified test script will execute in the project's CI build container.<br /><br /><strong>Default</strong>: <code>make test</code></td>
+</tr>
+<tr>
+<td>buildScript</td>
+<td>optional</td>
+<td>str</td>
+<td>The command the build will use to build your project.<br /><br /><strong>Default</strong>: <code>make build</code></td>
+</tr>
+<tr>
+<td>goVersion</td>
+<td>optional</td>
+<td>str</td>
+<td>The version of Go to use for building the project's CI build image. <strong>Note</strong> this parameter is used in conjuction with the <code>useAlpineBase</code> parameter to determine the base for the project's CI build image.<br /><br /><strong>Default</strong>: <code>1.15</code></td>
+</tr>
+<tr>
+<td>goProxy</td>
+<td>optional</td>
+<td>str</td>
+<td>The proxy to use when downloading Go modules. The value of this parameter will be set in the <code>GOPROXY</code> environment variable to control the download source of Go modules.<br /><br /><strong>Default</strong>: <code>https://nexus3.edgexfoundry.org/repository/go-proxy/</code></td>
+</tr>
+<tr>
+<td>useAlpineBase</td>
+<td>optional</td>
+<td>bool</td>
+<td>Specify if an Alpine-based <code>edgex-golang-base:${goVersion}-alpine</code> image will be used as the base for the project's CI build image. If true, the respective <code>edgex-golang-base</code> image should exist in the Nexus snapshot repository, if a matching image is not found in Nexus then an Alpine-based <code>go-lang:${goVersion}-alpine</code> DockerHub image will be used. If false, then a non-Alpine <code>go-lang:${goVersion}</code> DockerHub image will be used. <strong>Note</strong> this parameter is used in conjuction with the <code>goVersion</code> parameter to determine the base for the projects' CI build image.<br /><br /><strong>Default</strong>: <code>true</code></td>
+</tr>
+<tr>
+<td>dockerFilePath</td>
+<td>optional</td>
+<td>str</td>
+<td>The path to the Dockerfile for your project.<br /><br /><strong>Default</strong>: <code>Dockerfile</code></td>
+</tr>
+<tr>
+<td>dockerBuildFilePath</td>
+<td>optional</td>
+<td>str</td>
+<td>The path to the Dockerfile that will serve as the CI build image for your project.<br /><br /><strong>Default</strong>: <code>Dockerfile.build</code></td>
+</tr>
+<tr>
+<td>dockerBuildContext</td>
+<td>optional</td>
+<td>str</td>
+<td>The path for Docker to use as its build context when building your project. This applies to building both the CI build image and project image.<br /><br /><strong>Default</strong>: <code>.</code></td>
+</tr>
+<tr>
+<td>dockerBuildArgs</td>
+<td>optional</td>
+<td>list</td>
+<td>The list of additonal arguments to pass to Docker when building the image for your project.<br /><br /><strong>Default</strong>: <code>[]</code></td>
+</tr>
+<tr>
+<td>dockerNamespace</td>
+<td>optional</td>
+<td>str</td>
+<td>The docker registry namespace to use when publishing Docker images. <strong>Note</strong> for EdgeX projects images are published to the root of the docker registry and thus the namespace should be empty.<br /><br /><strong>Default</strong>: <code>''</code></td>
+</tr>
+<tr>
+<td>dockerImageName</td>
+<td>optional</td>
+<td>str</td>
+<td>The name of the Docker image for your project.<br /><br /><strong>Default</strong>: <code>docker-${project}</code></td>
+</tr>
+<tr>
+<td>dockerNexusRepo</td>
+<td>optional</td>
+<td>str</td>
+<td>The name of the Docker Nexus repository where the project Docker image <code>dockerImageName</code> will be published to if <code>pushImage</code> is set.<br /><br /><strong>Default</strong>: <code>staging</code></td>
+</tr>
+<tr>
+<td>buildImage</td>
+<td>optional</td>
+<td>bool</td>
+<td>Specify if Jenkins should build a Docker image for your project. <strong>Note</strong> if false then <code>pushImage</code> will also be set to false.<br /><br /><strong>Default</strong>: <code>true</code></td>
+</tr>
+<tr>
+<td>pushImage</td>
+<td>optional</td>
+<td>bool</td>
+<td>Specify if Jenkins should push your project's image to <code>dockerNexusRepo</code>.<br /><br /><strong>Default</strong>: <code>true</code></td>
+</tr>
+<tr>
+<td>semverBump</td>
+<td>optional</td>
+<td>str</td>
+<td>The semver axis to bump, see <a href="https://github.com/edgexfoundry/git-semver">git-semver</a> for valid axis values.<br /><br /><strong>Default</strong>: <code>pre</code></td>
+</tr>
+<tr>
+<td>semverVersion</td>
+<td>optional</td>
+<td>str</td>
+<td>This parameter isn't currently used and will be removed in a future version.<br /><br /><strong>Default</strong>: <code>''</code></td>
+</tr>
+<tr>
+<td>buildSnap</td>
+<td>optional</td>
+<td>bool</td>
+<td>Specify if Jenkins should build a Snap for your project. <strong>Note</strong> If set, your project must also include a valid snapcraft yaml <code>snap/snapcraft.yaml</code> for Jenkins to attempt to build the Snap.<br /><br /><strong>Default</strong>: <code>false</code></td>
+</tr>
+<tr>
+<td>publishSwaggerDocs</td>
+<td>optional</td>
+<td>bool</td>
+<td>Specify if Jenkins should attempt to publish your projects API documentation to SwaggerHub. <strong>Note</strong> in order for Jenkins to publish to SwaggerHub you must ensure a valid value for <code>swaggerApiFolders</code> is set.<br /><br /><strong>Default</strong>: <code>false</code></td>
+</tr>
+<tr>
+<td>swaggerApiFolders</td>
+<td>optional</td>
+<td>list</td>
+<td>The list of paths to your projects API Swagger-based documentation.<br /><br /><strong>Default</strong>: <code>['openapi/v1']</code></td>
+</tr>
+<tr>
+<td>failureNotify</td>
+<td>optional</td>
+<td>str</td>
+<td>The group emails (comma-delimited) to email when the Jenkins job fails.<br /><br /><strong>Default</strong>: <code>edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org</code></td>
+</tr>
+<tr>
+<td>buildExperimentalDockerImage</td>
+<td>optional</td>
+<td>bool</td>
+<td>Specify if Jenkins should add an additonal GitHub tag called <code>experimental</code> at the same commit where the semantic version is tagged. <strong>Note</strong> this feature is currently only used internally for DevOps builds.<br /><br /><strong>Default</strong>: <code>false</code></td>
+</tr>
+<tr>
+<td>artifactTypes</td>
+<td>optional</td>
+<td>list</td>
+<td>A list of types that the Jenkins build will designate as artifacts, valid list values are <code>docker</code> and <code>archive</code>. <strong>Note</strong> if <code>archive</code> is specified then all <code>tar.gz</code> or <code>zip</code> files that your project build creates in the <code>artifactRoot</code> folder will be archived to Nexus.<br /><br /><strong>Default</strong>: <code>['docker']</code></td>
+</tr>
+<tr>
+<td>artifactRoot</td>
+<td>optional</td>
+<td>str</td>
+<td>The path in the Jenkins workspace to designate as the artifact root folder. <strong>Note</strong> all files written to this directory within your build will be automatically pushed to Nexus when the Jenkins job completes.<br /><br /><strong>Default</strong>: <code>archives/bin</code></td>
+</tr>
+</tbody>
+</table>
 <h2 id="usage">Usage</h2>
 <h3 id="basic-example">Basic example</h3>
 <div class="highlight"><pre><span></span><code><span class="n">edgeXBuildGoApp</span> <span class="o">(</span>
@@ -578,6 +772,36 @@
     <span class="nl">buildImage:</span> <span class="kc">false</span><span class="o">,</span>
     <span class="nl">publishSwaggerDocs:</span> <span class="kc">true</span><span class="o">,</span>
     <span class="nl">swaggerApiFolders:</span> <span class="o">[</span><span class="s1">&#39;openapi/v2&#39;</span><span class="o">]</span>
+<span class="o">)</span>
+</code></pre></div>
+<h3 id="full-example">Full example</h3>
+<p>This example shows all the settings that can be specified and their default values.</p>
+<div class="highlight"><pre><span></span><code><span class="n">edgeXBuildGoApp</span> <span class="o">(</span>
+    <span class="nl">project:</span> <span class="s1">&#39;go-project&#39;</span><span class="o">,</span>
+    <span class="nl">mavenSettings:</span> <span class="s1">&#39;go-project-settings&#39;</span><span class="o">,</span>
+    <span class="nl">semver:</span> <span class="kc">true</span><span class="o">,</span>
+    <span class="nl">testScript:</span> <span class="s1">&#39;make test&#39;</span><span class="o">,</span>
+    <span class="nl">buildScript:</span> <span class="s1">&#39;make build&#39;</span><span class="o">,</span>
+    <span class="nl">goVersion:</span> <span class="s1">&#39;1.15&#39;</span><span class="o">,</span>
+    <span class="nl">goProxy:</span> <span class="s1">&#39;https://nexus3.edgexfoundry.org/repository/go-proxy/&#39;</span><span class="o">,</span>
+    <span class="nl">useAlpineBase:</span> <span class="kc">true</span><span class="o">,</span>
+    <span class="nl">dockerFilePath:</span> <span class="s1">&#39;Dockerfile&#39;</span><span class="o">,</span>
+    <span class="nl">dockerBuildFilePath:</span> <span class="s1">&#39;Dockerfile.build&#39;</span><span class="o">,</span>
+    <span class="nl">dockerBuildContext:</span> <span class="s1">&#39;.&#39;</span><span class="o">,</span>
+    <span class="nl">dockerBuildArgs:</span> <span class="o">[],</span>
+    <span class="nl">dockerNamespace:</span> <span class="s1">&#39;&#39;</span><span class="o">,</span>
+    <span class="nl">dockerImageName:</span> <span class="s1">&#39;docker-go-project&#39;</span><span class="o">,</span>
+    <span class="nl">dockerNexusRepo:</span> <span class="s1">&#39;staging&#39;</span><span class="o">,</span>
+    <span class="nl">buildImage:</span> <span class="kc">true</span><span class="o">,</span>
+    <span class="nl">pushImage:</span> <span class="kc">true</span><span class="o">,</span>
+    <span class="nl">semverBump:</span> <span class="s1">&#39;pre&#39;</span><span class="o">,</span>
+    <span class="nl">buildSnap:</span> <span class="kc">false</span><span class="o">,</span>
+    <span class="nl">publishSwaggerDocs:</span> <span class="kc">false</span><span class="o">,</span>
+    <span class="nl">swaggerApiFolders:</span> <span class="o">[</span><span class="s1">&#39;openapi/v1&#39;</span><span class="o">],</span>
+    <span class="nl">failureNotify:</span> <span class="s1">&#39;edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org&#39;</span><span class="o">,</span>
+    <span class="nl">buildExperimentalDockerImage:</span> <span class="kc">false</span><span class="o">,</span>
+    <span class="nl">artifactTypes:</span> <span class="o">[</span><span class="s1">&#39;docker&#39;</span><span class="o">],</span>
+    <span class="nl">artifactRoot:</span> <span class="s1">&#39;archives/bin&#39;</span>
 <span class="o">)</span>
 </code></pre></div>
                 
@@ -640,6 +864,7 @@
         <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
           Material for MkDocs
         </a>
+        
       </div>
       
   <div class="md-footer-social">
@@ -684,7 +909,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["tabs"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../../assets/javascripts/workers/search.fb4a9340.min.js", "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.ca5457b8.min.js"></script>
+      <script src="../../assets/javascripts/bundle.5cf3e710.min.js"></script>
       
     
   </body>
