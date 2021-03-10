@@ -17,15 +17,41 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library("lf-pipelines") _
 
 /**
- #edgeXBuildGoParallel
+ # edgeXBuildGoParallel
 
  Shared Library to build Go projects and Docker images in parallel. Utilizes docker-compose --parallel to build Docker images found in the workspace. Currently only used for the **edgex-go** mono-repo.
 
+ ## Overview
+
+ ![edgeXBuildGoApp](images/edgeXBuildGoParallel.png)
+
  ## Parameters
 
- * **project** - **Required** Specify your project name
- * **dockerFileGlobPath** - **Required** Pattern for finding Dockerfiles to build. Note docker images will be named with the same name as the directory which the Dockerfile was found in with a docker- prefix and -go suffix. Example: `docker-<folder>-go`
- * more coming soon...
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ project | required | str | The name of your project. | 
+ mavenSettings | optional | str | The maven settings file in Jenkins that has been created for your project. **Note** the maven settings file specified must exist in Jenkins in order for your project to build.<br /><br />**Default**: `${project}-settings`
+ semver | optional | bool | Specify if semantic versioning will be used to version your project. **Note** edgeX utilizes [git-semver](https://github.com/edgexfoundry/git-semver) for semantic versioning.<br /><br />**Default**: `true`
+ testScript | optional | str | The command the build will use to test your project. **Note** the specified test script will execute in the project's CI build container.<br /><br />**Default**: `make test`
+ buildScript | optional | str | The command the build will use to build your project.<br /><br />**Default**: `make build`
+ goVersion | optional | str | The version of Go to use for building the project's CI build image. **Note** this parameter is used in conjuction with the `useAlpineBase` parameter to determine the base for the project's CI build image.<br /><br />**Default**: `1.15`
+ goProxy | optional | str | The proxy to use when downloading Go modules. The value of this parameter will be set in the `GOPROXY` environment variable to control the download source of Go modules.<br /><br />**Default**: `https://nexus3.edgexfoundry.org/repository/go-proxy/`
+ useAlpineBase | optional | bool | Specify if an Alpine-based `edgex-golang-base:${goVersion}-alpine` image will be used as the base for the project's CI build image. If true, the respective `edgex-golang-base` image should exist in the Nexus snapshot repository, if a matching image is not found in Nexus then an Alpine-based `go-lang:${goVersion}-alpine` DockerHub image will be used. If false, then a non-Alpine `go-lang:${goVersion}` DockerHub image will be used. **Note** this parameter is used in conjuction with the `goVersion` parameter to determine the base for the projects' CI build image.<br /><br />**Default**: `true`
+ dockerFileGlobPath | optional | str | The pattern for finding Dockerfiles to build. **Note** Docker images will be named with the same name as the directory which the Dockerfile was found in with a `docker-` prefix and `-go` suffix. Example: `docker-<folder>-go`<br /><br />**Default**: `cmd/** /Dockerfile`
+ dockerImageNamePrefix | optional | str | The prefix to apply to the names of all the Docker images built.<br /><br />**Default**: `docker-`
+ dockerImageNameSuffix | optional | str | The suffix to apply to the names of all the Docker images built.<br /><br />**Default**: `-go`
+ dockerBuildFilePath | optional | str | The path to the Dockerfile that will serve as the CI build image for your project.<br /><br />**Default**: `Dockerfile.build`
+ dockerBuildContext | optional | str | The path for Docker to use as its build context when building your project. This applies to building both the CI build image and project image.<br /><br />**Default**: `.`
+ dockerNamespace | optional | str | The docker registry namespace to use when publishing Docker images. **Note** for EdgeX projects images are published to the root of the docker registry and thus the namespace should be empty.<br /><br />**Default**: `''`
+ dockerNexusRepo | optional | str | The name of the Docker Nexus repository where the project Docker images will be published to if `pushImage` is set.<br /><br />**Default**: `staging`
+ buildImage | optional | bool | Specify if Jenkins should build a Docker image for your project. **Note** if false then `pushImage` will also be set to false<br /><br />**Default**: `true`
+ pushImage | optional | bool | Specify if Jenkins should push your project's image to `dockerNexusRepo`.<br /><br />**Default**: `true`
+ semverBump | optional | str | The semver axis to bump, see [git-semver](https://github.com/edgexfoundry/git-semver) for valid axis values.<br /><br />**Default**: `pre`
+ buildSnap | optional | bool | Specify if Jenkins should build a Snap for your project. **Note** If set, your project must also include a valid snapcraft yaml `snap/snapcraft.yaml` for Jenkins to attempt to build the Snap.<br /><br />**Default**: `false`
+ publishSwaggerDocs | optional | bool | Specify if Jenkins should attempt to publish your projects API documentation to SwaggerHub. **Note** in order for Jenkins to publish to SwaggerHub you must ensure a valid value for `swaggerApiFolders` is set.<br /><br />**Default**: `false`
+ swaggerApiFolders | optional | list | The list of paths to your projects API Swagger-based documentation.<br /><br />**Default**: `['openapi/v1', 'openapi/v2']`
+ failureNotify | optional | str | The group emails (comma-delimited) to email when the Jenkins job fails.<br /><br />**Default**: `edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org`
+
 
  ## Usage
 
@@ -51,7 +77,37 @@ import org.jenkinsci.plugins.workflow.libs.Library
     buildSnap: true
  )
  ```
- */
+
+ ### Full example
+ This example shows all the settings that can be specified and their default values.
+
+ ```groovy
+ edgeXBuildGoParallel (
+     project: 'go-project',
+     mavenSettings: 'go-project-settings',
+     semver: true,
+     testScript: 'make test',
+     buildScript: 'make build',
+     goVersion: '1.15',
+     goProxy: 'https://nexus3.edgexfoundry.org/repository/go-proxy/',
+     useAlpineBase: true,
+     dockerFileGlobPath: 'cmd/** /Dockerfile',
+     dockerImageNamePrefix: 'docker-',
+     dockerImageNameSuffix: '-go',
+     dockerBuildFilePath: 'Dockerfile.build',
+     dockerBuildContext: '.',
+     dockerNamespace: '',
+     dockerNexusRepo: 'staging',
+     buildImage: true,
+     pushImage: true,
+     semverBump: 'pre',
+     buildSnap: false,
+     publishSwaggerDocs: false,
+     swaggerApiFolders: ['openapi/v1', 'openapi/v2'],
+     failureNotify: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
+ )
+ ```
+*/
 
 def taggedAMD64Images = []
 def taggedARM64Images = []
