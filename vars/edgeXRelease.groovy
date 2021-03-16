@@ -70,10 +70,20 @@ def stageArtifact(step) {
         println("build job: '../${rebuildRepo}/${step.releaseStream}, parameters: [CommitId: ${step.commitId}], propagate: true, wait: true)")
     }
     else {
-        build(
-            job: '../' + rebuildRepo + '/' + step.releaseStream,
-            parameters: [[$class: 'StringParameterValue', name: 'CommitId', value: step.commitId]],
-            propagate: true,
-            wait: true)
+        try{
+            build(
+                job: '../' + rebuildRepo + '/' + step.releaseStream,
+                parameters: [[$class: 'StringParameterValue', name: 'CommitId', value: step.commitId]],
+                propagate: true,
+                wait: true)
+        } catch (hudson.AbortException e) {
+            if (e.message.matches("No item named(.*)found")){
+                catchError(stageResult: 'UNSTABLE', buildResult: 'SUCCESS'){
+                    error ('[edgeXRelease]: No build pipeline found - No artifact to stage')
+                }
+            }else{
+                throw e
+            }
+        }
     }
 }
