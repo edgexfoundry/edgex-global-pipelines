@@ -19,15 +19,35 @@
 
  Shared Library to build docker images
 
+ ## Overview
+
+ ![edgeXBuildDocker](images/edgeXBuildDocker.png)
+
  ## Parameters
 
- * **project** - Specify your project name
- * **dockerImageName** - Specify your Docker Image name
- * **semver** - Set this `true` for Semantic versioning
- * **dockerNexusRepo** - Specify Docker Nexus repository
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ project | required | str | The name of your project. |
+ mavenSettings | optional | str | The maven settings file in Jenkins that has been created for your project. **Note** the maven settings file specified must exist in Jenkins in order for your project to build.<br /><br />**Default**: `${project}-settings`
+ semver | optional | bool | Specify if semantic versioning will be used to version your project. **Note** edgeX utilizes [git-semver](https://github.com/edgexfoundry/git-semver) for semantic versioning.<br /><br />**Default**: `true`
+ dockerFilePath | optional | str | The path to the Dockerfile for your project.<br /><br />**Default**: `Dockerfile`
+ dockerBuildContext | optional | str | The path for Docker to use as its build context when building your project. This applies to building both the CI build image and project image.<br /><br />**Default**: `.`
+ dockerBuildArgs | optional | list | The list of additonal arguments to pass to Docker when building the image for your project.<br /><br />**Default**: `[]`
+ dockerNamespace | optional | str | The docker registry namespace to use when publishing Docker images. **Note** for EdgeX projects images are published to the root of the docker registry and thus the namespace should be empty.<br /><br />**Default**: `''`
+ dockerImageName | optional | str | The name of the Docker image for your project.<br /><br />**Default**: `docker-${project}`
+ dockerTags | optional | str | The tag name for your docker image.<br /><br />**Default**: `[]`
+ dockerPushLatest | optional | str | Specify if Jenkins should push the docker image with `latest` tag. <br /><br />**Default**: `true`
+ dockerNexusRepo | optional | str | The name of the Docker Nexus repository where the project Docker image `dockerImageName` will be published to if `pushImage` is set.<br /><br />**Default**: `staging`
+ pushImage | optional | bool | Specify if Jenkins should push your project's image to `dockerNexusRepo`.<br /><br />**Default**: `true`
+ archiveImage | optional | bool | Specify if the built image need to be archived.<br /><br />**Default**: `false`
+ archiveName | optional | bool | The name of the archived image.<br /><br />**Default**: `${_projectName}-archive.tar.gz`
+ semverBump | optional | str | The semver axis to bump, see [git-semver](https://github.com/edgexfoundry/git-semver) for valid axis values.<br /><br />**Default**: `pre`
+ releaseBranchOverride | optional | str | Specify if you want to override the release branch.
+ failureNotify | optional | str | The group emails (comma-delimited) to email when the Jenkins job fails.<br /><br />**Default**: `edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org`
+ arch | optional | array | A list of system architectures to target for the build. Possible values are `amd64` or `arm64`.<br /><br />**Default**: ['amd64', 'arm64']
 
  ## Usage
- 
+
  ### Basic example
 
  ```groovy
@@ -42,10 +62,39 @@
 
  ```groovy
  edgeXBuildDocker (
-     project: 'edgex-taf-common',
-     mavenSettings: 'taf-settings',
+     project: 'edgex-compose',
+     mavenSettings: 'ci-build-images-settings',
+     dockerImageName: 'custom-edgex-compose',
+     dockerNamespace: 'edgex-devops',
      dockerNexusRepo: 'snapshots',
-     semver: true
+     dockerTags: ["1.24.1"],
+     releaseBranchOverride: 'edgex-compose'
+ )
+ ```
+
+ ### Full example
+ This example shows all the settings that can be specified and their default values.
+
+ ```groovy
+ edgeXBuildDocker (
+     project: 'sample-project',
+     mavenSettings: 'sample-project-settings',
+     semver: true,
+     dockerFilePath: 'Dockerfile',
+     dockerBuildContext: '.',
+     dockerBuildArgs: [],
+     dockerNamespace: '',
+     dockerImageName: 'docker-sample-project',
+     dockerTags: [],
+     dockerPushLatest: true,
+     dockerNexusRepo: 'staging',
+     pushImage: true,
+     archiveImage: false,
+     archiveName: sample-project-archive.tar.gz,
+     semverBump: 'pre',
+     releaseBranchOverride: 'golang',
+     failureNotify: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org',
+     arch: ['amd64', 'arm64']
  )
  ```
  */

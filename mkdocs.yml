@@ -25,6 +25,7 @@ nav:
     - './libraries/edgeXBuildDocker.md'
     - './libraries/edgeXBuildGoApp.md'
     - './libraries/edgeXBuildGoParallel.md'
+    - './libraries/edgeXBuildGoMod.md'
   - Tutorials:
     - './tutorials/index.md'
     - './tutorials/docker-build-strategy.md'

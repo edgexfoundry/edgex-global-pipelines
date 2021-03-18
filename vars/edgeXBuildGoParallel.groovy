@@ -51,7 +51,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  publishSwaggerDocs | optional | bool | Specify if Jenkins should attempt to publish your projects API documentation to SwaggerHub. **Note** in order for Jenkins to publish to SwaggerHub you must ensure a valid value for `swaggerApiFolders` is set.<br /><br />**Default**: `false`
  swaggerApiFolders | optional | list | The list of paths to your projects API Swagger-based documentation.<br /><br />**Default**: `['openapi/v1', 'openapi/v2']`
  failureNotify | optional | str | The group emails (comma-delimited) to email when the Jenkins job fails.<br /><br />**Default**: `edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org`
-
+ arch | optional | array | A list of system architectures to target for the build. Possible values are `amd64` or `arm64`.<br /><br />**Default**: ['amd64', 'arm64']
 
  ## Usage
 
@@ -104,7 +104,8 @@ import org.jenkinsci.plugins.workflow.libs.Library
      buildSnap: false,
      publishSwaggerDocs: false,
      swaggerApiFolders: ['openapi/v1', 'openapi/v2'],
-     failureNotify: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
+     failureNotify: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org',
+     arch: ['amd64', 'arm64']
  )
  ```
 */
