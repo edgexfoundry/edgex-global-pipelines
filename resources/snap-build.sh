@@ -31,10 +31,10 @@ sudo lxd init --auto
 # install snapcraft
 sudo snap install --classic snapcraft
 
-if [ -f "snap/local/patches/0001-optimize-build-for-pipeline-CI-check.patch" ]; then
-  #patch the snapcraft.yml file
-  patch --verbose -p1 < snap/local/patches/0001-optimize-build-for-pipeline-CI-check.patch
+if [ -f "snap/local/build-helpers/bin/minimal-snap-build.sh" ]; then
+  ./snap/local/build-helpers/bin/minimal-snap-build.sh
 fi
+
 
 # run snapcraft
 sudo snapcraft prime --use-lxd
