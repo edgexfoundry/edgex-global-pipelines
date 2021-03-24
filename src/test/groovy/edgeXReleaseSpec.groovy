@@ -483,4 +483,53 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock("build").call(["job": "../app-functions-sdk-go/master", "parameters": [[$class: 'StringParameterValue', name: 'CommitId', value: '0123456789']], "propagate": true, "wait": true])
     }
 
+    def "Test stageArtifact [Should] call expected [When] build item not found" () {
+        setup:
+            getPipelineMock('edgex.isDryRun').call() >> false
+            getPipelineMock('build').call(_) >> {
+                throw new hudson.AbortException('No item named app-functions-sdks-go/master found')
+            }
+            def step = 
+                [
+                    name:'app-functions-sdk-go', 
+                    version:'v1.31.0', 
+                    releaseName:'geneva', 
+                    releaseStream:'master',
+                    commitId:'0123456789',
+                    repo:'https://github.com/edgexfoundry/app-functions-sdk-go.git', 
+                    gitTag:true,
+                    dockerImages:false
+                ]
+        when:
+            edgeXRelease.stageArtifact(step)
+        then:
+            1 * getPipelineMock("error").call('[edgeXRelease]: No build pipeline found - No artifact to stage')
+            notThrown hudson.AbortException
+    }
+
+    def "Test stageArtifact [Should] throw AbortException [When] AbortException is not caused by lack of Jenkinsfile" () {
+        setup:
+            getPipelineMock('edgex.isDryRun').call() >> false
+            getPipelineMock('build').call(_) >> {
+                throw new hudson.AbortException('Any Other AbortException exception')
+            }
+            def step =
+                [
+                    name:'app-functions-sdk-go',
+                    version:'v1.31.0',
+                    releaseName:'geneva',
+                    releaseStream:'master',
+                    commitId:'0123456789',
+                    repo:'https://github.com/edgexfoundry/app-functions-sdk-go.git', 
+                    gitTag:true,
+                    dockerImages:true, 
+                    dockerSource:['nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:master'],
+                    dockerDestination:['nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go', 'edgexfoundry/docker-app-functions-sdk-go']
+                ]
+        when:
+            edgeXRelease.stageArtifact(step)
+        then:
+            0 * getPipelineMock("echo").call('[edgeXRelease]: No build pipeline found - no artifact to stage')
+            thrown hudson.AbortException
+    }
 }
