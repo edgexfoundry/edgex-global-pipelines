@@ -19,12 +19,33 @@
 
  Shared Library to build C projects
 
+ ## Overview
+
+ ![edgeXBuildCApp](images/edgeXBuildCApp.png)
+
  ## Parameters
 
- * **project** - Specify your project name
- * **dockerBuildFilePath** - Specify your Docker Build file Path
- * **dockerFilePath** - Specify your Dockerfile path
- * **pushImage** - Set this `false` if you dont want to push the image to DockerHub, by default `true`
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ project | required | str | The name of your project. |
+ mavenSettings | optional | str | The maven settings file in Jenkins that has been created for your project. **Note** the maven settings file specified must exist in Jenkins in order for your project to build.<br /><br />**Default**: `${project}-settings`
+ semver | optional | bool | Specify if semantic versioning will be used to version your project. **Note** edgeX utilizes [git-semver](https://github.com/edgexfoundry/git-semver) for semantic versioning.<br /><br />**Default**: `true`
+ testScript | optional | str | The command the build will use to test your project. **Note** the specified test script will execute in the project's CI build container.<br /><br />**Default**: `make test`
+ buildScript | optional | str | The command the build will use to build your project.<br /><br />**Default**: `make build`
+ dockerBaseImage | optional | str | The docker base image for your project.<br /><br />**Default**: `nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base:latest`
+ dockerFilePath | optional | str | The path to the Dockerfile for your project.<br /><br />**Default**: `Dockerfile`
+ dockerBuildFilePath | optional | str | The path to the Dockerfile that will serve as the CI build image for your project.<br /><br />**Default**: `Dockerfile.build`
+ dockerBuildContext | optional | str | The path for Docker to use as its build context when building your project. This applies to building both the CI build image and project image.<br /><br />**Default**: `.`
+ dockerBuildArgs | optional | list | The list of additonal arguments to pass to Docker when building the image for your project.<br /><br />**Default**: `[]`
+ dockerNamespace | optional | str | The docker registry namespace to use when publishing Docker images. **Note** for EdgeX projects images are published to the root of the docker registry and thus the namespace should be empty.<br /><br />**Default**: `''`
+ dockerImageName | optional | str | The name of the Docker image for your project.<br /><br />**Default**: `docker-${project}`
+ dockerNexusRepo | optional | str | The name of the Docker Nexus repository where the project Docker image `dockerImageName` will be published to if `pushImage` is set.<br /><br />**Default**: `staging`
+ buildImage | optional | bool | Specify if Jenkins should build a Docker image for your project. **Note** if false then `pushImage` will also be set to false.<br /><br />**Default**: `true`
+ pushImage | optional | bool | Specify if Jenkins should push your project's image to `dockerNexusRepo`.<br /><br />**Default**: `true`
+ semverBump | optional | str | The semver axis to bump, see [git-semver](https://github.com/edgexfoundry/git-semver) for valid axis values.<br /><br />**Default**: `pre`
+ buildSnap | optional | bool | Specify if Jenkins should build a Snap for your project. **Note** If set, your project must also include a valid snapcraft yaml `snap/snapcraft.yaml` for Jenkins to attempt to build the Snap.<br /><br />**Default**: `false`
+ failureNotify | optional | str | The group emails (comma-delimited) to email when the Jenkins job fails.<br /><br />**Default**: `edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org`
+ arch | optional | array | A list of system architectures to target for the build. Possible values are `amd64` or `arm64`.<br /><br />**Default**: ['amd64', 'arm64']
 
  ## Usage
 
@@ -32,9 +53,7 @@
 
  ```groovy
  edgeXBuildCApp (
-     project: 'device-bacnet-c',
-     dockerBuildFilePath: 'scripts/Dockerfile.alpine-3.9-base',
-     dockerFilePath: 'scripts/Dockerfile.alpine-3.9'
+    project: 'device-bacnet-c'
  )
  ```
 
@@ -45,7 +64,35 @@
      project: 'device-sdk-c',
      dockerBuildFilePath: 'scripts/Dockerfile.alpine-3.11-base',
      dockerFilePath: 'scripts/Dockerfile.alpine-3.11',
+     testScript: 'apk add --update --no-cache openssl ca-certificates && make test',
      pushImage: false
+ )
+ ```
+
+ ### Full example
+ This example shows all the settings that can be specified and their default values.
+
+ ```groovy
+ edgeXBuildCApp (
+     project: 'c-project',
+     mavenSettings: 'c-project-settings',
+     semver: true,
+     testScript: 'make test',
+     buildScript: 'make build',
+     dockerBaseImage: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base:latest',
+     dockerFilePath: 'Dockerfile',
+     dockerBuildFilePath: 'Dockerfile.build',
+     dockerBuildContext: '.',
+     dockerBuildArgs: [],
+     dockerNamespace: '',
+     dockerImageName: 'docker-c-project',
+     dockerNexusRepo: 'staging',
+     buildImage: true,
+     pushImage: true,
+     semverBump: 'pre',
+     buildSnap: false,
+     failureNotify: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org',
+     arch: ['amd64', 'arm64']
  )
  ```
  */

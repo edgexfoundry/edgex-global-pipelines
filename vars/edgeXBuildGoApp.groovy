@@ -55,6 +55,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  buildExperimentalDockerImage | optional | bool | Specify if Jenkins should add an additonal GitHub tag called `experimental` at the same commit where the semantic version is tagged. **Note** this feature is currently only used internally for DevOps builds.<br /><br />**Default**: `false`
  artifactTypes | optional | list | A list of types that the Jenkins build will designate as artifacts, valid list values are `docker` and `archive`. **Note** if `archive` is specified then all `tar.gz` or `zip` files that your project build creates in the `artifactRoot` folder will be archived to Nexus.<br /><br />**Default**: `['docker']`
  artifactRoot | optional | str | The path in the Jenkins workspace to designate as the artifact root folder. **Note** all files written to this directory within your build will be automatically pushed to Nexus when the Jenkins job completes.<br /><br />**Default**: `archives/bin`
+ arch | optional | array | A list of system architectures to target for the build. Possible values are `amd64` or `arm64`.<br /><br />**Default**: ['amd64', 'arm64']
 
  ## Usage
 
@@ -110,7 +111,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
      failureNotify: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org',
      buildExperimentalDockerImage: false,
      artifactTypes: ['docker'],
-     artifactRoot: 'archives/bin'
+     artifactRoot: 'archives/bin',
+     arch: ['amd64', 'arm64']
+
  )
  ```
 */
