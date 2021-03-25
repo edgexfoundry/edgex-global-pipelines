@@ -13,14 +13,14 @@
         <meta name="author" content="EdgeX DevOps Team">
       
       
-        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/pr-commit-for-testing/">
+        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildGoMod/">
       
       <link rel="icon" href="../../assets/logo_edgex.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.6">
     
     
       
-        <title>Pull Request Sandbox Testing - EdgeX Global Pipelines Documentation</title>
+        <title>edgeXBuildGoMod - EdgeX Global Pipelines Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pull-request-sandbox-testing" class="md-skip">
+        <a href="#edgexbuildgomod" class="md-skip">
           Skip to content
         </a>
       
@@ -101,7 +101,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Pull Request Sandbox Testing
+              edgeXBuildGoMod
             
           </span>
         </div>
@@ -247,12 +247,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
       
       <label class="md-nav__link" for="__nav_2">
         Pipelines
@@ -270,7 +272,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../libraries/edgeXBuildCApp/" class="md-nav__link">
+      <a href="../edgeXBuildCApp/" class="md-nav__link">
         edgeXBuildCApp
       </a>
     </li>
@@ -282,7 +284,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../libraries/edgeXBuildDocker/" class="md-nav__link">
+      <a href="../edgeXBuildDocker/" class="md-nav__link">
         edgeXBuildDocker
       </a>
     </li>
@@ -294,7 +296,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../libraries/edgeXBuildGoApp/" class="md-nav__link">
+      <a href="../edgeXBuildGoApp/" class="md-nav__link">
         edgeXBuildGoApp
       </a>
     </li>
@@ -306,88 +308,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../libraries/edgeXBuildGoParallel/" class="md-nav__link">
+      <a href="../edgeXBuildGoParallel/" class="md-nav__link">
         edgeXBuildGoParallel
-      </a>
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../libraries/edgeXBuildGoMod/" class="md-nav__link">
-        edgeXBuildGoMod
-      </a>
-    </li>
-  
-
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-    
-  
-  
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
-      
-      <label class="md-nav__link" for="__nav_3">
-        Tutorials
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-      <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
-        <label class="md-nav__title" for="__nav_3">
-          <span class="md-nav__icon md-icon"></span>
-          Tutorials
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        Tutorials
-      </a>
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../docker-build-strategy/" class="md-nav__link">
-        Docker Build Strategy
-      </a>
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../manual-bump/" class="md-nav__link">
-        Manual Version Bump Process
       </a>
     </li>
   
@@ -407,12 +329,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Pull Request Sandbox Testing
+          edgeXBuildGoMod
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Pull Request Sandbox Testing
+        edgeXBuildGoMod
       </a>
       
         
@@ -429,37 +351,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#introduction" class="md-nav__link">
-    Introduction
+  <a href="#parameters" class="md-nav__link">
+    Parameters
   </a>
   
-    <nav class="md-nav" aria-label="Introduction">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1-create-draft-pr" class="md-nav__link">
-    Step 1 - Create Draft PR
+  <a href="#basic-example" class="md-nav__link">
+    Basic example
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2-use-pr-commit-hash" class="md-nav__link">
-    Step 2 - Use PR Commit Hash
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-execute-jenkinsfile" class="md-nav__link">
-    Step 3 - Execute Jenkinsfile
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-finishing-up" class="md-nav__link">
-    Step 4 - Finishing Up
+  <a href="#full-example" class="md-nav__link">
+    Full example
   </a>
   
 </li>
@@ -477,12 +392,90 @@
   
 
           
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      <label class="md-nav__link" for="__nav_3">
+        Tutorials
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
             
   
   
   
     <li class="md-nav__item">
-      <a href="../unit-testing-best-practices/" class="md-nav__link">
+      <a href="../../tutorials/" class="md-nav__link">
+        Tutorials
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/docker-build-strategy/" class="md-nav__link">
+        Docker Build Strategy
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/manual-bump/" class="md-nav__link">
+        Manual Version Bump Process
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/pr-commit-for-testing/" class="md-nav__link">
+        Pull Request Sandbox Testing
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/unit-testing-best-practices/" class="md-nav__link">
         Unit Testing Best Practices
       </a>
     </li>
@@ -520,37 +513,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#introduction" class="md-nav__link">
-    Introduction
+  <a href="#parameters" class="md-nav__link">
+    Parameters
   </a>
   
-    <nav class="md-nav" aria-label="Introduction">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1-create-draft-pr" class="md-nav__link">
-    Step 1 - Create Draft PR
+  <a href="#basic-example" class="md-nav__link">
+    Basic example
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2-use-pr-commit-hash" class="md-nav__link">
-    Step 2 - Use PR Commit Hash
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-execute-jenkinsfile" class="md-nav__link">
-    Step 3 - Execute Jenkinsfile
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-finishing-up" class="md-nav__link">
-    Step 4 - Finishing Up
+  <a href="#full-example" class="md-nav__link">
+    Full example
   </a>
   
 </li>
@@ -572,45 +558,58 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/tutorials/pr-commit-for-testing.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/libraries/edgeXBuildGoMod.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="pull-request-sandbox-testing">Pull Request Sandbox Testing</h1>
-<h2 id="introduction">Introduction</h2>
-<p>The <a href="https://jenkins.edgexfoundry.org/">EdgeX Jenkins Production Server</a> and <a href="https://jenkins.edgexfoundry.org/sandbox/">EdgeX Jenkins Sandbox Server</a> are configured to use the <a href="https://github.com/edgexfoundry/edgex-global-pipelines"><code>edgex-global-pipelines</code></a> library. The servers target either <a href="https://github.com/edgexfoundry/edgex-global-pipelines/tree/stable"><code>stable</code></a> or <a href="https://github.com/edgexfoundry/edgex-global-pipelines/tree/experimental"><code>experimental</code></a> tags for Production and Sandbox servers respectively.</p>
-<p>To make functional testing of Jenkins Shared Pipeline Libraries more convenient, you can use a commit hash from a Pull Request into <a href="https://github.com/edgexfoundry/edgex-global-pipelines"><code>edgex-global-pipelines</code></a> to override the default pipeline version that the Jenkins server is using. (<code>stable</code>/<code>experimental</code>)</p>
-<h3 id="step-1-create-draft-pr">Step 1 - Create Draft PR</h3>
-<p>When you have changes you'd like to functionally test, open a Draft Pull Request from your forked repository of <code>edgex-global-pipelines</code> into <a href="https://github.com/edgexfoundry/edgex-global-pipelines"><code>edgex-global-pipelines:master</code></a></p>
-<p>Make clear that this is a PR for functional testing purposes and is not meant to be merged.</p>
-<p><img alt="Create Draft PR" src="../images/draft-pr.png" /></p>
-<h3 id="step-2-use-pr-commit-hash">Step 2 - Use PR Commit Hash</h3>
-<p>Find the commit hash of your draft PR.</p>
-<p><img alt="Find Commit Hash" src="../images/find-commit.png" /></p>
-<p>Place the commit hash into your Jenkinsfile that is under test. The <a href="https://github.com/edgexfoundry/sample-service">EdgeX Sample-Service</a> is a good place to functionally test shared libraries without affecting production code.</p>
-<p>Add the commit hash after the <code>'@'</code> in the explicit library import statement as shown below.</p>
-<div class="highlight"><pre><span></span><code>@Library<span class="o">(</span><span class="s2">&quot;edgex-global-pipelines@7eba319&quot;</span><span class="o">)</span> _
-
-edgeXBuildGoApp <span class="o">(</span>
-    project: <span class="s1">&#39;sample-service&#39;</span>,
-    goVersion: <span class="s1">&#39;1.15&#39;</span>,
-    buildExperimentalDockerImage: <span class="nb">true</span>
+                <h1 id="edgexbuildgomod">edgeXBuildGoMod</h1>
+<p>Shared Library to build Go projects using Go Modules. It invokes <strong>edgeXBuildGoApp</strong> with some default parameters.</p>
+<h2 id="parameters">Parameters</h2>
+<p>The parameters are similar to shared Library <a href="https://edgexfoundry.github.io/edgex-global-pipelines/html/libraries/edgeXBuildGoApp/">edgeXBuildGoApp</a>
+with a few exceptions in default values of some parameters.
+<div class="highlight"><pre><span></span><code>buildImage: false,
+pushImage: false,
+semverBump: &#39;pre&#39;
+</code></pre></div>
+<strong> Note:</strong> These parameters are not overridable.</p>
+<h2 id="usage">Usage</h2>
+<h3 id="basic-example">Basic example</h3>
+<div class="highlight"><pre><span></span><code><span class="n">edgeXBuildGoMod</span> <span class="o">(</span>
+   <span class="nl">project:</span> <span class="s1">&#39;go-mod-configuration&#39;</span>
 <span class="o">)</span>
 </code></pre></div>
-<h3 id="step-3-execute-jenkinsfile">Step 3 - Execute Jenkinsfile</h3>
-<p>When you execute your functional test build job on the sandbox, the commit hash of your PR will be shown as the commit used for the edgex-global-pipeline shared library. You will see a message similar to the following in your build job console output.</p>
-<div class="highlight"><pre><span></span><code>...
-Loading library edgex-global-pipelines@7eba319
-Attempting to resolve 7eba319 from remote references...
-...
+<h3 id="full-example">Full example</h3>
+<p>This example shows all the settings that can be specified and their default values.</p>
+<div class="highlight"><pre><span></span><code><span class="n">edgeXBuildGoMod</span> <span class="o">(</span>
+    <span class="nl">project:</span> <span class="s1">&#39;go-project&#39;</span><span class="o">,</span>
+    <span class="nl">mavenSettings:</span> <span class="s1">&#39;go-project-settings&#39;</span><span class="o">,</span>
+    <span class="nl">semver:</span> <span class="kc">true</span><span class="o">,</span>
+    <span class="nl">testScript:</span> <span class="s1">&#39;make test&#39;</span><span class="o">,</span>
+    <span class="nl">buildScript:</span> <span class="s1">&#39;make build&#39;</span><span class="o">,</span>
+    <span class="nl">goVersion:</span> <span class="s1">&#39;1.15&#39;</span><span class="o">,</span>
+    <span class="nl">goProxy:</span> <span class="s1">&#39;https://nexus3.edgexfoundry.org/repository/go-proxy/&#39;</span><span class="o">,</span>
+    <span class="nl">useAlpineBase:</span> <span class="kc">true</span><span class="o">,</span>
+    <span class="nl">dockerFilePath:</span> <span class="s1">&#39;Dockerfile&#39;</span><span class="o">,</span>
+    <span class="nl">dockerBuildFilePath:</span> <span class="s1">&#39;Dockerfile.build&#39;</span><span class="o">,</span>
+    <span class="nl">dockerBuildContext:</span> <span class="s1">&#39;.&#39;</span><span class="o">,</span>
+    <span class="nl">dockerBuildArgs:</span> <span class="o">[],</span>
+    <span class="nl">dockerNamespace:</span> <span class="s1">&#39;&#39;</span><span class="o">,</span>
+    <span class="nl">dockerImageName:</span> <span class="s1">&#39;docker-go-project&#39;</span><span class="o">,</span>
+    <span class="nl">dockerNexusRepo:</span> <span class="s1">&#39;staging&#39;</span><span class="o">,</span>
+    <span class="nl">buildImage:</span> <span class="kc">false</span><span class="o">,</span>
+    <span class="nl">pushImage:</span> <span class="kc">false</span><span class="o">,</span>
+    <span class="nl">semverBump:</span> <span class="s1">&#39;pre&#39;</span><span class="o">,</span>
+    <span class="nl">buildSnap:</span> <span class="kc">false</span><span class="o">,</span>
+    <span class="nl">publishSwaggerDocs:</span> <span class="kc">false</span><span class="o">,</span>
+    <span class="nl">swaggerApiFolders:</span> <span class="o">[</span><span class="s1">&#39;openapi/v1&#39;</span><span class="o">],</span>
+    <span class="nl">failureNotify:</span> <span class="s1">&#39;edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org&#39;</span><span class="o">,</span>
+    <span class="nl">buildExperimentalDockerImage:</span> <span class="kc">false</span><span class="o">,</span>
+    <span class="nl">artifactTypes:</span> <span class="o">[</span><span class="s1">&#39;docker&#39;</span><span class="o">],</span>
+    <span class="nl">artifactRoot:</span> <span class="s1">&#39;archives/bin&#39;</span><span class="o">,</span>
+    <span class="nl">arch:</span> <span class="o">[</span><span class="s1">&#39;amd64&#39;</span><span class="o">,</span> <span class="s1">&#39;arm64&#39;</span><span class="o">]</span>
+<span class="o">)</span>
 </code></pre></div>
-<h3 id="step-4-finishing-up">Step 4 - Finishing Up</h3>
-<p>When you are satisfied that the content of your <code>edgex-global-pipelines</code> fork is functionally tested and ready to be merged, you can convert your draft PR into a real PR and add the appropriate reviewers.</p>
-<p>After your PR is merged to master, the <code>experimental</code> tag will point to your newest content. You might want to test your new code by switching back to the <code>experimental</code> tag in your Jenkinsfile.</p>
-<div class="highlight"><pre><span></span><code>@Library<span class="o">(</span><span class="s2">&quot;edgex-global-pipelines@experimental&quot;</span><span class="o">)</span> _
-</code></pre></div>
-<p>Please clean up and close your PR after you have finished your functional testing.</p>
                 
               
               
@@ -628,7 +627,7 @@ Attempting to resolve 7eba319 from remote references...
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
-        <a href="../manual-bump/" class="md-footer__link md-footer__link--prev" rel="prev">
+        <a href="../edgeXBuildGoParallel/" class="md-footer__link md-footer__link--prev" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -637,19 +636,19 @@ Attempting to resolve 7eba319 from remote references...
               <span class="md-footer__direction">
                 Previous
               </span>
-              Manual Version Bump Process
+              edgeXBuildGoParallel
             </div>
           </div>
         </a>
       
       
-        <a href="../unit-testing-best-practices/" class="md-footer__link md-footer__link--next" rel="next">
+        <a href="../../tutorials/" class="md-footer__link md-footer__link--next" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Unit Testing Best Practices
+              Tutorials
             </div>
           </div>
           <div class="md-footer__button md-icon">

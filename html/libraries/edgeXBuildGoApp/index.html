@@ -394,6 +394,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edgeXBuildGoMod/" class="md-nav__link">
+        edgeXBuildGoMod
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -750,6 +762,12 @@
 <td>str</td>
 <td>The path in the Jenkins workspace to designate as the artifact root folder. <strong>Note</strong> all files written to this directory within your build will be automatically pushed to Nexus when the Jenkins job completes.<br /><br /><strong>Default</strong>: <code>archives/bin</code></td>
 </tr>
+<tr>
+<td>arch</td>
+<td>optional</td>
+<td>array</td>
+<td>A list of system architectures to target for the build. Possible values are <code>amd64</code> or <code>arm64</code>.<br /><br /><strong>Default</strong>: ['amd64', 'arm64']</td>
+</tr>
 </tbody>
 </table>
 <h2 id="usage">Usage</h2>
@@ -797,7 +815,9 @@
     <span class="nl">failureNotify:</span> <span class="s1">&#39;edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org&#39;</span><span class="o">,</span>
     <span class="nl">buildExperimentalDockerImage:</span> <span class="kc">false</span><span class="o">,</span>
     <span class="nl">artifactTypes:</span> <span class="o">[</span><span class="s1">&#39;docker&#39;</span><span class="o">],</span>
-    <span class="nl">artifactRoot:</span> <span class="s1">&#39;archives/bin&#39;</span>
+    <span class="nl">artifactRoot:</span> <span class="s1">&#39;archives/bin&#39;</span><span class="o">,</span>
+    <span class="nl">arch:</span> <span class="o">[</span><span class="s1">&#39;amd64&#39;</span><span class="o">,</span> <span class="s1">&#39;arm64&#39;</span><span class="o">]</span>
+
 <span class="o">)</span>
 </code></pre></div>
                 

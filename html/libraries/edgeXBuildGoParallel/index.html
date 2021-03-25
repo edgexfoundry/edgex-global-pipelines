@@ -394,6 +394,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edgeXBuildGoMod/" class="md-nav__link">
+        edgeXBuildGoMod
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -726,6 +738,12 @@
 <td>str</td>
 <td>The group emails (comma-delimited) to email when the Jenkins job fails.<br /><br /><strong>Default</strong>: <code>edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org</code></td>
 </tr>
+<tr>
+<td>arch</td>
+<td>optional</td>
+<td>array</td>
+<td>A list of system architectures to target for the build. Possible values are <code>amd64</code> or <code>arm64</code>.<br /><br /><strong>Default</strong>: ['amd64', 'arm64']</td>
+</tr>
 </tbody>
 </table>
 <h2 id="usage">Usage</h2>
@@ -770,7 +788,8 @@
     <span class="nl">buildSnap:</span> <span class="kc">false</span><span class="o">,</span>
     <span class="nl">publishSwaggerDocs:</span> <span class="kc">false</span><span class="o">,</span>
     <span class="nl">swaggerApiFolders:</span> <span class="o">[</span><span class="s1">&#39;openapi/v1&#39;</span><span class="o">,</span> <span class="s1">&#39;openapi/v2&#39;</span><span class="o">],</span>
-    <span class="nl">failureNotify:</span> <span class="s1">&#39;edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org&#39;</span>
+    <span class="nl">failureNotify:</span> <span class="s1">&#39;edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org&#39;</span><span class="o">,</span>
+    <span class="nl">arch:</span> <span class="o">[</span><span class="s1">&#39;amd64&#39;</span><span class="o">,</span> <span class="s1">&#39;arm64&#39;</span><span class="o">]</span>
 <span class="o">)</span>
 </code></pre></div>
                 
@@ -805,13 +824,13 @@
         </a>
       
       
-        <a href="../../tutorials/" class="md-footer__link md-footer__link--next" rel="next">
+        <a href="../edgeXBuildGoMod/" class="md-footer__link md-footer__link--next" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Tutorials
+              edgeXBuildGoMod
             </div>
           </div>
           <div class="md-footer__button md-icon">
