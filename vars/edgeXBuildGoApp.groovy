@@ -29,7 +29,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
  Name | Required | Type | Description and Default Value
  -- | -- | -- | --
- project | required | str | The name of your project. | 
+ project | required | str | The name of your project. |
  mavenSettings | optional | str | The maven settings file in Jenkins that has been created for your project. **Note** the maven settings file specified must exist in Jenkins in order for your project to build.<br /><br />**Default**: `${project}-settings`
  semver | optional | bool | Specify if semantic versioning will be used to version your project. **Note** edgeX utilizes [git-semver](https://github.com/edgexfoundry/git-semver) for semantic versioning.<br /><br />**Default**: `true`
  testScript | optional | str | The command the build will use to test your project. **Note** the specified test script will execute in the project's CI build container.<br /><br />**Default**: `make test`
@@ -587,6 +587,8 @@ def buildArtifact() {
     if(artifactTypes.contains('archive')) {
         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
             sh env.BUILD_SCRIPT
+            // change permissions of archive root parent directory
+            sh 'chown -R 1001:1001 ${ARTIFACT_ROOT}/..'
         }
         stash name: "artifacts-${env.ARCH}", includes: "${env.ARTIFACT_ROOT}/**", useDefaultExcludes: false, allowEmpty: true
     }

@@ -45,7 +45,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             edgeXBuildGoApp.prepBaseBuildImage()
         then:
             1 * getPipelineMock('docker.build').call([
-                    'ci-base-image-arm64', 
+                    'ci-base-image-arm64',
                     '-f MyDockerBuildFilePath  --build-arg BASE=nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base-arm64:1.12.14-alpine --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
     }
 
@@ -91,7 +91,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_NEXUS_REPO: 'staging',
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
-                    BUILD_EXPERIMENTAL_DOCKER_IMAGE: false, 
+                    BUILD_EXPERIMENTAL_DOCKER_IMAGE: false,
                     BUILD_STABLE_DOCKER_IMAGE: false,
                     SEMVER_BUMP_LEVEL: 'pre',
                     GOPROXY: 'https://nexus3.edgexfoundry.org/repository/go-proxy/',
@@ -161,7 +161,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_NEXUS_REPO: 'MyNexusRepo',
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
-                    BUILD_EXPERIMENTAL_DOCKER_IMAGE: true, 
+                    BUILD_EXPERIMENTAL_DOCKER_IMAGE: true,
                     BUILD_STABLE_DOCKER_IMAGE: false,
                     SEMVER_BUMP_LEVEL: 'patch',
                     // SNAP_CHANNEL: 'edge',
@@ -289,4 +289,57 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             ]
     }
 
+    def "Test buildArtifact [Should] return expected build the correct artifact [When] building x86_64 docker a docker image" () {
+        setup:
+            def environmentVariables = [
+                'ARTIFACT_TYPES': 'docker',
+                'DOCKER_IMAGE_NAME': 'mock-image',
+                'ARCH': 'x86_64'
+            ]
+            edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
+            explicitlyMockPipelineVariable('edgeXDocker')
+            explicitlyMockPipelineStep('edgeXDocker.build')
+        when:
+            edgeXBuildGoApp.buildArtifact()
+        then:
+            1 * getPipelineMock('edgeXDocker.build').call('mock-image', "ci-base-image-x86_64")
+    }
+
+    def "Test buildArtifact [Should] return expected build the correct artifact [When] building arm64 docker a docker image" () {
+        setup:
+            def environmentVariables = [
+                'ARTIFACT_TYPES': 'docker',
+                'DOCKER_IMAGE_NAME': 'mock-image',
+                'ARCH': 'arm64'
+            ]
+            edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
+            explicitlyMockPipelineVariable('edgeXDocker')
+            explicitlyMockPipelineStep('edgeXDocker.build')
+        when:
+            edgeXBuildGoApp.buildArtifact()
+        then:
+            1 * getPipelineMock('edgeXDocker.build').call('mock-image-arm64', "ci-base-image-arm64")
+    }
+
+    def "Test buildArtifact [Should] return expected build the correct artifact [When] building generic x86_64 archive" () {
+        setup:
+            def environmentVariables = [
+                'ARTIFACT_TYPES': 'archive',
+                'ARCH': 'x86_64',
+                'BUILD_SCRIPT': 'mock build-script',
+                'ARTIFACT_ROOT': 'archives/bin'
+            ]
+            edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
+
+            getPipelineMock('docker.image')('ci-base-image-x86_64') >> explicitlyMockPipelineVariable('DockerImageMock')
+        when:
+            edgeXBuildGoApp.buildArtifact()
+        then:
+            1 * getPipelineMock('DockerImageMock.inside').call(_) >> { _arguments ->
+                assert "-u 0:0" == _arguments[0][0]
+            }
+            1 * getPipelineMock('sh').call('mock build-script')
+            1 * getPipelineMock('sh').call('chown -R 1001:1001 ${ARTIFACT_ROOT}/..')
+            1 * getPipelineMock("stash").call([name: 'artifacts-x86_64', includes: 'archives/bin/**', useDefaultExcludes:false, allowEmpty:true]) >> true
+    }
 }
