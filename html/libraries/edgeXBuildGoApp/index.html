@@ -643,7 +643,7 @@
 <td>goVersion</td>
 <td>optional</td>
 <td>str</td>
-<td>The version of Go to use for building the project's CI build image. <strong>Note</strong> this parameter is used in conjuction with the <code>useAlpineBase</code> parameter to determine the base for the project's CI build image.<br /><br /><strong>Default</strong>: <code>1.15</code></td>
+<td>The version of Go to use for building the project's CI build image. <strong>Note</strong> this parameter is used in conjuction with the <code>useAlpineBase</code> parameter to determine the base for the project's CI build image.<br /><br /><strong>Default</strong>: <code>1.16</code></td>
 </tr>
 <tr>
 <td>goProxy</td>
@@ -777,14 +777,14 @@
 <h3 id="basic-example">Basic example</h3>
 <div class="highlight"><pre><span></span><code><span class="n">edgeXBuildGoApp</span> <span class="o">(</span>
     <span class="nl">project:</span> <span class="s1">&#39;device-random-go&#39;</span><span class="o">,</span>
-    <span class="nl">goVersion:</span> <span class="s1">&#39;1.15&#39;</span>
+    <span class="nl">goVersion:</span> <span class="s1">&#39;1.16&#39;</span>
 <span class="o">)</span>
 </code></pre></div>
 <h3 id="complex-example">Complex example</h3>
 <div class="highlight"><pre><span></span><code><span class="n">edgeXBuildGoApp</span> <span class="o">(</span>
     <span class="nl">project:</span> <span class="s1">&#39;app-functions-sdk-go&#39;</span><span class="o">,</span>
     <span class="nl">semver:</span> <span class="kc">true</span><span class="o">,</span>
-    <span class="nl">goVersion:</span> <span class="s1">&#39;1.15&#39;</span><span class="o">,</span>
+    <span class="nl">goVersion:</span> <span class="s1">&#39;1.16&#39;</span><span class="o">,</span>
     <span class="nl">testScript:</span> <span class="s1">&#39;make test&#39;</span><span class="o">,</span>
     <span class="nl">buildImage:</span> <span class="kc">false</span><span class="o">,</span>
     <span class="nl">publishSwaggerDocs:</span> <span class="kc">true</span><span class="o">,</span>
@@ -799,7 +799,7 @@
     <span class="nl">semver:</span> <span class="kc">true</span><span class="o">,</span>
     <span class="nl">testScript:</span> <span class="s1">&#39;make test&#39;</span><span class="o">,</span>
     <span class="nl">buildScript:</span> <span class="s1">&#39;make build&#39;</span><span class="o">,</span>
-    <span class="nl">goVersion:</span> <span class="s1">&#39;1.15&#39;</span><span class="o">,</span>
+    <span class="nl">goVersion:</span> <span class="s1">&#39;1.16&#39;</span><span class="o">,</span>
     <span class="nl">goProxy:</span> <span class="s1">&#39;https://nexus3.edgexfoundry.org/repository/go-proxy/&#39;</span><span class="o">,</span>
     <span class="nl">useAlpineBase:</span> <span class="kc">true</span><span class="o">,</span>
     <span class="nl">dockerFilePath:</span> <span class="s1">&#39;Dockerfile&#39;</span><span class="o">,</span>
