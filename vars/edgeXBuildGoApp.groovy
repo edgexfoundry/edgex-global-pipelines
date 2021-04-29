@@ -34,7 +34,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  semver | optional | bool | Specify if semantic versioning will be used to version your project. **Note** edgeX utilizes [git-semver](https://github.com/edgexfoundry/git-semver) for semantic versioning.<br /><br />**Default**: `true`
  testScript | optional | str | The command the build will use to test your project. **Note** the specified test script will execute in the project's CI build container.<br /><br />**Default**: `make test`
  buildScript | optional | str | The command the build will use to build your project.<br /><br />**Default**: `make build`
- goVersion | optional | str | The version of Go to use for building the project's CI build image. **Note** this parameter is used in conjuction with the `useAlpineBase` parameter to determine the base for the project's CI build image.<br /><br />**Default**: `1.15`
+ goVersion | optional | str | The version of Go to use for building the project's CI build image. **Note** this parameter is used in conjuction with the `useAlpineBase` parameter to determine the base for the project's CI build image.<br /><br />**Default**: `1.16`
  goProxy | optional | str | The proxy to use when downloading Go modules. The value of this parameter will be set in the `GOPROXY` environment variable to control the download source of Go modules.<br /><br />**Default**: `https://nexus3.edgexfoundry.org/repository/go-proxy/`
  useAlpineBase | optional | bool | Specify if an Alpine-based `edgex-golang-base:${goVersion}-alpine` image will be used as the base for the project's CI build image. If true, the respective `edgex-golang-base` image should exist in the Nexus snapshot repository, if a matching image is not found in Nexus then an Alpine-based `go-lang:${goVersion}-alpine` DockerHub image will be used. If false, then a non-Alpine `go-lang:${goVersion}` DockerHub image will be used. **Note** this parameter is used in conjuction with the `goVersion` parameter to determine the base for the projects' CI build image.<br /><br />**Default**: `true`
  dockerFilePath | optional | str | The path to the Dockerfile for your project.<br /><br />**Default**: `Dockerfile`
@@ -64,7 +64,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  ```groovy
  edgeXBuildGoApp (
      project: 'device-random-go',
-     goVersion: '1.15'
+     goVersion: '1.16'
  )
  ```
 
@@ -74,7 +74,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  edgeXBuildGoApp (
      project: 'app-functions-sdk-go',
      semver: true,
-     goVersion: '1.15',
+     goVersion: '1.16',
      testScript: 'make test',
      buildImage: false,
      publishSwaggerDocs: true,
@@ -92,7 +92,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
      semver: true,
      testScript: 'make test',
      buildScript: 'make build',
-     goVersion: '1.15',
+     goVersion: '1.16',
      goProxy: 'https://nexus3.edgexfoundry.org/repository/go-proxy/',
      useAlpineBase: true,
      dockerFilePath: 'Dockerfile',
@@ -245,7 +245,10 @@ def call(config) {
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
-                                            sh "${TEST_SCRIPT}"
+                                            if(env.GO_VERSION =~ '1.16') {
+                                                sh 'go mod tidy' // for Go 1.16
+                                            }
+                                            sh "${env.TEST_SCRIPT}"
                                         }
                                         sh 'sudo chown -R jenkins:jenkins .' // fix perms
                                         stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
@@ -348,6 +351,9 @@ def call(config) {
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
+                                            if(env.GO_VERSION =~ '1.16') {
+                                                sh 'go mod tidy' // for Go 1.16
+                                            }
                                             sh "${env.TEST_SCRIPT}"
                                         }
                                         sh 'sudo chown -R jenkins:jenkins .' // fix perms
@@ -611,7 +617,7 @@ def toEnvironment(config) {
     def _useSemver     = edgex.defaultTrue(config.semver)
     def _testScript    = config.testScript ?: 'make test'
     def _buildScript   = config.buildScript ?: 'make build'
-    def _goVersion     = config.goVersion ?: '1.15'
+    def _goVersion     = config.goVersion ?: '1.16'
     def _goProxy       = config.goProxy ?: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
     def _useAlpine     = edgex.defaultTrue(config.useAlpineBase)
 

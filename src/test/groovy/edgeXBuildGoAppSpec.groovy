@@ -65,7 +65,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('edgex.defaultTrue').call(_) >> true
             getPipelineMock('edgex.defaultFalse').call(_) >> false
-            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.15-alpine'
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.16-alpine'
         expect:
             edgeXBuildGoApp.toEnvironment(config) == expectedResult
         where:
@@ -81,8 +81,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     USE_SEMVER: true,
                     TEST_SCRIPT: 'make test',
                     BUILD_SCRIPT: 'make build',
-                    GO_VERSION: '1.15',
-                    DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.15-alpine',
+                    GO_VERSION: '1.16',
+                    DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.16-alpine',
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
