@@ -49,7 +49,7 @@
      semver: true,
      testScript: 'make test',
      buildScript: 'make build',
-     goVersion: '1.15',
+     goVersion: '1.16',
      goProxy: 'https://nexus3.edgexfoundry.org/repository/go-proxy/',
      useAlpineBase: true,
      dockerFilePath: 'Dockerfile',
