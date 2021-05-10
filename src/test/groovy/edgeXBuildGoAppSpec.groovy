@@ -71,13 +71,13 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
         where:
             config << [
                 [
-                    project: 'pSoda'
+                    project: 'pSoda-go'
                 ]
             ]
             expectedResult << [
                 [
                     MAVEN_SETTINGS: 'sandbox-settings',
-                    PROJECT: 'pSoda',
+                    PROJECT: 'pSoda-go',
                     USE_SEMVER: true,
                     TEST_SCRIPT: 'make test',
                     BUILD_SCRIPT: 'make build',
@@ -86,7 +86,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
-                    DOCKER_IMAGE_NAME: 'docker-pSoda',
+                    DOCKER_IMAGE_NAME: 'pSoda',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
                     BUILD_DOCKER_IMAGE: true,
@@ -121,7 +121,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
         where:
             config << [
                 [
-                    project: 'pSoda',
+                    project: 'pSoda-go',
                     testScript: 'MyTestScript',
                     buildScript: 'MyBuildScript',
                     goVersion: 'MyGoVersion',
@@ -145,8 +145,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             ]
             expectedResult << [
                 [
-                    MAVEN_SETTINGS: 'pSoda-settings',
-                    PROJECT: 'pSoda',
+                    MAVEN_SETTINGS: 'pSoda-go-settings',
+                    PROJECT: 'pSoda-go',
                     USE_SEMVER: true,
                     TEST_SCRIPT: 'MyTestScript',
                     BUILD_SCRIPT: 'MyBuildScript',
@@ -214,7 +214,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
-                    DOCKER_IMAGE_NAME: 'docker-pSoda',
+                    DOCKER_IMAGE_NAME: 'pSoda',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
                     BUILD_DOCKER_IMAGE: false,
@@ -270,7 +270,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
-                    DOCKER_IMAGE_NAME: 'docker-pSoda',
+                    DOCKER_IMAGE_NAME: 'pSoda',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
                     BUILD_DOCKER_IMAGE: false,
