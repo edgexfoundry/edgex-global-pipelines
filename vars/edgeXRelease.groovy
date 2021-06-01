@@ -40,11 +40,14 @@ def parallelStepFactoryTransform(step) {
                 stage("Git Tag Publish") {
                     edgeXReleaseGitTag(step, [credentials: "edgex-jenkins-ssh", bump: false, tag: true])
                 }
-                stage("Stage Artifact") {
-                    stageArtifact(step)
-                }
-                stage("Bump Semver") {
-                    edgeXReleaseGitTag(step, [credentials: "edgex-jenkins-ssh", bump: true, tag: false])
+                try{
+                    stage("Stage Artifact") {
+                        stageArtifact(step)
+                    }
+                }finally {
+                    stage("Bump Semver"){
+                        edgeXReleaseGitTag(step, [credentials: "edgex-jenkins-ssh", bump: true, tag: false])
+                    }
                 }
             }
             
