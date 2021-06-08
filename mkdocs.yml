@@ -6,10 +6,10 @@ site_author: 'EdgeX DevOps Team'
 site_url: 'https://edgexfoundry.github.io/edgex-global-pipelines/'
 repo_url: 'https://github.com/edgexfoundry/edgex-global-pipelines'
 repo_name: 'edgex/edgex-global-pipelines'
-copyright: 'Copyright &copy; 2020 EdgeX Foundry'
-google_analytics:
-  - 'UA-82811140-6'
-  - 'auto'
+copyright: 'Copyright &copy; 2021 EdgeX Foundry'
+#google_analytics:
+#  - 'UA-82811140-6'
+#  - 'auto'
 strict: true
 theme:
   name: 'material'
