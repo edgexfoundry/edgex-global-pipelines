@@ -539,7 +539,7 @@ def toEnvironment(config) {
     def _failureNotify         = config.failureNotify ?: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
 
     // def _snapChannel           = config.snapChannel ?: 'latest/edge'
-    def _buildSnap             = false //edgex.defaultFalse(config.buildSnap)
+    def _buildSnap             = edgex.defaultFalse(config.buildSnap)
 
     // no image to build, no image to push
     if(!_buildImage) {
