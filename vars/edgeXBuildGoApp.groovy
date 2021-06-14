@@ -222,7 +222,7 @@ def call(config) {
                                         if(params.CommitId) {
                                             sh "git checkout ${params.CommitId}"
                                         }
-                                        enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
+                                        // enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         if(env.BUILD_DOCKER_IMAGE == 'true') {
@@ -328,7 +328,7 @@ def call(config) {
                                         if(params.CommitId) {
                                             sh "git checkout ${params.CommitId}"
                                         }
-                                        enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
+                                        // enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         if(env.BUILD_DOCKER_IMAGE == 'true') {

@@ -167,7 +167,7 @@ def call(config) {
                                         if(params.CommitId) {
                                             sh "git checkout ${params.CommitId}"
                                         }
-                                        enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
+                                        // enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
@@ -205,7 +205,7 @@ def call(config) {
                                 when {
                                     environment name: 'ARCHIVE_IMAGE', value: 'true'
                                 }
-                                
+
                                 steps {
                                     script {
                                         withEnv(["IMAGE=${edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}")}"]) {
@@ -214,7 +214,7 @@ def call(config) {
                                             archiveArtifacts allowEmptyArchive: true, artifacts: '*.tar.gz', fingerprint: true, onlyIfSuccessful: true
                                         }
                                     }
-                                    
+
                                 }
                             }
                         }
@@ -236,7 +236,7 @@ def call(config) {
                                         if(params.CommitId) {
                                             sh "git checkout ${params.CommitId}"
                                         }
-                                        enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
+                                        // enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
@@ -274,7 +274,7 @@ def call(config) {
                                 when {
                                     environment name: 'ARCHIVE_IMAGE', value: 'true'
                                 }
-                                
+
                                 steps {
                                     script {
                                         withEnv(["IMAGE=${edgeXDocker.finalImageName("${DOCKER_IMAGE_NAME}-${ARCH}")}"]) {
