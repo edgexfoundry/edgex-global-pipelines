@@ -31,7 +31,7 @@ pipeline {
     }
 
     environment {
-        SEMVER_BRANCH = 'master'
+        SEMVER_BRANCH = 'main'
     }
 
     stages {
@@ -47,14 +47,14 @@ pipeline {
         }
 
         stage('Lint Pipelines') {
-            when { not { expression { env.BRANCH_NAME =~ /^master$/ } } }
+            when { not { expression { env.BRANCH_NAME =~ /^main$/ } } }
             steps {
                 sh './scripts/linter.sh'
             }
         }
 
         stage('Test') {
-            when { not { expression { env.BRANCH_NAME =~ /^master$/ } } }
+            when { not { expression { env.BRANCH_NAME =~ /^main$/ } } }
             agent {
                 docker {
                     image "${DOCKER_REGISTRY}:10003/edgex-devops/egp-unit-test:gradle"
@@ -111,7 +111,7 @@ pipeline {
         stage('Publish to GitHub pages') {
             when {
                 beforeAgent true
-                expression { env.BRANCH_NAME =~ /^master$/ }
+                expression { env.BRANCH_NAME =~ /^main$/ }
             }
             // this will need to happen on an isolated node to not interfere with git-semver
             agent {
@@ -128,7 +128,7 @@ pipeline {
         }
 
         stage('Semver Tag') {
-            when { expression { env.BRANCH_NAME =~ /^master$/ } }
+            when { expression { env.BRANCH_NAME =~ /^main$/ } }
             steps {
                 sh 'echo v${VERSION}'
                 edgeXSemver('tag')
@@ -139,7 +139,7 @@ pipeline {
         stage('Semver Bump Pre-Release Version') {
             when {
                 allOf {
-                    expression { env.BRANCH_NAME =~ /^master$/ }
+                    expression { env.BRANCH_NAME =~ /^main$/ }
                     // env.GITSEMVER_HEAD_TAG is only set when HEAD is tagged and
                     // when set - edgeXSemver will ignore all tag, bump and push commands (unforced)
                     // thus we also want to ignore updating stable/experimental tags when set
@@ -156,7 +156,7 @@ pipeline {
         stage('🧪 Bump Experimental Tag') {
             when {
                 allOf {
-                    expression { env.BRANCH_NAME =~ /^master$/ }
+                    expression { env.BRANCH_NAME =~ /^main$/ }
                     // env.GITSEMVER_HEAD_TAG is only set when HEAD is tagged and
                     // when set - edgeXSemver will ignore all tag, bump and push commands (unforced)
                     // thus we also want to ignore updating stable/experimental tags when set

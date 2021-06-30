@@ -21,7 +21,7 @@ releaseYaml:
 ---
 name: 'sample-service'
 version: 1.1.2
-releaseStream: 'master'
+releaseStream: 'main'
 repo: 'https://github.com/edgexfoundry/sample-service.git'
 snapChannels:
   - channel: 'latest/stable'
@@ -94,7 +94,7 @@ def getSnapRevision(snapInfo, architecture, trackName) {
     def track = trackNameSplit[0]
     def name = trackNameSplit[1]
     def found = snapInfo.'channel-map'.find { item ->
-        (item.channel.architecture == architecture && item.channel.track == track && item.channel.name == name) 
+        (item.channel.architecture == architecture && item.channel.track == track && item.channel.name == name)
     }
     if(found) {
         return found.revision

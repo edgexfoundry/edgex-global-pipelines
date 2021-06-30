@@ -19,7 +19,7 @@
 releaseYaml:
 
 version: 1.1.2
-releaseStream: master
+releaseStream: main
 dockerImage: true
 docker:
   - image: nexus3.edgexfoundry.org:10004/sample-service
@@ -42,7 +42,7 @@ def call (releaseInfo) {
 }
 
 def getAvaliableTargets() {
-    // this is the master list of valid hosts we will release to
+    // this is the main list of valid hosts we will release to
     def validReleaseTargets = [
         'nexus3.edgexfoundry.org:10002': 'release',
         'docker.io': 'dockerhub'
@@ -145,7 +145,7 @@ def validate(releaseYaml) {
     }
 
     if(!releaseYaml.releaseStream) {
-        error("[edgeXReleaseDockerImage] Release yaml does not contain 'releaseStream' (branch where you are releasing from). Example: master")
+        error("[edgeXReleaseDockerImage] Release yaml does not contain 'releaseStream' (branch where you are releasing from). Example: main")
     }
 
     if(!releaseYaml.version) {

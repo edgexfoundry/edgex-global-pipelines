@@ -2,7 +2,7 @@ import com.homeaway.devtools.jenkins.testing.JenkinsPipelineSpecification
 import spock.lang.Ignore
 
 public class EdgeXReleaseGitHubAssetsSpec extends JenkinsPipelineSpecification {
-    
+
     def edgeXReleaseGitHubAssets = null
     def validReleaseInfo
 
@@ -14,7 +14,7 @@ public class EdgeXReleaseGitHubAssetsSpec extends JenkinsPipelineSpecification {
             'name': 'sample-service',
             'version': '1.2.3',
             'repo': 'https://github.com/edgexfoundry/sample-service.git',
-            'releaseStream': 'master',
+            'releaseStream': 'main',
             'gitHubReleaseAssets': [
                 'https://nexus-location/asset1',
                 'https://nexus-location/asset2',

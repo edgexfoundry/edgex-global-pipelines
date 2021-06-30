@@ -21,7 +21,7 @@ releaseYaml:
 ---
 name: 'sample-service'
 version: '1.1.2'
-releaseStream: 'master'
+releaseStream: 'main'
 commitId: '0cc1d67607642c9413e4a80d25a2df35ecc76d41'
 repo: 'https://github.com/edgexfoundry/sample-service.git'
 gitTag: true

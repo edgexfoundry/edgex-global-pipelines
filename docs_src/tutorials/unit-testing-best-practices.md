@@ -24,7 +24,7 @@ The edgex-global-pipelines shared library leverages the [Jenkins Spock framework
 In order to facilitate unit testing of the edgex-global-pipelines shared library, the DevOps team has made a deliberate effort to to minimize the amount of scripting logic contained within Jenkins declarative pipelines. This is accomplished by encapsulating pipeline logic within a Groovy function and calling the function in the declarative pipeline step as needed. Localizing pipeline logic within Groovy functions enables the Jenkins Spock framework to provide greater test coverage of Pipeline logic.
 
 ## Example
-An example this approach can be seen within the `Build -> amd64 -> Prep` stage of the [edgeXBuildCApp Delcarative Pipeline](https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/vars/edgeXBuildCApp.groovy). Note the logic for prepping the base build image is encapsulated into a method named `prepBaseBuildImage` and it is called within the declarative Pipeline. Also the `prepBaseBuildImage` function logic is thoroughly unit tested in the [edgeXBuildCApp Spec](https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/src/test/groovy/edgeXBuildCAppSpec.groovy)
+An example this approach can be seen within the `Build -> amd64 -> Prep` stage of the [edgeXBuildCApp Delcarative Pipeline](https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/vars/edgeXBuildCApp.groovy). Note the logic for prepping the base build image is encapsulated into a method named `prepBaseBuildImage` and it is called within the declarative Pipeline. Also the `prepBaseBuildImage` function logic is thoroughly unit tested in the [edgeXBuildCApp Spec](https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/src/test/groovy/edgeXBuildCAppSpec.groovy)
 
 
 # Mocking Jenkins Dependencies
@@ -61,10 +61,10 @@ Always ensure the source code under test uses one of the following idioms for ge
 ## Testing environment variables
 Within your unit tests, environment variables are set using the `.getBinding().setVariable('name', 'value')` idiom. Where the name is `env` and the value is a map you define within your unit test. The map should define all environment variables the code under test expects, likewise the map can be used to assert any environment variables that the code under test sets.
 
-A good example of this practice is the [EdgeXSetupEnvironmentSpec](https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/src/test/groovy/edgeXSetupEnvironmentSpec.groovy)
+A good example of this practice is the [EdgeXSetupEnvironmentSpec](https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/src/test/groovy/edgeXSetupEnvironmentSpec.groovy)
 
 # Mock external shared library methods
-The `edgex-global-pipelines` Jenkins shared library consists of multiple scripts exposing methods for various functional areas, where each script is named after the particular functional area it serves. The shared library includes a `EdgeX` script that serves as utility script containing methods that are shared amongst other scripts. It is common practice for a method in one script call a method in another script, to mock the interaction you use the `explictlyMockPipelineVariable` to mock the script, then `getPipelineMock` method to verify the interaction or stub it if necessary. 
+The `edgex-global-pipelines` Jenkins shared library consists of multiple scripts exposing methods for various functional areas, where each script is named after the particular functional area it serves. The shared library includes a `EdgeX` script that serves as utility script containing methods that are shared amongst other scripts. It is common practice for a method in one script call a method in another script, to mock the interaction you use the `explictlyMockPipelineVariable` to mock the script, then `getPipelineMock` method to verify the interaction or stub it if necessary.
 
 Mock the external script named `script`:
 ```
@@ -80,7 +80,7 @@ getPipelineMock('script.method').call(_) >> 'value'
 ## Integration Testing
 Integration Testing is defined as a type of testing where software modules are integrated logically and tested as a group. The Jenkins-Spock framework provides the ability to load any number of scripts to test within a given Spec Test. There are instances where performing integration tests is more practical, if you wish to do so then we recommend naming the Spec Test with `Int` as to differentiate between unit and integration tests.
 
-A good example of this practice is the [EdgeXReleaseDockerImageIntSpec](https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/src/test/groovy/edgeXReleaseDockerImageIntSpec.groovy)
+A good example of this practice is the [EdgeXReleaseDockerImageIntSpec](https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/src/test/groovy/edgeXReleaseDockerImageIntSpec.groovy)
 
 # Mock errors
 Always leverage `error` when wanting to conditionally abort part of your script. Error is a Pipeline Step whose plugin has been added as a dependency to our project thus is already mocked by the framework. An example showing how you can assert that an error is thrown with a specific message:

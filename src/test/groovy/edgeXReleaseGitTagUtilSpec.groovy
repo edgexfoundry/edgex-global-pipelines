@@ -2,7 +2,7 @@ import com.homeaway.devtools.jenkins.testing.JenkinsPipelineSpecification
 import spock.lang.Ignore
 
 public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
-    
+
     def edgeXReleaseGitTagUtil = null
     def validReleaseInfo
 
@@ -17,7 +17,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
         validReleaseInfo = [
             'name': 'sample-service',
             'version': '1.2.3',
-            'releaseStream': 'master',
+            'releaseStream': 'main',
             'commitId': 'f33f986d90bbf8c9cd5dc4c341daab837968a04e',
             'repo': 'https://github.com/edgexfoundry/sample-service.git'
         ]
@@ -109,7 +109,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
         setup:
             getPipelineMock('edgeXReleaseGitTag.cloneRepo').call(_) >> {
                 throw new Exception('Clone Repository Exception')
-            }           
+            }
         when:
             edgeXReleaseGitTagUtil.releaseGitTag(validReleaseInfo, 'MyCredentials')
         then:
@@ -121,9 +121,9 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
         when:
             edgeXReleaseGitTagUtil.releaseGitTag(validReleaseInfo, 'MyCredentials')
         then:
-            1 * getPipelineMock('edgeXReleaseGitTag.cloneRepo').call('https://github.com/edgexfoundry/sample-service.git', 'master', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
+            1 * getPipelineMock('edgeXReleaseGitTag.cloneRepo').call('https://github.com/edgexfoundry/sample-service.git', 'main', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
-                    assert _arguments[0][0][0] == 'SEMVER_BRANCH=master'
+                    assert _arguments[0][0][0] == 'SEMVER_BRANCH=main'
                 }
             1 * getPipelineMock('edgeXReleaseGitTag.setAndSignGitTag').call('sample-service', '1.2.3')
             1 * getPipelineMock('edgeXReleaseGitTag.bumpAndPushGitTag').call('sample-service', '1.2.3', '-pre=dev pre', true)

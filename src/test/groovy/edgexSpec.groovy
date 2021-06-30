@@ -26,9 +26,9 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.isReleaseStream('fuji') == true
             edgeX.isReleaseStream('geneva') == true
             edgeX.isReleaseStream('hanoi') == true
-            edgeX.isReleaseStream('xyzmaster') == false
-            edgeX.isReleaseStream('masterxyz') == false
-            edgeX.isReleaseStream('xyzmasterxyz') == false
+            edgeX.isReleaseStream('xyzmain') == false
+            edgeX.isReleaseStream('mainxyz') == false
+            edgeX.isReleaseStream('xyzmainxyz') == false
     }
 
     def "Test isReleaseStream [Should] return expected [When] called in non-production" () {
@@ -47,9 +47,9 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.isReleaseStream('fuji') == false
             edgeX.isReleaseStream('geneva') == false
             edgeX.isReleaseStream('hanoi') == false
-            edgeX.isReleaseStream('xyzmaster') == false
-            edgeX.isReleaseStream('masterxyz') == false
-            edgeX.isReleaseStream('xyzmasterxyz') == false
+            edgeX.isReleaseStream('xyzmain') == false
+            edgeX.isReleaseStream('mainxyz') == false
+            edgeX.isReleaseStream('xyzmainxyz') == false
     }
 
     def "Test isReleaseStream [Should] return expected [When] called without branchName in production" () {
@@ -79,7 +79,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
     }
 
-    def "Test didChange [Should] return false [When] previous commit on non master branch has no changes" () {
+    def "Test didChange [Should] return false [When] previous commit on non main branch has no changes" () {
         setup:
             def environmentVariables = [
                 GIT_BRANCH: 'us5375',
@@ -89,7 +89,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
             getPipelineMock('sh')([
                 returnStdout: true,
-                script: 'git diff --name-only 6c48b4195c2eda681d9817e490d6fbb8042956fc origin/master | grep \"test\" | wc -l'
+                script: 'git diff --name-only 6c48b4195c2eda681d9817e490d6fbb8042956fc origin/main | grep \"test\" | wc -l'
             ]) >> {
                 '0'
             }

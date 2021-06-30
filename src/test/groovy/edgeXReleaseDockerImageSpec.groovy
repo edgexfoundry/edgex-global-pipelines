@@ -4,7 +4,7 @@ import spock.lang.Ignore
 public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
     def edgeXReleaseDockerImage
     def validReleaseYaml
-    
+
     def setup() {
         edgeXReleaseDockerImage = loadPipelineScriptForTest('vars/edgeXReleaseDockerImage.groovy')
 
@@ -16,7 +16,7 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
             name:'app-functions-sdk-go',
             version:'v1.2.0',
             releaseName:'geneva',
-            releaseStream:'master',
+            releaseStream:'main',
             repo:'https://github.com/edgexfoundry/app-functions-sdk-go.git',
             dockerImages:true,
             docker:[[
@@ -114,7 +114,7 @@ public class EdgeXReleaseDockerImageSpec extends JenkinsPipelineSpecification {
         when:
             edgeXReleaseDockerImage.validate(validReleaseYaml.findAll {it.key != 'releaseStream'})
         then:
-            1 * getPipelineMock('error').call('[edgeXReleaseDockerImage] Release yaml does not contain \'releaseStream\' (branch where you are releasing from). Example: master')
+            1 * getPipelineMock('error').call('[edgeXReleaseDockerImage] Release yaml does not contain \'releaseStream\' (branch where you are releasing from). Example: main')
     }
 
     def "Test validate [Should] raise error [When] release info yaml does not have a version attribute" () {

@@ -20,7 +20,7 @@ def isReleaseStream(branchName = env.GIT_BRANCH) {
     env.SILO == 'production' && (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
 
-def didChange(expression, previous='origin/master') {
+def didChange(expression, previous='origin/main') {
     // If there was no previous successful build (as in building for first time) will return true.
     def diffCount = 0
 
@@ -31,9 +31,9 @@ def didChange(expression, previous='origin/master') {
         println "[didChange-DEBUG] NO previous commit. Probably the first build"
         diffCount = 1
     } else{
-        // If we are merging into master then both previous and the current will be the same
+        // If we are merging into main then both previous and the current will be the same
         // so we need to calculate the previous commit has
-        if(previous =~ /.*master|.*release/ && env.GIT_BRANCH =~ /.*master|.*release/) {
+        if(previous =~ /.*main|.*release/ && env.GIT_BRANCH =~ /.*main|.*release/) {
             println "[didChange-DEBUG] currently merging into ${env.GIT_BRANCH}, need to lookup previous commit sha1"
             previous = sh (script: "git show --pretty=%H ${env.GIT_COMMIT}^1 | xargs", returnStdout: true).trim()
         }

@@ -16,7 +16,7 @@ public class EdgeXEmailUtilSpec extends JenkinsPipelineSpecification {
                 'GIT_BASE':     'https://github.com/edgexfoundry/$PROJECT',
                 'GIT_URL':      'git@github.com:edgexfoundry/edgex-global-pipelines.git',
                 'GIT_BRANCH':   'override-branch-name',
-                'JOB_NAME':     'edgexfoundry/mock-job/master',
+                'JOB_NAME':     'edgexfoundry/mock-job/main',
                 'BUILD_NUMBER': '1',
                 'BUILD_URL':    'https://jenkins.edgexfoundry.org/mock-job/1/',
                 'JENKINS_URL':  'https://jenkins.edgexfoundry.org'
@@ -31,7 +31,7 @@ public class EdgeXEmailUtilSpec extends JenkinsPipelineSpecification {
             edgeXEmailUtil.getJobDetailsJson() == expectedResult
         where:
             expectedResult = [
-                jobName: "edgexfoundry/mock-job/master #1",
+                jobName: "edgexfoundry/mock-job/main #1",
                 buildNumber: '1',
                 buildUrl: 'https://jenkins.edgexfoundry.org/mock-job/1/',
                 gitUrl: 'https://github.com/edgexfoundry/edgex-global-pipelines.git',
@@ -53,7 +53,7 @@ public class EdgeXEmailUtilSpec extends JenkinsPipelineSpecification {
             def environmentVariables = [
                 'GIT_BASE':     'https://github.com/edgexfoundry/$PROJECT',
                 'GIT_URL':      'git@github.com:edgexfoundry/edgex-global-pipelines.git',
-                'JOB_NAME':     'edgexfoundry/mock-job/master',
+                'JOB_NAME':     'edgexfoundry/mock-job/main',
                 'BUILD_NUMBER': '1',
                 'BUILD_URL':    'https://jenkins.edgexfoundry.org/mock-job/1/',
                 'JENKINS_URL':  'https://jenkins.edgexfoundry.org'
@@ -68,7 +68,7 @@ public class EdgeXEmailUtilSpec extends JenkinsPipelineSpecification {
             edgeXEmailUtil.getJobDetailsJson() == expectedResult
         where:
             expectedResult = [
-                jobName: "edgexfoundry/mock-job/master #1",
+                jobName: "edgexfoundry/mock-job/main #1",
                 buildNumber: '1',
                 buildUrl: 'https://jenkins.edgexfoundry.org/mock-job/1/',
                 gitUrl: 'https://github.com/edgexfoundry/edgex-global-pipelines.git',
@@ -90,7 +90,7 @@ public class EdgeXEmailUtilSpec extends JenkinsPipelineSpecification {
             def environmentVariables = [
                 'GIT_BASE':     'https://github.com/edgexfoundry/$PROJECT',
                 'GIT_URL':      'git@github.com:edgexfoundry/edgex-global-pipelines.git',
-                'JOB_NAME':     'edgexfoundry/mock-job/master',
+                'JOB_NAME':     'edgexfoundry/mock-job/main',
                 'BUILD_NUMBER': '1',
                 'BUILD_URL':    'https://jenkins.edgexfoundry.org/mock-job/1/',
                 'JENKINS_URL':  'https://jenkins.edgexfoundry.org'
@@ -105,7 +105,7 @@ public class EdgeXEmailUtilSpec extends JenkinsPipelineSpecification {
             edgeXEmailUtil.getJobDetailsJson() == expectedResult
         where:
             expectedResult = [
-                jobName: "edgexfoundry/mock-job/master #1",
+                jobName: "edgexfoundry/mock-job/main #1",
                 buildNumber: '1',
                 buildUrl: 'https://jenkins.edgexfoundry.org/mock-job/1/',
                 gitUrl: 'https://github.com/edgexfoundry/edgex-global-pipelines.git',
@@ -127,7 +127,7 @@ public class EdgeXEmailUtilSpec extends JenkinsPipelineSpecification {
             def environmentVariables = [
                 'GIT_BASE':     'https://github.com/edgexfoundry/$PROJECT',
                 'GIT_URL':      'git@github.com:edgexfoundry/edgex-global-pipelines.git',
-                'JOB_NAME':     'edgexfoundry/mock-job/master',
+                'JOB_NAME':     'edgexfoundry/mock-job/main',
                 'BUILD_NUMBER': '1',
                 'BUILD_URL':    'https://jenkins.edgexfoundry.org/mock-job/1/',
                 'JENKINS_URL':  'https://jenkins.edgexfoundry.org',
@@ -146,7 +146,7 @@ public class EdgeXEmailUtilSpec extends JenkinsPipelineSpecification {
             getPipelineMock('docker.image')('node:alpine') >> explicitlyMockPipelineVariable('DockerImageMock')
 
             def jobJsonMock = [
-                jobName: "edgexfoundry/mock-job/master #1",
+                jobName: "edgexfoundry/mock-job/main #1",
                 buildNumber: '1',
                 buildUrl: 'https://jenkins.edgexfoundry.org/mock-job/1/',
                 gitUrl: 'https://github.com/edgexfoundry/edgex-global-pipelines.git',
@@ -163,7 +163,7 @@ public class EdgeXEmailUtilSpec extends JenkinsPipelineSpecification {
             ]
 
         when:
-            
+
 
             edgeXEmailUtil.generateEmailTemplate()
         then:

@@ -21,7 +21,7 @@ releaseYaml:
 ---
 name: 'sample-service'
 version: 1.1.2
-releaseStream: 'master'
+releaseStream: 'main'
 repo: 'https://github.com/edgexfoundry/sample-service.git'
 gitHubReleaseAssets:
   - 'https://nexus-location/asset1'
