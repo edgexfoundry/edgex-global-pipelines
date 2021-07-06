@@ -116,5 +116,5 @@ docker run -t -u 0:0 \
 
 More information can be found by reading the documentation or source code of these pipelines:
 
-- [edgeXBuildGoApp](https://edgexfoundry.github.io/edgex-global-pipelines/html/libraries/edgeXBuildGoApp/) [source](https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/vars/edgeXBuildGoApp.groovy)
-- [edgeXBuildGoParallel](https://edgexfoundry.github.io/edgex-global-pipelines/html/libraries/edgeXBuildGoParallel/) [source](https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/vars/edgeXBuildGoParallel.groovy)
+- [edgeXBuildGoApp](https://edgexfoundry.github.io/edgex-global-pipelines/html/libraries/edgeXBuildGoApp/) [source](https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/vars/edgeXBuildGoApp.groovy)
+- [edgeXBuildGoParallel](https://edgexfoundry.github.io/edgex-global-pipelines/html/libraries/edgeXBuildGoParallel/) [source](https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/vars/edgeXBuildGoParallel.groovy)

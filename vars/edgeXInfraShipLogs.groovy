@@ -15,11 +15,11 @@
 //
 
 // NOTE: This file is no longer in use. This has been replace by lfInfraShipLogs
-// https://github.com/lfit/releng-pipelines/blob/master/vars/lfInfraShipLogs.groovy
+// https://github.com/lfit/releng-pipelines/blob/main/vars/lfInfraShipLogs.groovy
 def call(body) {
     // evaluate the body block, and collect configuration into the object
     def config = [:]
-    
+
     if(body) {
         body.resolveStrategy = Closure.DELEGATE_FIRST
         body.delegate = config

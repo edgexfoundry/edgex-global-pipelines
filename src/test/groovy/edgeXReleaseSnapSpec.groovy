@@ -2,7 +2,7 @@ import com.homeaway.devtools.jenkins.testing.JenkinsPipelineSpecification
 import spock.lang.Ignore
 
 public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
-    
+
     def edgeXReleaseSnap = null
     def validReleaseInfo
     def validSnapInfo
@@ -20,7 +20,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
             'version': '1.2.3',
             'snap': true,
             'repo': 'https://github.com/edgexfoundry/sample-service.git',
-            'releaseStream': 'master',
+            'releaseStream': 'main',
             'snapChannels': [
                 [
                     channel: 'latest/stable',
@@ -95,7 +95,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
             edgeXReleaseSnap.validate(validReleaseInfo.findAll {it.key != 'releaseStream'})
         then:
             1 * getPipelineMock('error').call('[edgeXReleaseSnap]: Release yaml does not contain \'releaseStream\'')
-    }    
+    }
 
     def "Test validate [Should] raise error [When] release info yaml does not have a repo attribute" () {
         setup:
@@ -118,16 +118,16 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
                 'https://github.com/edgexfoundry/app-functions-sdk-go.git'
             ]
             branch << [
-                'master',
+                'main',
                 'fuji',
-                'master',
+                'main',
                 'branch1',
                 'branch2'
             ]
             expectedResult << [
-                'https://raw.githubusercontent.com/edgexfoundry/sample-service/master/snap/snapcraft.yaml',
+                'https://raw.githubusercontent.com/edgexfoundry/sample-service/main/snap/snapcraft.yaml',
                 'git@github.com:edgexfoundry/sample-service/fuji/snap/snapcraft.yaml',
-                'https://raw.githubusercontent.com/edgexfoundry/edgex-go/master/snap/snapcraft.yaml',
+                'https://raw.githubusercontent.com/edgexfoundry/edgex-go/main/snap/snapcraft.yaml',
                 'https://raw.githubusercontent.com/edgexfoundry/device-sdk-go/branch1/snap/snapcraft.yaml',
                 'https://raw.githubusercontent.com/edgexfoundry/app-functions-sdk-go/branch2/snap/snapcraft.yaml'
             ]
@@ -140,9 +140,9 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
             ]
             edgeXReleaseSnap.getBinding().setVariable('env', environmentVariables)
         when:
-            edgeXReleaseSnap.getSnapMetadata("https://github.com/edgexfoundry/edgex-go", "master", "edgex-go")
+            edgeXReleaseSnap.getSnapMetadata("https://github.com/edgexfoundry/edgex-go", "main", "edgex-go")
         then:
-            1 * getPipelineMock("sh").call("curl --fail -o /w/thecars/snapcraft-edgex-go.yaml -O https://raw.githubusercontent.com/edgexfoundry/edgex-go/master/snap/snapcraft.yaml")
+            1 * getPipelineMock("sh").call("curl --fail -o /w/thecars/snapcraft-edgex-go.yaml -O https://raw.githubusercontent.com/edgexfoundry/edgex-go/main/snap/snapcraft.yaml")
             1 * getPipelineMock("readYaml").call(file: "/w/thecars/snapcraft-edgex-go.yaml")
     }
 
@@ -193,7 +193,7 @@ public class EdgeXReleaseSnapSpec extends JenkinsPipelineSpecification {
                 'WORKSPACE': '/w/thecars'
             ]
             edgeXReleaseSnap.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('sh').call('curl --fail -o /w/thecars/snapcraft-sample-service.yaml -O https://raw.githubusercontent.com/edgexfoundry/sample-service/master/snap/snapcraft.yaml') >> {
+            getPipelineMock('sh').call('curl --fail -o /w/thecars/snapcraft-sample-service.yaml -O https://raw.githubusercontent.com/edgexfoundry/sample-service/main/snap/snapcraft.yaml') >> {
                 throw new Exception('curl Exception')
             }
         when:

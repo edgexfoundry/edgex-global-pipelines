@@ -118,13 +118,13 @@ public class EdgeXGenericSpec extends JenkinsPipelineSpecification {
     def "Test getScripts [Should] return expected [When] called - DD" () {
         setup:
         expect:
-            edgeXGeneric.getScripts(config, 'build_script', 'master') == expectedResult
+            edgeXGeneric.getScripts(config, 'build_script', 'main') == expectedResult
 
         where:
             config << [
                 [
                     branches: [
-                        master: [
+                        main: [
                             pre_build_script: '!include-raw-escape: shell/pre.sh',
                             build_script: 'make test verify && make build docker',
                             post_build_script: 'shell/post.sh'
@@ -145,13 +145,13 @@ public class EdgeXGenericSpec extends JenkinsPipelineSpecification {
     def "Test allScripts [Should] return expected [When] called - DD" () {
         setup:
         expect:
-            edgeXGeneric.allScripts(config, 'pre_build_script', 'master') == expectedResult
+            edgeXGeneric.allScripts(config, 'pre_build_script', 'main') == expectedResult
 
         where:
             config << [
                 [
                     branches: [
-                        master: [
+                        main: [
                             pre_build_script: '!include-raw-escape: shell/pre.sh',
                             build_script: 'make test verify && make build docker',
                             post_build_script: 'shell/post.sh'
@@ -164,7 +164,7 @@ public class EdgeXGenericSpec extends JenkinsPipelineSpecification {
                         '*': [
                             pre_build_script: 'shell/all_pre.sh',
                             build_script: 'shell/all_build.sh',
-                            post_build_script: 'shell/all_post.sh'   
+                            post_build_script: 'shell/all_post.sh'
                         ]
                     ]
                 ]
@@ -177,13 +177,13 @@ public class EdgeXGenericSpec extends JenkinsPipelineSpecification {
     def "Test anyScript [Should] return expected [When] called - DD" () {
         setup:
         expect:
-            edgeXGeneric.anyScript(config, 'pre_build_script', 'master') == expectedResult
+            edgeXGeneric.anyScript(config, 'pre_build_script', 'main') == expectedResult
 
         where:
             config << [
                 [
                     branches: [
-                        master: [
+                        main: [
                             pre_build_script: '!include-raw-escape: shell/pre.sh',
                             build_script: 'make test verify && make build docker',
                             post_build_script: 'shell/post.sh'

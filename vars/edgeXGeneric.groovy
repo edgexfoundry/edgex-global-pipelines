@@ -35,7 +35,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
                 'shell/codecov-uploader.sh'
             ]
         ],
-        'master': [
+        'main': [
             post_build: [ 'shell/edgexfoundry-go-docker-push.sh' ]
         ]
     ]

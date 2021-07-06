@@ -21,7 +21,7 @@ releaseYaml:
 ---
 name: 'sample-service'
 version: '1.1.2'
-releaseStream: 'master'
+releaseStream: 'main'
 commitId: '0cc1d67607642c9413e4a80d25a2df35ecc76d41'
 repo: 'https://github.com/edgexfoundry/sample-service.git'
 gitTag: true
@@ -79,15 +79,15 @@ def setAndSignGitTag(name, version) {
 def bumpAndPushGitTag(name, version, bumpLevel, bump = true) {
     // call edgeXSemver bump to bump semver branch to next bumpLevel and push to push git tag
     println "[edgeXReleaseGitTag]: pushing git tag for ${name}: ${version} - DRY_RUN: ${env.DRY_RUN}"
-    
+
     def commands = [
         "push"
     ]
-    
+
     if(bump) {
         commands.add(0, "bump ${bumpLevel}")
     }
-    
+
     if(edgex.isDryRun()) {
         echo(commands.collect {"edgeXSemver ${it}"}.join('\n'))
     }

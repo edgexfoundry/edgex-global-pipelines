@@ -2,7 +2,7 @@ import com.homeaway.devtools.jenkins.testing.JenkinsPipelineSpecification
 import spock.lang.Ignore
 
 public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
-    
+
     def edgeXReleaseGitTag = null
     def validReleaseInfo
     def validreleaseGitTagOptions
@@ -19,7 +19,7 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
         validReleaseInfo = [
             'name': 'sample-service',
             'version': '1.2.3',
-            'releaseStream': 'master',
+            'releaseStream': 'main',
             'repo': 'https://github.com/edgexfoundry/sample-service.git'
         ]
         validreleaseGitTagOptions = [
@@ -38,12 +38,12 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             getPipelineMock('edgex.isDryRun').call() >> false
             getPipelineMock('edgeXReleaseGitTagUtil.getSSHRepoName').call('http-repo-name') >> 'git-repo-name'
         when:
-            edgeXReleaseGitTag.cloneRepo('http-repo-name', 'master', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
+            edgeXReleaseGitTag.cloneRepo('http-repo-name', 'main', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
         then:
             1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
                 assert ['credentials':['MyCredentials']] == _arguments[0][0]
             }
-            1 * getPipelineMock('sh').call('git clone -b master git-repo-name /w/thecars/sample-service || true')
+            1 * getPipelineMock('sh').call('git clone -b main git-repo-name /w/thecars/sample-service || true')
             1 * getPipelineMock('sh').call('git checkout f33f986d90bbf8c9cd5dc4c341daab837968a04e')
     }
 
@@ -52,12 +52,12 @@ public class EdgeXReleaseGitTagSpec extends JenkinsPipelineSpecification {
             getPipelineMock('edgex.isDryRun').call() >> true
             getPipelineMock('edgeXReleaseGitTagUtil.getSSHRepoName').call('http-repo-name') >> 'git-repo-name'
         when:
-            edgeXReleaseGitTag.cloneRepo('http-repo-name', 'master', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
+            edgeXReleaseGitTag.cloneRepo('http-repo-name', 'main', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
         then:
             1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
                 assert ['credentials':['MyCredentials']] == _arguments[0][0]
             }
-            1 * getPipelineMock('echo').call('git clone -b master git-repo-name /w/thecars/sample-service || true')
+            1 * getPipelineMock('echo').call('git clone -b main git-repo-name /w/thecars/sample-service || true')
             1 * getPipelineMock('echo').call('git checkout f33f986d90bbf8c9cd5dc4c341daab837968a04e')
     }
 

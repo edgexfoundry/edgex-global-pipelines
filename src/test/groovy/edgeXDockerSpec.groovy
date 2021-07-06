@@ -44,7 +44,7 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_ARGS': 'MyArg1,MyArg2,MyArg3',
                 'http_proxy': 'MyHttpProxy',
                 'VERSION': 'MyVersion',
-                'ARCH': 'MyArch', 
+                'ARCH': 'MyArch',
                 'GIT_COMMIT': 'MyGitCommit',
                 'DOCKER_FILE_PATH': 'MyDockerFilePath',
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
@@ -294,21 +294,21 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
     def "Test cleanImageUrl [Should] return no http:// or https:// [When] called" () {
         setup:
         expect:
-            edgeXDocker.cleanImageUrl('http://nexus3.edgexfoundry.org:10001/docker-foo-bar:master') == 'nexus3.edgexfoundry.org:10001/docker-foo-bar:master'
-            edgeXDocker.cleanImageUrl('https://nexus3.edgexfoundry.org:10001/docker-foo-bar:master') == 'nexus3.edgexfoundry.org:10001/docker-foo-bar:master'
-            edgeXDocker.cleanImageUrl('nexus3.edgexfoundry.org:10001/docker-foo-bar:master') == 'nexus3.edgexfoundry.org:10001/docker-foo-bar:master'
-            edgeXDocker.cleanImageUrl('edgexfoundry/docker-foo-bar:master') == 'edgexfoundry/docker-foo-bar:master'
+            edgeXDocker.cleanImageUrl('http://nexus3.edgexfoundry.org:10001/docker-foo-bar:main') == 'nexus3.edgexfoundry.org:10001/docker-foo-bar:main'
+            edgeXDocker.cleanImageUrl('https://nexus3.edgexfoundry.org:10001/docker-foo-bar:main') == 'nexus3.edgexfoundry.org:10001/docker-foo-bar:main'
+            edgeXDocker.cleanImageUrl('nexus3.edgexfoundry.org:10001/docker-foo-bar:main') == 'nexus3.edgexfoundry.org:10001/docker-foo-bar:main'
+            edgeXDocker.cleanImageUrl('edgexfoundry/docker-foo-bar:main') == 'edgexfoundry/docker-foo-bar:main'
     }
 
     def "Test parse [Should] return expected [When] called" () {
         setup:
         expect:
             [
-                'http://nexus3.edgexfoundry.org:10001/docker-foo-bar:master',
-                'https://nexus3.edgexfoundry.org:10002/docker-foo-bar:master',
-                'nexus3.edgexfoundry.org:10003/docker-foo-bar:master',
+                'http://nexus3.edgexfoundry.org:10001/docker-foo-bar:main',
+                'https://nexus3.edgexfoundry.org:10002/docker-foo-bar:main',
+                'nexus3.edgexfoundry.org:10003/docker-foo-bar:main',
                 'nexus3.edgexfoundry.org:10004/edgex-devops/docker-foo-bar',
-                'example.com/extra/docker-foo-bar:master',
+                'example.com/extra/docker-foo-bar:main',
                 'edgexfoundry/docker-foo-bar:v1.1.2',
                 'edgexfoundry/docker-foo-bar',
                 'docker.io/edgexfoundry/docker-foo-bar:v1.1.2',
@@ -317,11 +317,11 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             ].collect { edgeXDocker.parse(it) } == expectedResult
         where:
             expectedResult = [
-                [host:'nexus3.edgexfoundry.org:10001', fullImage:'docker-foo-bar:master', namespace:null, image:'docker-foo-bar', tag:'master'],
-                [host:'nexus3.edgexfoundry.org:10002', fullImage:'docker-foo-bar:master', namespace:null, image:'docker-foo-bar', tag:'master'],
-                [host:'nexus3.edgexfoundry.org:10003', fullImage:'docker-foo-bar:master', namespace:null, image:'docker-foo-bar', tag:'master'],
+                [host:'nexus3.edgexfoundry.org:10001', fullImage:'docker-foo-bar:main', namespace:null, image:'docker-foo-bar', tag:'main'],
+                [host:'nexus3.edgexfoundry.org:10002', fullImage:'docker-foo-bar:main', namespace:null, image:'docker-foo-bar', tag:'main'],
+                [host:'nexus3.edgexfoundry.org:10003', fullImage:'docker-foo-bar:main', namespace:null, image:'docker-foo-bar', tag:'main'],
                 [host:'nexus3.edgexfoundry.org:10004', fullImage:'edgex-devops/docker-foo-bar', namespace:'edgex-devops', image:'docker-foo-bar', tag:'latest'],
-                [host:'example.com', fullImage:'extra/docker-foo-bar:master', namespace:'extra', image:'docker-foo-bar', tag:'master'],
+                [host:'example.com', fullImage:'extra/docker-foo-bar:main', namespace:'extra', image:'docker-foo-bar', tag:'main'],
                 [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar:v1.1.2', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'v1.1.2'],
                 [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'latest'],
                 [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar:v1.1.2', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'v1.1.2'],
@@ -334,10 +334,10 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
         setup:
         expect:
             [
-                [host:'nexus3.edgexfoundry.org:10001', fullImage:'docker-foo-bar:master', namespace:null, image:'docker-foo-bar', tag:'master'],
+                [host:'nexus3.edgexfoundry.org:10001', fullImage:'docker-foo-bar:main', namespace:null, image:'docker-foo-bar', tag:'main'],
                 [host:'nexus3.edgexfoundry.org:10002', fullImage:'docker-foo-bar:latest', namespace:null, image:'docker-foo-bar', tag:'latest'],
                 [host:'nexus3.edgexfoundry.org:10003', fullImage:'edgex-devops/docker-foo-bar', namespace:'edgex-devops', image:'docker-foo-bar', tag:'latest'],
-                [host:'example.com', fullImage:'extra/docker-foo-bar:master', namespace:'extra', image:'docker-foo-bar', tag:'master'],
+                [host:'example.com', fullImage:'extra/docker-foo-bar:main', namespace:'extra', image:'docker-foo-bar', tag:'main'],
                 [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar:v1.1.2', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'v1.1.2'],
                 [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'latest'],
                 [host:'docker.io', fullImage:'edgexfoundry/docker-foo-bar:v1.1.2', namespace:'edgexfoundry', image:'docker-foo-bar', tag:'v1.1.2'],
@@ -346,10 +346,10 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             ].collect { edgeXDocker.toImageStr(it) } == expectedResult
         where:
             expectedResult = [
-                'nexus3.edgexfoundry.org:10001/docker-foo-bar:master',
+                'nexus3.edgexfoundry.org:10001/docker-foo-bar:main',
                 'nexus3.edgexfoundry.org:10002/docker-foo-bar:latest',
                 'nexus3.edgexfoundry.org:10003/edgex-devops/docker-foo-bar:latest',
-                'example.com/extra/docker-foo-bar:master',
+                'example.com/extra/docker-foo-bar:main',
                 'docker.io/edgexfoundry/docker-foo-bar:v1.1.2',
                 'docker.io/edgexfoundry/docker-foo-bar:latest',
                 'docker.io/edgexfoundry/docker-foo-bar:v1.1.2',
@@ -396,7 +396,7 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             'MyOtherDockerCustomTag'
         ]
     }
-    
+
     def "Test replaceDockerLabel [Should] return expected [When] called" () {
         setup:
         expect:
@@ -483,7 +483,7 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             def environmentVariables = [
                 'GIT_COMMIT': '4f542d150f63fd84c4c4e03c791e07fdb7c9aef4',
                 'VERSION': null,
-                'SEMVER_BRANCH': 'master',
+                'SEMVER_BRANCH': 'main',
                 'DOCKER_REGISTRY': 'nexus3.edgexfoundry.org',
                 'DOCKER_REGISTRY_NAMESPACE': 'promo-time', // this is needed to mock the withEnv
                 'DOCKER_PROMOTION_NAMESPACE': 'promo-time'
@@ -514,7 +514,7 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             def environmentVariables = [
                     'GIT_COMMIT': '4f542d150f63fd84c4c4e03c791e07fdb7c9aef4',
                     'VERSION': '1.33.3',
-                    'SEMVER_BRANCH': 'master',
+                    'SEMVER_BRANCH': 'main',
                     'DOCKER_REGISTRY': 'nexus3.edgexfoundry.org'
             ]
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
@@ -534,13 +534,13 @@ public class EdgeXDockerSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('docker-device-mqtt-go.push').call('latest')
             1 * getPipelineMock('docker-device-mqtt-go.push').call('1.33.3')
             1 * getPipelineMock('docker-device-mqtt-go.push').call('4f542d150f63fd84c4c4e03c791e07fdb7c9aef4-1.33.3')
-            1 * getPipelineMock('docker-device-mqtt-go.push').call('master')
+            1 * getPipelineMock('docker-device-mqtt-go.push').call('main')
 
             1 * getPipelineMock('docker-device-mqtt-go-arm64.push').call('4f542d150f63fd84c4c4e03c791e07fdb7c9aef4')
             1 * getPipelineMock('docker-device-mqtt-go-arm64.push').call('latest')
             1 * getPipelineMock('docker-device-mqtt-go-arm64.push').call('1.33.3')
             1 * getPipelineMock('docker-device-mqtt-go-arm64.push').call('4f542d150f63fd84c4c4e03c791e07fdb7c9aef4-1.33.3')
-            1 * getPipelineMock('docker-device-mqtt-go-arm64.push').call('master')
+            1 * getPipelineMock('docker-device-mqtt-go-arm64.push').call('main')
     }
 
     def "Test generateDockerComposeForBuild [Should] return expected [When] called with labels" () {
