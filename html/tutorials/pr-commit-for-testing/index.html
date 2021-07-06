@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/pr-commit-for-testing/">
       
       <link rel="icon" href="../../assets/logo_edgex.png">
-      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.7">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.9">
     
     
       
@@ -48,6 +48,8 @@
     
     
       
+
+
     
     
   </head>
@@ -581,7 +583,7 @@
 <p>The <a href="https://jenkins.edgexfoundry.org/">EdgeX Jenkins Production Server</a> and <a href="https://jenkins.edgexfoundry.org/sandbox/">EdgeX Jenkins Sandbox Server</a> are configured to use the <a href="https://github.com/edgexfoundry/edgex-global-pipelines"><code>edgex-global-pipelines</code></a> library. The servers target either <a href="https://github.com/edgexfoundry/edgex-global-pipelines/tree/stable"><code>stable</code></a> or <a href="https://github.com/edgexfoundry/edgex-global-pipelines/tree/experimental"><code>experimental</code></a> tags for Production and Sandbox servers respectively.</p>
 <p>To make functional testing of Jenkins Shared Pipeline Libraries more convenient, you can use a commit hash from a Pull Request into <a href="https://github.com/edgexfoundry/edgex-global-pipelines"><code>edgex-global-pipelines</code></a> to override the default pipeline version that the Jenkins server is using. (<code>stable</code>/<code>experimental</code>)</p>
 <h3 id="step-1-create-draft-pr">Step 1 - Create Draft PR</h3>
-<p>When you have changes you'd like to functionally test, open a Draft Pull Request from your forked repository of <code>edgex-global-pipelines</code> into <a href="https://github.com/edgexfoundry/edgex-global-pipelines"><code>edgex-global-pipelines:master</code></a></p>
+<p>When you have changes you'd like to functionally test, open a Draft Pull Request from your forked repository of <code>edgex-global-pipelines</code> into <a href="https://github.com/edgexfoundry/edgex-global-pipelines"><code>edgex-global-pipelines:main</code></a></p>
 <p>Make clear that this is a PR for functional testing purposes and is not meant to be merged.</p>
 <p><img alt="Create Draft PR" src="../images/draft-pr.png" /></p>
 <h3 id="step-2-use-pr-commit-hash">Step 2 - Use PR Commit Hash</h3>
@@ -606,7 +608,7 @@ Attempting to resolve 7eba319 from remote references...
 </code></pre></div>
 <h3 id="step-4-finishing-up">Step 4 - Finishing Up</h3>
 <p>When you are satisfied that the content of your <code>edgex-global-pipelines</code> fork is functionally tested and ready to be merged, you can convert your draft PR into a real PR and add the appropriate reviewers.</p>
-<p>After your PR is merged to master, the <code>experimental</code> tag will point to your newest content. You might want to test your new code by switching back to the <code>experimental</code> tag in your Jenkinsfile.</p>
+<p>After your PR is merged to main, the <code>experimental</code> tag will point to your newest content. You might want to test your new code by switching back to the <code>experimental</code> tag in your Jenkinsfile.</p>
 <div class="highlight"><pre><span></span><code>@Library<span class="o">(</span><span class="s2">&quot;edgex-global-pipelines@experimental&quot;</span><span class="o">)</span> _
 </code></pre></div>
 <p>Please clean up and close your PR after you have finished your functional testing.</p>
@@ -715,10 +717,10 @@ Attempting to resolve 7eba319 from remote references...
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["tabs"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.b0710199.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["tabs"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.76f349be.min.js"></script>
+      <script src="../../assets/javascripts/bundle.82b56eb2.min.js"></script>
       
     
   </body>

@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/unit-testing-best-practices/">
       
       <link rel="icon" href="../../assets/logo_edgex.png">
-      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.7">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.9">
     
     
       
@@ -48,6 +48,8 @@
     
     
       
+
+
     
     
   </head>
@@ -485,7 +487,7 @@
 <h2 id="encapsulate-pipeline-logic-within-groovy-functions">Encapsulate Pipeline logic within Groovy functions</h2>
 <p>In order to facilitate unit testing of the edgex-global-pipelines shared library, the DevOps team has made a deliberate effort to to minimize the amount of scripting logic contained within Jenkins declarative pipelines. This is accomplished by encapsulating pipeline logic within a Groovy function and calling the function in the declarative pipeline step as needed. Localizing pipeline logic within Groovy functions enables the Jenkins Spock framework to provide greater test coverage of Pipeline logic.</p>
 <h2 id="example">Example</h2>
-<p>An example this approach can be seen within the <code>Build -&gt; amd64 -&gt; Prep</code> stage of the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/vars/edgeXBuildCApp.groovy">edgeXBuildCApp Delcarative Pipeline</a>. Note the logic for prepping the base build image is encapsulated into a method named <code>prepBaseBuildImage</code> and it is called within the declarative Pipeline. Also the <code>prepBaseBuildImage</code> function logic is thoroughly unit tested in the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/src/test/groovy/edgeXBuildCAppSpec.groovy">edgeXBuildCApp Spec</a></p>
+<p>An example this approach can be seen within the <code>Build -&gt; amd64 -&gt; Prep</code> stage of the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/vars/edgeXBuildCApp.groovy">edgeXBuildCApp Delcarative Pipeline</a>. Note the logic for prepping the base build image is encapsulated into a method named <code>prepBaseBuildImage</code> and it is called within the declarative Pipeline. Also the <code>prepBaseBuildImage</code> function logic is thoroughly unit tested in the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/src/test/groovy/edgeXBuildCAppSpec.groovy">edgeXBuildCApp Spec</a></p>
 <h1 id="mocking-jenkins-dependencies">Mocking Jenkins Dependencies</h1>
 <p>Always leverage the builtin capabilities of the Jenkins-Spock framework for mocking Jenkins plugins. For example, if you come across the following error when unit testing your code:
 <div class="highlight"><pre><span></span><code>java.lang.IllegalStateException: During a test, the pipeline step [stepName] was called but there was no mock for it.
@@ -517,9 +519,9 @@ The error above denotes that the code under test calls a pipeline step <code>ste
   - <code>env[VARIABLE] = VALUE</code></p>
 <h2 id="testing-environment-variables">Testing environment variables</h2>
 <p>Within your unit tests, environment variables are set using the <code>.getBinding().setVariable('name', 'value')</code> idiom. Where the name is <code>env</code> and the value is a map you define within your unit test. The map should define all environment variables the code under test expects, likewise the map can be used to assert any environment variables that the code under test sets.</p>
-<p>A good example of this practice is the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/src/test/groovy/edgeXSetupEnvironmentSpec.groovy">EdgeXSetupEnvironmentSpec</a></p>
+<p>A good example of this practice is the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/src/test/groovy/edgeXSetupEnvironmentSpec.groovy">EdgeXSetupEnvironmentSpec</a></p>
 <h1 id="mock-external-shared-library-methods">Mock external shared library methods</h1>
-<p>The <code>edgex-global-pipelines</code> Jenkins shared library consists of multiple scripts exposing methods for various functional areas, where each script is named after the particular functional area it serves. The shared library includes a <code>EdgeX</code> script that serves as utility script containing methods that are shared amongst other scripts. It is common practice for a method in one script call a method in another script, to mock the interaction you use the <code>explictlyMockPipelineVariable</code> to mock the script, then <code>getPipelineMock</code> method to verify the interaction or stub it if necessary. </p>
+<p>The <code>edgex-global-pipelines</code> Jenkins shared library consists of multiple scripts exposing methods for various functional areas, where each script is named after the particular functional area it serves. The shared library includes a <code>EdgeX</code> script that serves as utility script containing methods that are shared amongst other scripts. It is common practice for a method in one script call a method in another script, to mock the interaction you use the <code>explictlyMockPipelineVariable</code> to mock the script, then <code>getPipelineMock</code> method to verify the interaction or stub it if necessary.</p>
 <p>Mock the external script named <code>script</code>:
 <div class="highlight"><pre><span></span><code>explictlyMockPipelineVariable(&#39;script&#39;)
 </code></pre></div>
@@ -529,7 +531,7 @@ It is recommended to mock all external scripts called within the script under te
 </code></pre></div></p>
 <h2 id="integration-testing">Integration Testing</h2>
 <p>Integration Testing is defined as a type of testing where software modules are integrated logically and tested as a group. The Jenkins-Spock framework provides the ability to load any number of scripts to test within a given Spec Test. There are instances where performing integration tests is more practical, if you wish to do so then we recommend naming the Spec Test with <code>Int</code> as to differentiate between unit and integration tests.</p>
-<p>A good example of this practice is the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/master/src/test/groovy/edgeXReleaseDockerImageIntSpec.groovy">EdgeXReleaseDockerImageIntSpec</a></p>
+<p>A good example of this practice is the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/src/test/groovy/edgeXReleaseDockerImageIntSpec.groovy">EdgeXReleaseDockerImageIntSpec</a></p>
 <h1 id="mock-errors">Mock errors</h1>
 <p>Always leverage <code>error</code> when wanting to conditionally abort part of your script. Error is a Pipeline Step whose plugin has been added as a dependency to our project thus is already mocked by the framework. An example showing how you can assert that an error is thrown with a specific message:
 <div class="highlight"><pre><span></span><code>1 * getPipelineMock(&#39;error&#39;).call(&#39;error message&#39;)
@@ -642,10 +644,10 @@ It is recommended to mock all external scripts called within the script under te
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["tabs"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.b0710199.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["tabs"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.76f349be.min.js"></script>
+      <script src="../../assets/javascripts/bundle.82b56eb2.min.js"></script>
       
     
   </body>
