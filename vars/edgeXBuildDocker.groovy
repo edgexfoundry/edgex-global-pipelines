@@ -167,7 +167,6 @@ def call(config) {
                                         if(params.CommitId) {
                                             sh "git checkout ${params.CommitId}"
                                         }
-                                        // enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
@@ -218,6 +217,11 @@ def call(config) {
                                 }
                             }
                         }
+                        post {
+                            always {
+                                script { edgex.parallelJobCost() }
+                            }
+                        }
                     }
 
                     stage('arm64') {
@@ -236,7 +240,6 @@ def call(config) {
                                         if(params.CommitId) {
                                             sh "git checkout ${params.CommitId}"
                                         }
-                                        // enableDockerProxy('https://nexus3.edgexfoundry.org:10001')
                                         // docker login for the to make sure all docker commands are authenticated
                                         // in this specific node
                                         edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
@@ -284,6 +287,11 @@ def call(config) {
                                         }
                                     }
                                 }
+                            }
+                        }
+                        post {
+                            always {
+                                script { edgex.parallelJobCost('arm64') }
                             }
                         }
                     }
@@ -424,11 +432,4 @@ def toEnvironment(config) {
     edgex.printMap envMap
 
     envMap
-}
-
-// Temp fix while LF updates base packer images
-def enableDockerProxy(proxyHost, debug = false) {
-    sh "sudo jq \'. + {\"registry-mirrors\": [\"${proxyHost}\"], debug: ${debug}}\' /etc/docker/daemon.json > /tmp/daemon.json"
-    sh 'sudo mv /tmp/daemon.json /etc/docker/daemon.json'
-    sh 'sudo service docker restart | true'
 }
