@@ -30,7 +30,7 @@ public class EdgeXInfraPublishSpec extends JenkinsPipelineSpecification {
             getPipelineMock("libraryResource")('global-jjb-shell/package-listing.sh') >> {
                 return 'package-listing'
             }
-            getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-lftools-log-publisher:alpine') >> explicitlyMockPipelineVariable('DockerImageMock')
+            getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-lftools-log-publisher:latest') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
             edgeXInfraPublish()
         then:
@@ -42,8 +42,8 @@ public class EdgeXInfraPublishSpec extends JenkinsPipelineSpecification {
                 assert dockerArgs == _arguments[0][0]
             }
             1 * getPipelineMock('sh').call('touch /tmp/pre-build-complete')
-            1 * getPipelineMock('sh').call('mkdir -p /var/log/sa')
-            1 * getPipelineMock('sh').call('for file in `ls /var/log/sa-host`; do sadf -c /var/log/sa-host/${file} > /var/log/sa/${file}; done')
+            1 * getPipelineMock('sh').call('mkdir -p /var/log/sysstat')
+            1 * getPipelineMock('sh').call('for file in `ls /var/log/sa-host`; do sadf -c /var/log/sa-host/${file} > /var/log/sysstat/${file}; done')
     }
 
     def "Test getLogPublishContainerArgs [Should] return expected #expectedResult [When] called" () {

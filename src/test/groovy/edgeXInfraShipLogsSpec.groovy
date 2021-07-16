@@ -37,7 +37,7 @@ public class EdgeXInfraShipLogsSpec extends JenkinsPipelineSpecification {
         when:
             edgeXInfraShipLogs()
         then:
-            1 * getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-lftools-log-publisher:alpine') >> explicitlyMockPipelineVariable('DockerImageMock')
+            1 * getPipelineMock('docker.image')('MyDockerRegistry:10003/edgex-lftools-log-publisher:latest') >> explicitlyMockPipelineVariable('DockerImageMock')
             1 * getPipelineMock('DockerImageMock.inside').call(_) >> { _arguments ->
                 def dockerArgs = '--privileged -u 0:0 -v /var/log/sa:/var/log/sa-host'
                 assert dockerArgs == _arguments[0][0]

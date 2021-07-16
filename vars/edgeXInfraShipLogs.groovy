@@ -30,7 +30,7 @@ def call(body) {
 
     // running this inside the lftools container to avoid the 1-3 minute install of lftools
     // Dockerfile for this image can be found here: https://github.com/edgexfoundry/ci-build-images/blob/lftools/Dockerfile.logs-publish
-    docker.image("${env.DOCKER_REGISTRY}:10003/edgex-lftools-log-publisher:alpine").inside('--privileged -u 0:0 -v /var/log/sa:/var/log/sa-host') {
+    docker.image("${env.DOCKER_REGISTRY}:10003/edgex-lftools-log-publisher:latest").inside('--privileged -u 0:0 -v /var/log/sa:/var/log/sa-host') {
         // A conversion needs to take place for the sysstat files (sar is called during the lftools deploy logs)
         // See: https://serverfault.com/questions/757771/how-to-read-sar-file-from-different-ubuntu-system
 
