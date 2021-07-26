@@ -25,6 +25,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXBuildCApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> true
 
         when:
             edgeXBuildCApp.prepBaseBuildImage()
@@ -45,6 +46,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXBuildCApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> true
 
         when:
             edgeXBuildCApp.prepBaseBuildImage()
@@ -52,6 +54,29 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('docker.build').call([
                     'ci-base-image-arm64',
                     '-f MyDockerBuildFilePath  --build-arg BASE=nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base-arm64:latest --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
+    }
+
+    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] ARM architecture and base image contains registry and docker build file does not exist" () {
+        setup:
+            def environmentVariables = [
+                'ARCH': 'arm64',
+                'DOCKER_REGISTRY': 'nexus3.edgexfoundry.org',
+                'http_proxy': 'MyHttpProxy',
+                'DOCKER_BASE_IMAGE': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base:latest',
+                'DOCKER_BUILD_FILE_PATH': 'DoesNotExists',
+                'DOCKER_FILE_PATH': 'MyDockerfile',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'DOCKER_BUILD_IMAGE_TARGET': 'MyBuildTarget'
+            ]
+            edgeXBuildCApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> false
+
+        when:
+            edgeXBuildCApp.prepBaseBuildImage()
+        then:
+            1 * getPipelineMock('docker.build').call([
+                    'ci-base-image-arm64',
+                    '-f MyDockerfile  --build-arg BASE=nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base-arm64:latest --build-arg http_proxy --build-arg https_proxy --build-arg MAKE="echo noop" --target=MyBuildTarget MyDockerBuildContext'])
     }
 
     def "Test validate [Should] raise error [When] config does not include a project parameter" () {
@@ -87,6 +112,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
+                    DOCKER_BUILD_IMAGE_TARGET: 'builder',
                     DOCKER_IMAGE_NAME: 'device-sdk',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
@@ -112,6 +138,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     dockerFilePath: '/scripts/Dockerfile.alpine-3.9',
                     dockerBuildFilePath: 'Dockerfile.build',
                     dockerBuildContext: '.',
+                    dockerBuildImageTarget: 'MyBuildTarget',
                     dockerBuildArgs: ['MyArg1=Value1', 'MyArg2="Value2"'],
                     dockerNamespace: 'MyDockerNameSpace',
                     dockerImageName: 'MyDockerImageName',
@@ -133,6 +160,7 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_IMAGE_NAME: 'MyDockerImageName',
                     DOCKER_REGISTRY_NAMESPACE: 'MyDockerNameSpace',
                     DOCKER_NEXUS_REPO: 'MyNexusRepo',
+                    DOCKER_BUILD_IMAGE_TARGET: 'MyBuildTarget',
                     BUILD_DOCKER_IMAGE: true,
                     PUSH_DOCKER_IMAGE: true,
                     SEMVER_BUMP_LEVEL: 'patch',

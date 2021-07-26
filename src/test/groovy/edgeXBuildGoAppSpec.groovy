@@ -22,12 +22,35 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> true
         when:
             edgeXBuildGoApp.prepBaseBuildImage()
         then:
              1 * getPipelineMock("docker.build").call([
                     'ci-base-image-MyArch',
                     '-f MyDockerBuildFilePath  --build-arg BASE=MyDockerBaseImage --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
+    }
+
+    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture and docker build file does not exist" () {
+        setup:
+            def environmentVariables = [
+                'ARCH': 'MyArch',
+                'DOCKER_REGISTRY': 'MyDockerRegistry',
+                'http_proxy': 'MyHttpProxy',
+                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage',
+                'DOCKER_BUILD_FILE_PATH': 'DoesNotExists',
+                'DOCKER_FILE_PATH': 'MyDockerfile',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget'
+            ]
+            edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> false
+        when:
+            edgeXBuildGoApp.prepBaseBuildImage()
+        then:
+             1 * getPipelineMock("docker.build").call([
+                    'ci-base-image-MyArch',
+                    '-f MyDockerfile  --build-arg BASE=MyDockerBaseImage --build-arg http_proxy --build-arg https_proxy --build-arg MAKE="echo noop" --target=MyMockTarget MyDockerBuildContext'])
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] ARM architecture and base image contains registry" () {
@@ -41,6 +64,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> true
         when:
             edgeXBuildGoApp.prepBaseBuildImage()
         then:
@@ -86,6 +110,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
+                    DOCKER_BUILD_IMAGE_TARGET: 'builder',
                     DOCKER_IMAGE_NAME: 'pSoda',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
@@ -128,6 +153,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     dockerFilePath: 'MyDockerFilePath',
                     dockerBuildFilePath: 'MyDockerBuildFilePath',
                     dockerBuildContext: 'MyDockerBuildContext',
+                    dockerBuildImageTarget: 'MyBuildTarget',
                     dockerBuildArgs: ['MyArg1=Value1', 'MyArg2="Value2"'],
                     dockerNamespace: 'MyDockerNameSpace',
                     dockerImageName: 'MyDockerImageName',
@@ -156,6 +182,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_FILE_PATH: 'MyDockerFilePath',
                     DOCKER_BUILD_FILE_PATH: 'MyDockerBuildFilePath',
                     DOCKER_BUILD_CONTEXT: 'MyDockerBuildContext',
+                    DOCKER_BUILD_IMAGE_TARGET: 'MyBuildTarget',
                     DOCKER_IMAGE_NAME: 'MyDockerImageName',
                     DOCKER_REGISTRY_NAMESPACE: 'MyDockerNameSpace',
                     DOCKER_NEXUS_REPO: 'MyNexusRepo',
@@ -214,6 +241,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
+                    DOCKER_BUILD_IMAGE_TARGET: 'builder',
                     DOCKER_IMAGE_NAME: 'pSoda',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
@@ -270,6 +298,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
+                    DOCKER_BUILD_IMAGE_TARGET: 'builder',
                     DOCKER_IMAGE_NAME: 'pSoda',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',

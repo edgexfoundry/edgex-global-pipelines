@@ -28,12 +28,35 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXBuildGoParallel.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> true
         when:
             edgeXBuildGoParallel.prepBaseBuildImage()
         then:
              1 * getPipelineMock("docker.build").call([
                      'ci-base-image-MyArch',
                      '-f MyDockerBuildFilePath  --build-arg BASE=MyDockerBaseImage --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
+    }
+
+    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture and docker build file does not exist" () {
+        setup:
+            def environmentVariables = [
+                'ARCH': 'MyArch',
+                'DOCKER_REGISTRY': 'MyDockerRegistry',
+                'http_proxy': 'MyHttpProxy',
+                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage',
+                'DOCKER_BUILD_FILE_PATH': 'DoesNotExists',
+                'DOCKER_FILE_PATH': 'MyDockerfile',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget'
+            ]
+            edgeXBuildGoParallel.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> false
+        when:
+            edgeXBuildGoParallel.prepBaseBuildImage()
+        then:
+             1 * getPipelineMock("docker.build").call([
+                     'ci-base-image-MyArch',
+                     '-f MyDockerfile  --build-arg BASE=MyDockerBaseImage --build-arg http_proxy --build-arg https_proxy --build-arg MAKE="echo noop" --target=MyMockTarget MyDockerBuildContext'])
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] ARM architecture and base image contains registry" () {
@@ -47,6 +70,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
             ]
             edgeXBuildGoParallel.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> true
         when:
             edgeXBuildGoParallel.prepBaseBuildImage()
         then:
@@ -92,6 +116,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     DOCKER_IMAGE_NAME_SUFFIX: '',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
+                    DOCKER_BUILD_IMAGE_TARGET: 'builder',
                     DOCKER_REGISTRY_NAMESPACE: '',
                     DOCKER_NEXUS_REPO: 'staging',
                     BUILD_DOCKER_IMAGE: true,
@@ -124,6 +149,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     dockerImageNameSuffix: 'MySuffix',
                     dockerBuildFilePath: 'MyDockerBuildFilePath',
                     dockerBuildContext: 'MyDockerBuildContext',
+                    dockerBuildImageTarget: 'MyBuildTarget',
                     dockerNamespace: 'MyDockerNameSpace',
                     dockerImageName: 'MyDockerImageName',
                     dockerNexusRepo: 'MyNexusRepo',
@@ -149,6 +175,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     DOCKER_IMAGE_NAME_SUFFIX: 'MySuffix',
                     DOCKER_BUILD_FILE_PATH: 'MyDockerBuildFilePath',
                     DOCKER_BUILD_CONTEXT: 'MyDockerBuildContext',
+                    DOCKER_BUILD_IMAGE_TARGET: 'MyBuildTarget',
                     DOCKER_REGISTRY_NAMESPACE: 'MyDockerNameSpace',
                     DOCKER_NEXUS_REPO: 'MyNexusRepo',
                     BUILD_DOCKER_IMAGE: true,
