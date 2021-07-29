@@ -36,6 +36,7 @@
  dockerFilePath | optional | str | The path to the Dockerfile for your project.<br /><br />**Default**: `Dockerfile`
  dockerBuildFilePath | optional | str | The path to the Dockerfile that will serve as the CI build image for your project.<br /><br />**Default**: `Dockerfile.build`
  dockerBuildContext | optional | str | The path for Docker to use as its build context when building your project. This applies to building both the CI build image and project image.<br /><br />**Default**: `.`
+ dockerBuildImageTarget | optional | str | The name of the docker multi-stage-build stage the pipeline will use when building the CI build image.<br /><br />**Default**: `builder`
  dockerBuildArgs | optional | list | The list of additonal arguments to pass to Docker when building the image for your project.<br /><br />**Default**: `[]`
  dockerNamespace | optional | str | The docker registry namespace to use when publishing Docker images. **Note** for EdgeX projects images are published to the root of the docker registry and thus the namespace should be empty.<br /><br />**Default**: `''`
  dockerImageName | optional | str | The name of the Docker image for your project.<br /><br />**Default**: `docker-${project}`
@@ -454,12 +455,24 @@ def prepBaseBuildImage() {
         buildArgs << "http_proxy"
         buildArgs << "https_proxy"
     }
-    def buildArgString = buildArgs.join(' --build-arg ')
 
-    docker.build(
-        "ci-base-image-${env.ARCH}",
-        "-f ${env.DOCKER_BUILD_FILE_PATH} ${buildArgString} ${env.DOCKER_BUILD_CONTEXT}"
-    )
+    // If the Dockerfile.build exits? use it
+    if(fileExists(env.DOCKER_BUILD_FILE_PATH)) {
+        def buildArgString = buildArgs.join(' --build-arg ')
+
+        docker.build(
+            "ci-base-image-${env.ARCH}",
+            "-f ${env.DOCKER_BUILD_FILE_PATH} ${buildArgString} ${env.DOCKER_BUILD_CONTEXT}"
+        )
+    } else {
+        buildArgs << 'MAKE="echo noop"'
+        def buildArgString = buildArgs.join(' --build-arg ')
+
+        docker.build(
+            "ci-base-image-${env.ARCH}",
+            "-f ${env.DOCKER_FILE_PATH} ${buildArgString} --target=${env.DOCKER_BUILD_IMAGE_TARGET} ${env.DOCKER_BUILD_CONTEXT}"
+        )
+    }
 }
 
 def validate(config) {
@@ -484,6 +497,7 @@ def toEnvironment(config) {
     def _dockerFilePath      = config.dockerFilePath ?: 'Dockerfile'
     def _dockerBuildFilePath = config.dockerBuildFilePath ?: 'Dockerfile.build'
     def _dockerBuildContext  = config.dockerBuildContext ?: '.'
+    def _dockerBuildImageTarget = config.dockerBuildImageTarget ?: 'builder'
     def _dockerBuildArgs     = config.dockerBuildArgs ?: []
     def _dockerNamespace     = config.dockerNamespace ?: '' //default for edgex is empty string
     def _dockerImageName     = config.dockerImageName ?: _projectName.replaceAll('-c', '')
@@ -510,6 +524,7 @@ def toEnvironment(config) {
         DOCKER_FILE_PATH: _dockerFilePath,
         DOCKER_BUILD_FILE_PATH: _dockerBuildFilePath,
         DOCKER_BUILD_CONTEXT: _dockerBuildContext,
+        DOCKER_BUILD_IMAGE_TARGET: _dockerBuildImageTarget,
         DOCKER_IMAGE_NAME: _dockerImageName,
         DOCKER_REGISTRY_NAMESPACE: _dockerNamespace,
         DOCKER_NEXUS_REPO: _dockerNexusRepo,
