@@ -465,13 +465,19 @@ def prepBaseBuildImage() {
             "-f ${env.DOCKER_BUILD_FILE_PATH} ${buildArgString} ${env.DOCKER_BUILD_CONTEXT}"
         )
     } else {
-        buildArgs << 'MAKE="echo noop"'
-        def buildArgString = buildArgs.join(' --build-arg ')
+        if(fileExists(env.DOCKER_FILE_PATH)) {
+            buildArgs << 'MAKE="echo noop"'
+            def buildArgString = buildArgs.join(' --build-arg ')
 
-        docker.build(
-            "ci-base-image-${env.ARCH}",
-            "-f ${env.DOCKER_FILE_PATH} ${buildArgString} --target=${env.DOCKER_BUILD_IMAGE_TARGET} ${env.DOCKER_BUILD_CONTEXT}"
-        )
+            docker.build(
+                "ci-base-image-${env.ARCH}",
+                "-f ${env.DOCKER_FILE_PATH} ${buildArgString} --target=${env.DOCKER_BUILD_IMAGE_TARGET} ${env.DOCKER_BUILD_CONTEXT}"
+            )
+        } else {
+            // just retag the base image if no Dockerfile exists in the repo
+            sh "docker pull ${baseImage}"
+            sh "docker tag ${baseImage} ci-base-image-${env.ARCH}"
+        }
     }
 }
 

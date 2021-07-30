@@ -32,9 +32,9 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
         when:
             edgeXBuildGoParallel.prepBaseBuildImage()
         then:
-             1 * getPipelineMock("docker.build").call([
-                     'ci-base-image-MyArch',
-                     '-f MyDockerBuildFilePath  --build-arg BASE=MyDockerBaseImage --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
+            1 * getPipelineMock("docker.build").call([
+                    'ci-base-image-MyArch',
+                    '-f MyDockerBuildFilePath  --build-arg BASE=MyDockerBaseImage --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture and docker build file does not exist" () {
@@ -50,13 +50,36 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                 'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget'
             ]
             edgeXBuildGoParallel.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('fileExists').call(_) >> false
+            getPipelineMock('fileExists').call('DoesNotExists') >> false
+            getPipelineMock('fileExists').call('MyDockerfile') >> true
         when:
             edgeXBuildGoParallel.prepBaseBuildImage()
         then:
-             1 * getPipelineMock("docker.build").call([
-                     'ci-base-image-MyArch',
-                     '-f MyDockerfile  --build-arg BASE=MyDockerBaseImage --build-arg http_proxy --build-arg https_proxy --build-arg MAKE="echo noop" --target=MyMockTarget MyDockerBuildContext'])
+            1 * getPipelineMock("docker.build").call([
+                    'ci-base-image-MyArch',
+                    '-f MyDockerfile  --build-arg BASE=MyDockerBaseImage --build-arg http_proxy --build-arg https_proxy --build-arg MAKE="echo noop" --target=MyMockTarget MyDockerBuildContext'])
+    }
+
+    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture and docker build file does not exist and dockerfile" () {
+        setup:
+            def environmentVariables = [
+                'ARCH': 'MyArch',
+                'DOCKER_REGISTRY': 'MyDockerRegistry',
+                'http_proxy': 'MyHttpProxy',
+                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage',
+                'DOCKER_BUILD_FILE_PATH': 'DoesNotExists',
+                'DOCKER_FILE_PATH': 'MyDockerfile',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget'
+            ]
+            edgeXBuildGoParallel.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call('DoesNotExists') >> false
+            getPipelineMock('fileExists').call('MyDockerfile') >> false
+        when:
+            edgeXBuildGoParallel.prepBaseBuildImage()
+        then:
+            1 * getPipelineMock('sh').call('docker pull MyDockerBaseImage')
+            1 * getPipelineMock('sh').call('docker tag MyDockerBaseImage ci-base-image-MyArch')
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] ARM architecture and base image contains registry" () {
