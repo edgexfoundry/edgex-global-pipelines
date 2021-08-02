@@ -82,6 +82,27 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('sh').call('docker tag MyDockerBaseImage ci-base-image-MyArch')
     }
 
+    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture and docker build file does not exist and dockerfile" () {
+        setup:
+            def environmentVariables = [
+                'ARCH': 'MyArch',
+                'DOCKER_REGISTRY': 'MyDockerRegistry',
+                'http_proxy': 'MyHttpProxy',
+                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage',
+                'DOCKER_BUILD_FILE_PATH': 'DoesNotExists',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget'
+            ]
+            edgeXBuildGoParallel.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call('DoesNotExists') >> false
+            getPipelineMock('fileExists').call(null) >> false
+        when:
+            edgeXBuildGoParallel.prepBaseBuildImage()
+        then:
+            1 * getPipelineMock('sh').call('docker pull MyDockerBaseImage')
+            1 * getPipelineMock('sh').call('docker tag MyDockerBaseImage ci-base-image-MyArch')
+    }
+
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] ARM architecture and base image contains registry" () {
         setup:
             def environmentVariables = [
