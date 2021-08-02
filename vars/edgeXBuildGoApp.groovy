@@ -581,7 +581,7 @@ def prepBaseBuildImage() {
             "-f ${env.DOCKER_BUILD_FILE_PATH} ${buildArgString} ${env.DOCKER_BUILD_CONTEXT}"
         )
     } else {
-        if(fileExists(env.DOCKER_FILE_PATH)) {
+        if(env.DOCKER_FILE_PATH && fileExists(env.DOCKER_FILE_PATH)) {
             buildArgs << 'MAKE="echo noop"'
             def buildArgString = buildArgs.join(' --build-arg ')
 

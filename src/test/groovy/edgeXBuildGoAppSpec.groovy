@@ -68,7 +68,28 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('fileExists').call('DoesNotExists') >> false
-            getPipelineMock('fileExists').call('MyDockerfile') >> false
+            getPipelineMock('fileExists').call(null) >> false
+        when:
+            edgeXBuildGoApp.prepBaseBuildImage()
+        then:
+            1 * getPipelineMock('sh').call('docker pull MyDockerBaseImage')
+            1 * getPipelineMock('sh').call('docker tag MyDockerBaseImage ci-base-image-MyArch')
+    }
+
+    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture and docker build file does not exist and dockerfile is null" () {
+        setup:
+            def environmentVariables = [
+                'ARCH': 'MyArch',
+                'DOCKER_REGISTRY': 'MyDockerRegistry',
+                'http_proxy': 'MyHttpProxy',
+                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage',
+                'DOCKER_BUILD_FILE_PATH': 'DoesNotExists',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget'
+            ]
+            edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call('DoesNotExists') >> false
+            getPipelineMock('fileExists').call(null) >> false
         when:
             edgeXBuildGoApp.prepBaseBuildImage()
         then:

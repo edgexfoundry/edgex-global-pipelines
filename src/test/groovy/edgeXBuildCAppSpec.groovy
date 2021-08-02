@@ -103,6 +103,28 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('sh').call('docker tag nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base-arm64:latest ci-base-image-arm64')
     }
 
+    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] ARM architecture and base image contains registry and docker build file does not exist and dockerfile does is null" () {
+        setup:
+            def environmentVariables = [
+                'ARCH': 'arm64',
+                'DOCKER_REGISTRY': 'nexus3.edgexfoundry.org',
+                'http_proxy': 'MyHttpProxy',
+                'DOCKER_BASE_IMAGE': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base:latest',
+                'DOCKER_BUILD_FILE_PATH': 'DoesNotExists',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'DOCKER_BUILD_IMAGE_TARGET': 'MyBuildTarget'
+            ]
+            edgeXBuildCApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call('DoesNotExists') >> false
+            getPipelineMock('fileExists').call(null) >> false
+
+        when:
+            edgeXBuildCApp.prepBaseBuildImage()
+        then:
+            1 * getPipelineMock('sh').call('docker pull nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base-arm64:latest')
+            1 * getPipelineMock('sh').call('docker tag nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base-arm64:latest ci-base-image-arm64')
+    }
+
     def "Test validate [Should] raise error [When] config does not include a project parameter" () {
         setup:
         when:
