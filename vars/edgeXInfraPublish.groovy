@@ -30,9 +30,13 @@ def call(body) {
     def _dockerOptimized = edgex.defaultTrue(config.dockerOptimized)
 
     stage('LF Post Build Actions') {
-        sh 'ls -al $WORKSPACE/archives'
-        sh 'sudo chown -R jenkins:jenkins $WORKSPACE/archives'
-        sh 'ls -al $WORKSPACE/archives'
+        sh '''
+        if [ -d "$WORKSPACE/archives" ]; then
+            ls -al "$WORKSPACE/archives"
+            sudo chown -R jenkins:jenkins "$WORKSPACE/archives"
+            ls -al "$WORKSPACE/archives"
+        fi
+        '''
 
         // lf-infra-systat
         sh(script: libraryResource('global-jjb-shell/sysstat.sh'))
