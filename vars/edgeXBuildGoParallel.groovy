@@ -512,9 +512,15 @@ def prepBaseBuildImage() {
                 "-f ${env.DOCKER_FILE_PATH} ${buildArgString} --target=${env.DOCKER_BUILD_IMAGE_TARGET} ${env.DOCKER_BUILD_CONTEXT}"
             )
         } else {
-            // just retag the base image if no Dockerfile exists in the repo
             sh "docker pull ${baseImage}"
-            sh "docker tag ${baseImage} ci-base-image-${env.ARCH}"
+
+            // This will build a new ci-base-image with all the Go modules enabled.
+            // This could externalized to another file, but for now due to simplicity, I am doing the build inline
+            if(fileExists('go.mod')) {
+                sh "echo \"FROM ${baseImage}\nWORKDIR /edgex\nCOPY go.mod .\nRUN go mod download\" | docker build -t ci-base-image-${env.ARCH} -f - ."
+            } else {
+                sh "docker tag ${baseImage} ci-base-image-${env.ARCH}"
+            }
         }
     }
 }
