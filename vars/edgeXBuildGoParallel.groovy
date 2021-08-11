@@ -459,7 +459,7 @@ def testAndVerify(codeCov = true) {
     edgex.bannerMessage "[edgeXBuildGoParallel] Running Tests and Build..."
 
     // make test raml_verify
-    if(env.GO_VERSION =~ '1.16') {
+    if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
         sh 'go mod tidy' // for Go 1.16
     }
     sh env.TEST_SCRIPT

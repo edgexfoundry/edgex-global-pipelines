@@ -245,7 +245,7 @@ def call(config) {
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
-                                            if(env.GO_VERSION =~ '1.16') {
+                                            if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
                                                 sh 'go mod tidy' // for Go 1.16
                                             }
                                             sh "${env.TEST_SCRIPT}"
@@ -348,7 +348,7 @@ def call(config) {
                                 steps {
                                     script {
                                         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
-                                            if(env.GO_VERSION =~ '1.16') {
+                                            if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
                                                 sh 'go mod tidy' // for Go 1.16
                                             }
                                             sh "${env.TEST_SCRIPT}"
