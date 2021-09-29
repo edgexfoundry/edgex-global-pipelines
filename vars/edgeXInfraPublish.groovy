@@ -51,15 +51,15 @@ def call(body) {
             docker.image("${env.DOCKER_REGISTRY}:10003/edgex-lftools-log-publisher:latest").inside(insideArgs.join(' ')) {
                 sh 'touch /tmp/pre-build-complete' // skips python-tools-install.sh
 
-                // this will remap the sa logs from the host
-                // Commented out is for alpine based sysstat
-                // sh 'mkdir -p /var/log/sa'
-                // sh 'for file in `ls /var/log/sa-host`; do sadf -c /var/log/sa-host/${file} > /var/log/sa/${file}; done'
-                sh 'mkdir -p /var/log/sysstat'
-                sh 'for file in `ls /var/log/sa-host`; do sadf -c /var/log/sa-host/${file} > /var/log/sysstat/${file}; done'
-                //////////////////////////////////////////////
-
                 try {
+                    // this will remap the sa logs from the host
+                    // Commented out is for alpine based sysstat
+                    // sh 'mkdir -p /var/log/sa'
+                    // sh 'for file in `ls /var/log/sa-host`; do sadf -c /var/log/sa-host/${file} > /var/log/sa/${file}; done'
+
+                    sh 'mkdir -p /var/log/sysstat'
+                    sh 'for file in `ls /var/log/sa-host`; do sadf -c /var/log/sa-host/${file} > /var/log/sysstat/${file}; done'
+
                     lfInfraShipLogs {
                         logSettingsFile = _logSettingsFile
                     }
