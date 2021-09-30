@@ -55,7 +55,7 @@ Various changes will be needed in vars/edgexRelease.groovy to support the lts re
 
 As called out in the [LTS release process](https://wiki.edgexfoundry.org/pages/viewpage.action?pageId=69173332#LongTermSupport(v2)-GoBasedProjects), for Go based projects, we will switch to Go vendoring for dependencies. This will give us 100% confidence that the dependencies will always be available in the LTS release and allow for easy patching and rebuilding.
 
-* If the release is an LTS release, we will need to run something similar to the following:
+* If the release is an LTS release, we will need to run something similar to the following if the lts release branch does not exist:
 
 ```bash
 git checkout -b <lts-release-name>
