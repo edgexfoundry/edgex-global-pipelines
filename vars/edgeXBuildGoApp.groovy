@@ -699,7 +699,7 @@ def toEnvironment(config) {
         TEST_SCRIPT: _testScript,
         BUILD_SCRIPT: _buildScript,
         GO_VERSION: _goVersion,
-        GOPROXY: _goProxy,
+        //GOPROXY: _goProxy,
         DOCKER_BASE_IMAGE: _dockerBaseImage,
         DOCKER_FILE_PATH: _dockerFilePath,
         DOCKER_BUILD_FILE_PATH: _dockerBuildFilePath,
