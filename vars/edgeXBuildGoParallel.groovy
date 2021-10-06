@@ -589,7 +589,7 @@ def toEnvironment(config) {
         BUILD_DOCKER_IMAGE: _buildImage,
         PUSH_DOCKER_IMAGE: _pushImage,
         SEMVER_BUMP_LEVEL: _semverBump,
-        GOPROXY: _goProxy,
+        //GOPROXY: _goProxy,
         PUBLISH_SWAGGER_DOCS: _publishSwaggerDocs,
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
         // SNAP_CHANNEL: _snapChannel,
