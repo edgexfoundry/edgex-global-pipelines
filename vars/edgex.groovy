@@ -35,7 +35,7 @@ def didChange(expression, previous='origin/main') {
         // so we need to calculate the previous commit has
         if(previous =~ /.*main|.*release/ && env.GIT_BRANCH =~ /.*main|.*release/) {
             println "[didChange-DEBUG] currently merging into ${env.GIT_BRANCH}, need to lookup previous commit sha1"
-            previous = sh (script: "git show --pretty=%H ${env.GIT_COMMIT}^1 | xargs", returnStdout: true).trim()
+            previous = sh (script: "git show --pretty=%H ${env.GIT_COMMIT}^1 | head -n 1 | xargs", returnStdout: true).trim()
         }
 
         println "[didChange-DEBUG] we have a previous commit: [${previous}]"
@@ -170,7 +170,7 @@ def getPreviousCommit(commit) {
         previousCommit = sh(script: "git rev-list --parents -n 1 ${commit} | cut -d' ' -f3", returnStdout: true)
     } else {
         // easier lookup HEAD~1
-        previousCommit = sh(script: 'git show --pretty=%H HEAD~1 | xargs', returnStdout: true)
+        previousCommit = sh(script: 'git show --pretty=%H HEAD~1 | head -n 1 | xargs', returnStdout: true)
     }
     previousCommit
 }
