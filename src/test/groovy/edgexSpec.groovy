@@ -453,7 +453,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
             getPipelineMock('sh')([
                     returnStdout: true,
-                    script: 'git show --pretty=%H HEAD~1 | xargs'
+                    script: 'git show --pretty=%H HEAD~1 | head -n 1 | xargs'
             ]) >> {
                 'SomePreviousCommit'
             }
