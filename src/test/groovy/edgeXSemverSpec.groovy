@@ -378,6 +378,19 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             environmentVariables['GITSEMVER_HEAD_TAG'] == 'v1.2.3|experimental'
     }
 
+    def "Test setGitSemverHeadTag [Should] set GITSEMVER_HEAD_TAG [When] init version and pointsAt is tagged with init version" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('sh')([script:'git tag --points-at mock-commit-sha', returnStdout:true]) >> 'v1.2.3\nexperimental'
+        when:
+            edgeXSemver.setGitSemverHeadTag('1.2.3', 'MyCredentials', 'mock-commit-sha')
+        then:
+            1 * getPipelineMock('echo')("[edgeXSemver]: mock-commit-sha is already tagged with v1.2.3")
+            1 * getPipelineMock('echo')("[edgeXSemver]: set GITSEMVER_HEAD_TAG to 'v1.2.3|experimental'")
+            environmentVariables['GITSEMVER_HEAD_TAG'] == 'v1.2.3|experimental'
+    }
+
     def "Test setGitSemverHeadTag [Should] not set GITSEMVER_HEAD_TAG [When] init version and HEAD is not tagged with init version" () {
         setup:
             def environmentVariables = [:]
@@ -400,21 +413,50 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             environmentVariables.containsKey('GITSEMVER_HEAD_TAG') == false
     }
 
-    def "Test getHeadTags [Should] return expected list [When] HEAD is tagged" () {
+    def "Test setGitSemverHeadTag [Should] not set GITSEMVER_HEAD_TAG [When] init version and pointsAt is not tagged" () {
+        setup:
+            def environmentVariables = [ : ]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('sh')([script:'git tag --points-at mock-commit-sha', returnStdout:true]) >> ''
+        when:
+            edgeXSemver.setGitSemverHeadTag('1.2.3', 'MyCredentials', 'mock-commit-sha')
+        then:
+            environmentVariables.containsKey('GITSEMVER_HEAD_TAG') == false
+    }
+
+    def "Test getCommitTags [Should] return expected list [When] HEAD is tagged" () {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('sh')([script:'git tag --points-at HEAD', returnStdout:true]) >> 'tag1\ntag2\ntag3'
         expect:
-            edgeXSemver.getHeadTags('MyCredentials') == ['tag1', 'tag2', 'tag3']
+            edgeXSemver.getCommitTags('MyCredentials', 'HEAD') == ['tag1', 'tag2', 'tag3']
     }
 
-    def "Test getHeadTags [Should] return empty list [When] HEAD is not tagged" () {
+    def "Test getCommitTags [Should] return expected list [When] pointsAt is tagged" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('sh')([script:'git tag --points-at mock-commit-sha', returnStdout:true]) >> 'tag1\ntag2\ntag3'
+        expect:
+            edgeXSemver.getCommitTags('MyCredentials', 'mock-commit-sha') == ['tag1', 'tag2', 'tag3']
+    }
+
+    def "Test getCommitTags [Should] return empty list [When] HEAD is not tagged" () {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('sh')([script:'git tag --points-at HEAD', returnStdout:true]) >> ''
         expect:
-            edgeXSemver.getHeadTags('MyCredentials') == []
+            edgeXSemver.getCommitTags('MyCredentials', 'HEAD') == []
+    }
+
+    def "Test getCommitTags [Should] return empty list [When] commitId is not tagged" () {
+        setup:
+            def environmentVariables = [:]
+            edgeXSemver.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('sh')([script:'git tag --points-at mock-commit-sha', returnStdout:true]) >> ''
+        expect:
+            edgeXSemver.getCommitTags('MyCredentials', 'mock-commit-sha') == []
     }
 }
