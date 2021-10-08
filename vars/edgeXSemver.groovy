@@ -51,7 +51,8 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
                 }
                 else {
                     if(command == 'init') {
-                        setGitSemverHeadTag(semverVersion, credentials)
+                        // params are treated as environment variables so params.CommitId == env.CommitId
+                        setGitSemverHeadTag(semverVersion, credentials, env.CommitId)
                     }
                     executeGitSemver(credentials, semverCommand.join(' '))
                 }
@@ -103,18 +104,19 @@ def executeGitSemver(credentials, semverCommand) {
     }
 }
 
-def setGitSemverHeadTag(initVersion, credentials) {
+def setGitSemverHeadTag(initVersion, credentials, pointsAt = null) {
     // set GITSEMVER_HEAD_TAG to value of HEAD when any of the following conditions are satisfied
     //   an init version is specified and HEAD is tagged with init version
     //   an init version is not specified and HEAD is tagged
+    if(!pointsAt) { pointsAt = 'HEAD' }
     if(env.GITSEMVER_HEAD_TAG) {
         echo "[edgeXSemver]: GITSEMVER_HEAD_TAG is already set to '${env.GITSEMVER_HEAD_TAG}'"
     }
     else {
-        def headTags = getHeadTags(credentials)
+        def headTags = getCommitTags(credentials, pointsAt)
         if(initVersion) {
             if(headTags.contains("v${initVersion}")) {
-                echo "[edgeXSemver]: HEAD is already tagged with v${initVersion}"
+                echo "[edgeXSemver]: ${pointsAt} is already tagged with v${initVersion}"
                 def gitSemverHeadTags = headTags.join('|')
                 env.GITSEMVER_HEAD_TAG = gitSemverHeadTags
                 echo "[edgeXSemver]: set GITSEMVER_HEAD_TAG to \'${gitSemverHeadTags}\'"
@@ -130,15 +132,15 @@ def setGitSemverHeadTag(initVersion, credentials) {
     }
 }
 
-def getHeadTags(credentials) {
-    // return list of all tags at HEAD
-    def headTags = []
+def getCommitTags(credentials, pointsAt) {
+    // return list of all tags at a specific commit point
+    def commitTags = []
     def tags
     sshagent (credentials: [credentials]) {
-        tags = sh(script: 'git tag --points-at HEAD', returnStdout: true).trim()
+        tags = sh(script: "git tag --points-at ${pointsAt}", returnStdout: true).trim()
     }
     if(tags) {
-        headTags = tags.split()
+        commitTags = tags.split()
     }
-    headTags
+    commitTags
 }
