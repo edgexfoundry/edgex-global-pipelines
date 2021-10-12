@@ -482,10 +482,10 @@ def testAndVerify(codeCov = true) {
 
 def prepBaseBuildImage() {
     // this would be something like golang:1.13 or a pre-built devops managed image from ci-build-images
-    def baseImage = env.DOCKER_BASE_IMAGE
+    def baseImage = edgex.getGoLangBaseImage(env.GO_VERSION, env.USE_ALPINE)
 
     if(env.ARCH == 'arm64' && baseImage.contains(env.DOCKER_REGISTRY)) {
-        baseImage = "${env.DOCKER_BASE_IMAGE}".replace('edgex-golang-base', "edgex-golang-base-${env.ARCH}")
+        baseImage = baseImage.replace('edgex-golang-base', "edgex-golang-base-${env.ARCH}")
     }
 
     edgex.bannerMessage "[edgeXBuildGoParallel] Building Code With image [${baseImage}]"
@@ -546,7 +546,6 @@ def toEnvironment(config) {
     def _buildScript     = config.buildScript ?: 'make build'
     def _goVersion       = config.goVersion ?: '1.16'
     def _useAlpine       = edgex.defaultTrue(config.useAlpineBase)
-    def _dockerBaseImage = edgex.getGoLangBaseImage(_goVersion, _useAlpine)
 
     def _dockerFileGlob        = config.dockerFileGlobPath ?: 'cmd/**/Dockerfile'
     def _dockerImageNamePrefix = config.dockerImageNamePrefix ?: '' //'docker-'
@@ -579,7 +578,7 @@ def toEnvironment(config) {
         TEST_SCRIPT: _testScript,
         BUILD_SCRIPT: _buildScript,
         GO_VERSION: _goVersion,
-        DOCKER_BASE_IMAGE: _dockerBaseImage,
+        USE_ALPINE: _useAlpine,
         DOCKER_FILE_GLOB: _dockerFileGlob,
         DOCKER_IMAGE_NAME_PREFIX: _dockerImageNamePrefix,
         DOCKER_IMAGE_NAME_SUFFIX: _dockerImageNameSuffix,
