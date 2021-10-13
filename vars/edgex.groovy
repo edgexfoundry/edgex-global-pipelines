@@ -235,3 +235,14 @@ def parallelJobCost(tag='latest') {
         lfParallelCostCapture()
     }
 }
+
+// Temporary fix for this issue. Will look to fix this in packer image after Jakarta
+// Issue with alpine:3.14 and older docker versions
+// See: https://wiki.alpinelinux.org/wiki/Release_Notes_for_Alpine_3.14.0#faccessat2
+def patchAlpineSeccompArm64() {
+    sh 'sudo curl -o /etc/docker/seccomp.json "https://raw.githubusercontent.com/moby/moby/master/profiles/seccomp/default.json"'
+    sh 'sudo sed -i \'s/"defaultAction": "SCMP_ACT_ERRNO"/"defaultAction": "SCMP_ACT_TRACE"/g\' /etc/docker/seccomp.json'
+    sh 'sudo jq \'. += {"seccomp-profile": "/etc/docker/seccomp.json"}\' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.new'
+    sh 'sudo mv /etc/docker/daemon.new /etc/docker/daemon.json'
+    sh 'sudo service docker restart'
+}

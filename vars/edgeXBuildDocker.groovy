@@ -237,6 +237,8 @@ def call(config) {
                             stage('Prep') {
                                 steps {
                                     script {
+                                        edgex.patchAlpineSeccompArm64()
+
                                         if(params.CommitId) {
                                             sh "git checkout ${params.CommitId}"
                                         }
