@@ -13,6 +13,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
         explicitlyMockPipelineStep('build')
 
         explicitlyMockPipelineVariable('edgex')
+        explicitlyMockPipelineVariable('edgeXLTS')
         explicitlyMockPipelineVariable('edgeXReleaseSnap')
         explicitlyMockPipelineVariable('edgeXReleaseGitTag')
         explicitlyMockPipelineVariable('edgeXReleaseDockerImage')
@@ -531,5 +532,144 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
         then:
             0 * getPipelineMock("echo").call('[edgeXRelease]: No build pipeline found - no artifact to stage')
             thrown hudson.AbortException
+    }
+
+    def "Test getBuilderImagesFromReleasedImages [Should] return expected [When] called with C-based docker image" () {
+        setup:
+            getPipelineMock('edgex.isDryRun').call() >> false
+            def step =
+                [
+                    name:'sample-service-c',
+                    version:'1.11.83',
+                    releaseName:'jakarta',
+                    releaseStream:'main',
+                    commitId:'0123456789',
+                    repo:'https://github.com/edgexfoundry/sample-service.git',
+                    gitTag:false,
+                    dockerImages:false,
+                    docker:[[
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service-c',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service-c',
+                            'docker.io/edgexfoundry/sample-service-c'
+                        ]
+                    ], [
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service-c-arm64',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service-c-arm64',
+                            'docker.io/edgexfoundry/sample-service-c-arm64'
+                        ]
+                    ]]
+                ]
+        when:
+            def images = edgeXRelease.getBuilderImagesFromReleasedImages(step)
+        then:
+            assert images == ["nexus3.edgexfoundry.org:10002/sample-service-c-builder-x86_64:jakarta",
+            "nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:jakarta"]
+    }
+    
+    def "Test parallelStepFactoryTransform [Should Not] wait for builder images [When] called with Go-based docker image" () {
+        setup:
+            getPipelineMock('edgex.isDryRun').call() >> false
+            getPipelineMock('edgeXLTS.prepGoProject').call(_) >> true
+            def step =
+                [
+                    lts:true,
+                    name:'sample-service',
+                    version:'1.11.83',
+                    releaseName:'jakarta',
+                    releaseStream:'main',
+                    commitId:'0123456789',
+                    repo:'https://github.com/edgexfoundry/sample-service.git',
+                    gitTag:false,
+                    dockerImages:false,
+                    docker:[[
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service',
+                            'docker.io/edgexfoundry/sample-service'
+                        ]
+                    ], [
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service-arm64',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service-arm64',
+                            'docker.io/edgexfoundry/sample-service-arm64'
+                        ]
+                    ]]
+                ]
+        when:
+            edgeXRelease.parallelStepFactoryTransform(step).asWritable().toString()
+        then:
+            0 * getPipelineMock('edgex.waitForImages').call(_)
+    }
+    
+    def "Test parallelStepFactoryTransform [Should Not] setup LTS branch [When] lts:false is set in release yaml." () {
+        setup:
+            getPipelineMock('edgex.isDryRun').call() >> false
+            getPipelineMock('edgeXLTS.prepGoProject').call(_) >> true
+            def step =
+                [
+                    lts:false,
+                    name:'sample-service',
+                    version:'1.11.83',
+                    releaseName:'jakarta',
+                    releaseStream:'main',
+                    commitId:'0123456789',
+                    repo:'https://github.com/edgexfoundry/sample-service.git',
+                    gitTag:false,
+                    dockerImages:false,
+                    docker:[[
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service',
+                            'docker.io/edgexfoundry/sample-service'
+                        ]
+                    ], [
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service-arm64',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service-arm64',
+                            'docker.io/edgexfoundry/sample-service-arm64'
+                        ]
+                    ]]
+                ]
+        when:
+            edgeXRelease.parallelStepFactoryTransform(step).asWritable().toString()
+        then:
+            0 * getPipelineMock('edgeXLTS.prepLTS').call(_)
+    }
+    
+    def "Test parallelStepFactoryTransform [Should] setup LTS branch [When] lts:true is set in release yaml." () {
+        setup:
+            getPipelineMock('edgex.isDryRun').call() >> false
+            getPipelineMock('edgeXLTS.prepGoProject').call(_) >> true
+            def step =
+                [
+                    lts:true,
+                    name:'sample-service',
+                    version:'1.11.83',
+                    releaseName:'jakarta',
+                    releaseStream:'main',
+                    commitId:'0123456789',
+                    repo:'https://github.com/edgexfoundry/sample-service.git',
+                    gitTag:false,
+                    dockerImages:false,
+                    docker:[[
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service',
+                            'docker.io/edgexfoundry/sample-service'
+                        ]
+                    ], [
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service-arm64',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service-arm64',
+                            'docker.io/edgexfoundry/sample-service-arm64'
+                        ]
+                    ]]
+                ]
+        when:
+            edgeXRelease.parallelStepFactoryTransform(step).asWritable().toString()
+        then:
+            1 * getPipelineMock('edgeXLTS.prepLTS').call(_)
     }
 }
