@@ -11,24 +11,68 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
         explicitlyMockPipelineVariable('edgex')
     }
 
-    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture" () {
+    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] LTS is false and non ARM architecture and alpine base" () {
         setup:
             def environmentVariables = [
                 'ARCH': 'MyArch',
                 'DOCKER_REGISTRY': 'MyDockerRegistry',
                 'http_proxy': 'MyHttpProxy',
-                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage',
                 'DOCKER_BUILD_FILE_PATH': 'MyDockerBuildFilePath',
-                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'GO_VERSION': '1.16',
+                'USE_ALPINE': 'true'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('fileExists').call(_) >> true
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'edgex-golang-base:1.16-alpine'
         when:
             edgeXBuildGoApp.prepBaseBuildImage()
         then:
             1 * getPipelineMock("docker.build").call([
                    'ci-base-image-MyArch',
-                   '-f MyDockerBuildFilePath  --build-arg BASE=MyDockerBaseImage --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
+                   '-f MyDockerBuildFilePath  --build-arg BASE=edgex-golang-base:1.16-alpine --build-arg http_proxy --build-arg https_proxy MyDockerBuildContext'])
+    }
+
+    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] LTS is false and non ARM architecture and non-alpine base" () {
+        setup:
+            def environmentVariables = [
+                'ARCH': 'MyArch',
+                'DOCKER_REGISTRY': 'MyDockerRegistry',
+                'DOCKER_BUILD_FILE_PATH': 'MyDockerBuildFilePath',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'GO_VERSION': '1.16',
+                'USE_ALPINE': 'false'
+            ]
+            edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> true
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'golang:1.16'
+        when:
+            edgeXBuildGoApp.prepBaseBuildImage()
+        then:
+            1 * getPipelineMock("docker.build").call([
+                   'ci-base-image-MyArch',
+                   '-f MyDockerBuildFilePath  --build-arg BASE=golang:1.16 MyDockerBuildContext'])
+    }
+
+    def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] LTS is true and non ARM architecture and alpine base" () {
+        setup:
+            def environmentVariables = [
+                'ARCH': 'MyArch',
+                'DOCKER_REGISTRY': 'MyDockerRegistry',
+                'DOCKER_BUILD_FILE_PATH': 'MyDockerBuildFilePath',
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'GO_VERSION': '1.16',
+                'USE_ALPINE': 'true'
+            ]
+            edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('fileExists').call(_) >> true
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'edgex-golang-base:1.16-alpine-lts'
+        when:
+            edgeXBuildGoApp.prepBaseBuildImage()
+        then:
+            1 * getPipelineMock("docker.build").call([
+                   'ci-base-image-MyArch',
+                   '-f MyDockerBuildFilePath  --build-arg BASE=edgex-golang-base:1.16-alpine-lts MyDockerBuildContext'])
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture and docker build file does not exist" () {
@@ -37,21 +81,23 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'ARCH': 'MyArch',
                 'DOCKER_REGISTRY': 'MyDockerRegistry',
                 'http_proxy': 'MyHttpProxy',
-                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage',
                 'DOCKER_BUILD_FILE_PATH': 'DoesNotExists',
                 'DOCKER_FILE_PATH': 'MyDockerfile',
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
-                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget'
+                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget',
+                'GO_VERSION': '1.16',
+                'USE_ALPINE': 'true'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('fileExists').call('DoesNotExists') >> false
             getPipelineMock('fileExists').call('MyDockerfile') >> true
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'edgex-golang-base:1.16-alpine'
         when:
             edgeXBuildGoApp.prepBaseBuildImage()
         then:
             1 * getPipelineMock("docker.build").call([
                    'ci-base-image-MyArch',
-                   '-f MyDockerfile  --build-arg BASE=MyDockerBaseImage --build-arg http_proxy --build-arg https_proxy --build-arg MAKE="echo noop" --target=MyMockTarget MyDockerBuildContext'])
+                   '-f MyDockerfile  --build-arg BASE=edgex-golang-base:1.16-alpine --build-arg http_proxy --build-arg https_proxy --build-arg MAKE="echo noop" --target=MyMockTarget MyDockerBuildContext'])
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture and docker build file does not exist and dockerfile does not exist" () {
@@ -60,20 +106,22 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'ARCH': 'MyArch',
                 'DOCKER_REGISTRY': 'MyDockerRegistry',
                 'http_proxy': 'MyHttpProxy',
-                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage',
                 'DOCKER_BUILD_FILE_PATH': 'DoesNotExists',
                 'DOCKER_FILE_PATH': 'MyDockerfile',
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
-                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget'
+                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget',
+                'GO_VERSION': '1.16',
+                'USE_ALPINE': 'true'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('fileExists').call('DoesNotExists') >> false
             getPipelineMock('fileExists').call(null) >> false
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'edgex-golang-base:1.16-alpine'
         when:
             edgeXBuildGoApp.prepBaseBuildImage()
         then:
-            1 * getPipelineMock('sh').call('docker pull MyDockerBaseImage')
-            1 * getPipelineMock('sh').call('docker tag MyDockerBaseImage ci-base-image-MyArch')
+            1 * getPipelineMock('sh').call('docker pull edgex-golang-base:1.16-alpine')
+            1 * getPipelineMock('sh').call('docker tag edgex-golang-base:1.16-alpine ci-base-image-MyArch')
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] non ARM architecture and docker build file does not exist and dockerfile is null" () {
@@ -82,19 +130,21 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'ARCH': 'MyArch',
                 'DOCKER_REGISTRY': 'MyDockerRegistry',
                 'http_proxy': 'MyHttpProxy',
-                'DOCKER_BASE_IMAGE': 'MyDockerBaseImage',
                 'DOCKER_BUILD_FILE_PATH': 'DoesNotExists',
                 'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
-                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget'
+                'DOCKER_BUILD_IMAGE_TARGET': 'MyMockTarget',
+                'GO_VERSION': '1.16',
+                'USE_ALPINE': 'true'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('fileExists').call('DoesNotExists') >> false
             getPipelineMock('fileExists').call(null) >> false
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'edgex-golang-base:1.16-alpine'
         when:
             edgeXBuildGoApp.prepBaseBuildImage()
         then:
-            1 * getPipelineMock('sh').call('docker pull MyDockerBaseImage')
-            1 * getPipelineMock('sh').call('docker tag MyDockerBaseImage ci-base-image-MyArch')
+            1 * getPipelineMock('sh').call('docker pull edgex-golang-base:1.16-alpine')
+            1 * getPipelineMock('sh').call('docker tag edgex-golang-base:1.16-alpine ci-base-image-MyArch')
     }
 
     def "Test prepBaseBuildImage [Should] call docker build with expected arguments [When] ARM architecture and base image contains registry" () {
@@ -103,12 +153,14 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                 'ARCH': 'arm64',
                 'DOCKER_REGISTRY': 'nexus3.edgexfoundry.org',
                 'http_proxy': 'MyHttpProxy',
-                'DOCKER_BASE_IMAGE': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
                 'DOCKER_BUILD_FILE_PATH': 'MyDockerBuildFilePath',
-                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext'
+                'DOCKER_BUILD_CONTEXT': 'MyDockerBuildContext',
+                'GO_VERSION': '1.12',
+                'USE_ALPINE': 'true'
             ]
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('fileExists').call(_) >> true
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine'
         when:
             edgeXBuildGoApp.prepBaseBuildImage()
         then:
@@ -133,7 +185,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('edgex.defaultTrue').call(_) >> true
             getPipelineMock('edgex.defaultFalse').call(_) >> false
-            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.16-alpine'
         expect:
             edgeXBuildGoApp.toEnvironment(config) == expectedResult
         where:
@@ -150,7 +201,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     TEST_SCRIPT: 'make test',
                     BUILD_SCRIPT: 'make build',
                     GO_VERSION: '1.16',
-                    DOCKER_BASE_IMAGE: 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.16-alpine',
+                    USE_ALPINE: true,
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
@@ -184,7 +235,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             getPipelineMock('edgex.defaultFalse').call(null) >> false
             getPipelineMock('edgex.defaultFalse').call(true) >> true
             getPipelineMock('edgex.defaultFalse').call(false) >> false
-            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'golang:MyGoVersion-alpine'
         expect:
             edgeXBuildGoApp.toEnvironment(config) == expectedResult
         where:
@@ -205,7 +255,7 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     buildExperimentalDockerImage: true,
                     semverBump: 'patch',
                     goProxy: 'https://www.example.com/repository/go-proxy/',
-                    useAlpineBase: true,
+                    useAlpineBase: false,
                     // snapChannel: 'edge',
                     publishSwaggerDocs: true,
                     swaggerApiFolders: ['api/v20', 'api/v30'],
@@ -220,9 +270,9 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     USE_SEMVER: true,
                     TEST_SCRIPT: 'MyTestScript',
                     BUILD_SCRIPT: 'MyBuildScript',
-                    GO_VERSION: 'MyGoVersion',
+                    GO_VERSION: 'MyGoVersion',,
+                    USE_ALPINE: false,
                     //GOPROXY: 'https://www.example.com/repository/go-proxy/',
-                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion-alpine',
                     DOCKER_FILE_PATH: 'MyDockerFilePath',
                     DOCKER_BUILD_FILE_PATH: 'MyDockerBuildFilePath',
                     DOCKER_BUILD_CONTEXT: 'MyDockerBuildContext',
@@ -256,7 +306,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             getPipelineMock('edgex.defaultFalse').call(null) >> false
             getPipelineMock('edgex.defaultFalse').call(true) >> true
             getPipelineMock('edgex.defaultFalse').call(false) >> false
-            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'golang:MyGoVersion-alpine'
         expect:
             edgeXBuildGoApp.toEnvironment(config) == expectedResult
         where:
@@ -280,8 +329,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     TEST_SCRIPT: 'MyTestScript',
                     BUILD_SCRIPT: 'MyBuildScript',
                     GO_VERSION: 'MyGoVersion',
+                    USE_ALPINE: true,
                     //GOPROXY: 'https://www.example.com/repository/go-proxy/',
-                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion-alpine',
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',
@@ -314,7 +363,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             getPipelineMock('edgex.defaultFalse').call(null) >> false
             getPipelineMock('edgex.defaultFalse').call(true) >> true
             getPipelineMock('edgex.defaultFalse').call(false) >> false
-            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'golang:MyGoVersion-alpine'
         expect:
             edgeXBuildGoApp.toEnvironment(config) == expectedResult
         where:
@@ -337,8 +385,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     TEST_SCRIPT: 'MyTestScript',
                     BUILD_SCRIPT: 'MyBuildScript',
                     GO_VERSION: 'MyGoVersion',
+                    USE_ALPINE: true,
                     //GOPROXY: 'https://www.example.com/repository/go-proxy/',
-                    DOCKER_BASE_IMAGE: 'golang:MyGoVersion-alpine',
                     DOCKER_FILE_PATH: 'Dockerfile',
                     DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
                     DOCKER_BUILD_CONTEXT: '.',

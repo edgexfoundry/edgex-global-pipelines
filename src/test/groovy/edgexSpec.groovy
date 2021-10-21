@@ -60,12 +60,77 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.getBinding().setVariable('env', environmentVariables)
 
         expect:
-            edgeX.isReleaseStream() == expectedResult
+            edgeX.isReleaseStream() == false
+    }
 
-        where:
-            expectedResult << [
-                false
+    def "Test isLTS [Should] return expected [When] called" () {
+        setup:
+            def environmentVariables = [
+                'GIT_BRANCH': 'main'
             ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+        expect:
+            edgeX.isLTS() == false
+    }
+
+    def "Test isLTS [Should] return expected [When] called for PRs" () {
+        setup:
+            def environmentVariables = [
+                'CHANGE_ID': '1124',
+                'CHANGE_TARGET': 'main'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+        expect:
+            edgeX.isLTS() == false
+    }
+
+    def "Test isLTS [Should] return expected [When] called" () {
+        setup:
+            def environmentVariables = [
+                'GIT_BRANCH': 'jakarta'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+        expect:
+            edgeX.isLTS() == true
+    }
+
+    def "Test isLTS [Should] return expected [When] called for PRs" () {
+        setup:
+            def environmentVariables = [
+                'CHANGE_ID': '1124',
+                'CHANGE_TARGET': 'jakarta'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+        expect:
+            edgeX.isLTS() == true
+    }
+
+    def "Test getTargetBranch [Should] return expected [When] called for branch builds" () {
+        setup:
+            def environmentVariables = [
+                'GIT_BRANCH': 'main'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+        expect:
+            edgeX.getTargetBranch() == 'main'
+    }
+
+    def "Test getTargetBranch [Should] return expected [When] called for PR builds" () {
+        setup:
+            def environmentVariables = [
+                'GIT_BRANCH': 'main',
+                'CHANGE_ID': '1124',
+                'CHANGE_TARGET': 'PR-1124'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+        expect:
+            edgeX.getTargetBranch() == 'PR-1124'
     }
 
     def "Test didChange [Should] return true [When] there is no previous commit" () {
@@ -95,12 +160,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             }
 
         expect:
-            edgeX.didChange('test') == expectedResult
-
-        where:
-            expectedResult << [
-                false
-            ]
+            edgeX.didChange('test') == false
     }
 
     def "Test mainNode [Should] return default label [When] empty nodes are passed in" () {
@@ -597,8 +657,13 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
     }
 
-    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and true alpine flag" () {
+    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and true alpine flag and on non lts branch" () {
         setup:
+            def environmentVariables = [
+                'GIT_BRANCH': 'main'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
         expect:
             edgeX.getGoLangBaseImage(version, true) == expectedResult
         where:
@@ -622,8 +687,13 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
     }
 
-    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and false alpine flag" () {
+    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and false alpine flag and on non lts branch" () {
         setup:
+            def environmentVariables = [
+                'GIT_BRANCH': 'main'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
         expect:
             edgeX.getGoLangBaseImage(version, false) == expectedResult
         where:
@@ -647,6 +717,71 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
     }
 
+    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and true alpine flag and on lts branch" () {
+        setup:
+            def environmentVariables = [
+                'GIT_BRANCH': 'lts-test'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+        expect:
+            edgeX.getGoLangBaseImage(version, true) == expectedResult
+        where:
+            version << [
+                '1.15',
+                '1.16',
+                'MyVersion'
+            ]
+            expectedResult << [
+                'golang:1.15-alpine',
+                'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.16-alpine-lts',
+                'golang:MyVersion-alpine'
+            ]
+    }
+
+    def "Test getCBaseImage [Should] return expected #expectedResult [When] called with with version #version and on non lts branch" () {
+        setup:
+            def environmentVariables = [
+                'GIT_BRANCH': 'main'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+        expect:
+            edgeX.getCBaseImage(version) == expectedResult
+        where:
+            version << [
+                'latest',
+                '1.0',
+                'MyVersion'
+            ]
+            expectedResult << [
+                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base:latest',
+                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base:1.0',
+                'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base:MyVersion'
+            ]
+    }
+
+    def "Test getCBaseImage [Should] return expected #expectedResult [When] called with with version #version and on lts branch" () {
+        setup:
+            def environmentVariables = [
+                'GIT_BRANCH': 'lts-test'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+        expect:
+            edgeX.getCBaseImage(version) == expectedResult
+        where:
+            version << [
+                'latest',
+                '1.0',
+                'MyVersion'
+            ]
+            expectedResult << [
+                'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-gcc-base:gcc-lts',
+                'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-gcc-base:gcc-lts',
+                'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-gcc-base:gcc-lts'
+            ]
+    }
+
     def "Test parallelJobCost [Should] call lfParallelCostCapture inside a docker image [When] called with no params" () {
         setup:
             explicitlyMockPipelineVariable('lfParallelCostCapture')
@@ -665,5 +800,147 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.parallelJobCost('arm64')
         then:
             1 * getPipelineMock('lfParallelCostCapture.call').call()
+    }
+
+    def "Test isLTSReleaseBuild [Should] call expected [When] the commit message matches lts release message" () {
+        setup:
+            explicitlyMockPipelineVariable('isMergeCommit')
+            explicitlyMockPipelineVariable('getCommitMessage')
+
+            getPipelineMock('sh')([
+                returnStdout: true,
+                script: 'git log --format=format:%s -1 MyCommitSha'
+            ]) >> {
+                'ci(lts-release): mock lts release'
+            }
+
+            getPipelineMock('isMergeCommit').call(_) >> true
+        expect:
+            edgeX.isLTSReleaseBuild('MyCommitSha') == true
+    }
+
+    def "Test isLTSReleaseBuild [Should] call expected [When] the commit message matches lts release message and CommitId env var is set" () {
+        setup:
+            def environmentVariables = [
+                'CommitId': 'OverrideCommitSha'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+            explicitlyMockPipelineVariable('isMergeCommit')
+            explicitlyMockPipelineVariable('getCommitMessage')
+
+            getPipelineMock('sh')([
+                returnStdout: true,
+                script: 'git log --format=format:%s -1 MyCommitSha'
+            ]) >> {
+                'ci(lts-release): mock lts release'
+            }
+
+            getPipelineMock('isMergeCommit').call(_) >> true
+        expect:
+            edgeX.isLTSReleaseBuild('MyCommitSha') == false
+    }
+
+    def "Test isLTSReleaseBuild [Should] call expected [When] the commit message does not match lts release message" () {
+        setup:
+            explicitlyMockPipelineVariable('isMergeCommit')
+            explicitlyMockPipelineVariable('getCommitMessage')
+
+            getPipelineMock('sh')([
+                returnStdout: true,
+                script: 'git log --format=format:%s -1 MyCommitSha'
+            ]) >> {
+                'ci: mock regular commit not lts-release'
+            }
+
+            getPipelineMock('isMergeCommit').call(_) >> true
+        expect:
+            edgeX.isLTSReleaseBuild('MyCommitSha') == false
+    }
+
+    def "Test semverPrep [Should] call expected [When] the commit message is not a build commit message" () {
+        setup:
+            def environmentVariables = [
+                'GIT_COMMIT': 'MyCommitSha'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+            explicitlyMockPipelineVariable('isMergeCommit')
+            explicitlyMockPipelineVariable('getCommitMessage')
+            explicitlyMockPipelineVariable('isBuildCommit')
+
+            getPipelineMock('sh')([
+                returnStdout: true,
+                script: 'git log --format=format:%s -1 MyCommitSha'
+            ]) >> {
+                'ci: mock regular commit'
+            }
+
+            getPipelineMock('isMergeCommit').call(_) >> true
+            getPipelineMock('isBuildCommit').call(_) >> false
+        expect:
+            edgeX.semverPrep() == null
+            environmentVariables.BUILD_STABLE_DOCKER_IMAGE == false
+    }
+
+    def "Test semverPrep [Should] call expected [When] the commit message is a build commit message" () {
+        setup:
+            def environmentVariables = [
+                'GIT_COMMIT': 'MyCommitSha'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+            explicitlyMockPipelineVariable('isMergeCommit')
+            explicitlyMockPipelineVariable('getCommitMessage')
+            explicitlyMockPipelineVariable('isBuildCommit')
+            explicitlyMockPipelineVariable('parseBuildCommit')
+
+            getPipelineMock('sh')([
+                returnStdout: true,
+                script: 'git log --format=format:%s -1 MyCommitSha'
+            ]) >> {
+                'build(mock): [1.0.0,stable] Stage Artifacts for Mock'
+            }
+
+            getPipelineMock('isMergeCommit').call(_) >> true
+            getPipelineMock('isBuildCommit').call(_) >> false
+            getPipelineMock('parseBuildCommit').call(_) >> [version:'1.0.0', namedTag:'stable']
+        expect:
+            edgeX.semverPrep() == '1.0.0'
+            environmentVariables.NAMED_TAG == 'stable'
+            environmentVariables.BUILD_STABLE_DOCKER_IMAGE == true
+    }
+
+    def "Test waitFor [Should] call shell script with expected arguments [When] command is provided" () {
+        setup:
+        when:
+            edgeX.waitFor('mock-command')
+        then:
+            1 * getPipelineMock('libraryResource').call('wait-for.sh') >> 'wait-for-script'
+            1 * getPipelineMock('writeFile').call(['file': './wait-for.sh', 'text': 'wait-for-script'])
+            1 * getPipelineMock('sh').call('chmod +x ./wait-for.sh')
+            1 * getPipelineMock('sh').call('./wait-for.sh \'mock-command\' 0 5')
+    }
+
+    def "Test waitFor [Should] call shell script with expected arguments [When] command, timeout, exit code and sleepFor are provided" () {
+        setup:
+        when:
+            edgeX.waitFor('mock-command', 60, 99, 20)
+        then:
+            1 * getPipelineMock('libraryResource').call('wait-for.sh') >> 'wait-for-script'
+            1 * getPipelineMock('writeFile').call(['file': './wait-for.sh', 'text': 'wait-for-script'])
+            1 * getPipelineMock('sh').call('chmod +x ./wait-for.sh')
+            1 * getPipelineMock('sh').call('./wait-for.sh \'mock-command\' 99 20')
+    }
+
+    def "Test waitForImages [Should] call shell script with expected arguments [When] images are provided" () {
+        setup:
+        when:
+            edgeX.waitForImages(['mock-image-1', 'mock-image-2'])
+        then:
+            1 * getPipelineMock('libraryResource').call('wait-for-images.sh') >> 'wait-for-script'
+            1 * getPipelineMock('writeFile').call(['file': './wait-for-images.sh', 'text': 'wait-for-script'])
+            1 * getPipelineMock('sh').call('chmod +x ./wait-for-images.sh')
+            1 * getPipelineMock('sh').call('./wait-for-images.sh mock-image-1 mock-image-2')
     }
 }
