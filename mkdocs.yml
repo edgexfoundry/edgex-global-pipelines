@@ -31,6 +31,9 @@ nav:
     - './tutorials/manual-bump.md'
     - './tutorials/pr-commit-for-testing.md'
     - './tutorials/unit-testing-best-practices.md'
+  - Release Info:
+    - './releases/jakarta-release-stages.md'
+    - './releases/jakarta-lts-initial.md'
 
 markdown_extensions:
   - codehilite
