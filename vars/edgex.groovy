@@ -23,7 +23,7 @@ def isReleaseStream(branchName = env.GIT_BRANCH) {
 def isLTS() {
     def branchName = getTargetBranch()
     def ltsStreams = [/^jakarta$/, /^lts-test$/]
-    println "[edgeX.isLTS] Checking if [${branchName}] [${env.GIT_BRANCH}]?? matches against LTS streams [${ltsStreams}]"
+    println "[edgeX.isLTS] Checking if [${branchName}] matches against LTS streams [${ltsStreams}]"
     (branchName && (ltsStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
 
@@ -306,20 +306,20 @@ def isLTSReleaseBuild(commit = env.GIT_COMMIT) {
 // at the moment. But will remove this functionality later
 def semverPrep(commit = env.GIT_COMMIT) {
     def commitMsg = getCommitMessage(commit)
-    echo("[semverPrep] GIT_COMMIT: ${commit}, Commit Message: ${commitMsg}")
+    println "[semverPrep] GIT_COMMIT: ${commit}, Commit Message: ${commitMsg}"
 
     def buildVersion = null
     if(isBuildCommit(commitMsg)) {
         def parsedCommitMsg = parseBuildCommit(commitMsg)
         buildVersion = parsedCommitMsg.version
 
-        echo("[semverPrep] This is a build commit. buildVersion: [${buildVersion}], namedTag: [${parsedCommitMsg.namedTag}]")
+        println "[semverPrep] This is a build commit. buildVersion: [${buildVersion}], namedTag: [${parsedCommitMsg.namedTag}]"
 
         env.NAMED_TAG = parsedCommitMsg.namedTag
         env.BUILD_STABLE_DOCKER_IMAGE = true
     }
     else {
-        echo("[semverPrep] This is not a build commit.")
+        println "[semverPrep] This is not a build commit."
         env.BUILD_STABLE_DOCKER_IMAGE = false
     }
 
@@ -330,7 +330,7 @@ def waitFor(command, timeoutMinutes = 60, exitCode = 0, sleepFor = 5) {
     // the writeFile allows us to call the script with arguments
     def waitScript = libraryResource('wait-for.sh')
     writeFile(file: './wait-for.sh', text: waitScript)
-    sh "chmod +x ./wait-for.sh"
+    sh 'chmod +x ./wait-for.sh'
 
     try {
         timeout(timeoutMinutes) {
@@ -345,7 +345,7 @@ def waitForImages(images, timeoutMinutes = 30) {
     // the writeFile allows us to call the script with arguments
     def waitScript = libraryResource('wait-for-images.sh')
     writeFile(file: './wait-for-images.sh', text: waitScript)
-    sh "chmod +x ./wait-for-images.sh"
+    sh 'chmod +x ./wait-for-images.sh'
 
     try {
         timeout(timeoutMinutes) {
