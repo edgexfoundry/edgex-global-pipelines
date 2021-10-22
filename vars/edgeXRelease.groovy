@@ -92,11 +92,13 @@ def stageArtifact(step) {
 
     println "[edgeXRelease]: building/staging for ${rebuildRepo} - DRY_RUN: ${env.DRY_RUN}"
 
+    def jobToBuild = step.lts ? step.releaseName : step.releaseStream
+
     if(edgex.isDryRun()) {
-        println("build job: '../${rebuildRepo}/${step.releaseStream}, parameters: [CommitId: ${step.commitId}], propagate: true, wait: true)")
+        println("build job: '../${rebuildRepo}/${jobToBuild}, parameters: [CommitId: ${step.commitId}], propagate: true, wait: true)")
     } else {
         try{
-            build(job: "../${rebuildRepo}/${step.releaseStream}",
+            build(job: "../${rebuildRepo}/${jobToBuild}",
                 parameters: [[$class: 'StringParameterValue', name: 'CommitId', value: step.commitId]],
                 propagate: true,
                 wait: true
