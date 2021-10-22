@@ -17,37 +17,50 @@
 def prepLTS(releaseInfo, options) {
     def credentials = options.credentials != null ? options.credentials : 'edgex-jenkins-ssh'
     edgeXReleaseGitTagUtil.validate(releaseInfo)
-    def ltsBranchName = "${releaseInfo.releaseName}"
+    def ltsBranchName = releaseInfo.releaseName
+
     // clone the repo branch to name using the specified ssh credentials
-    echo ("[edgeX LTS]: Creating LTS Branch ${ltsBranchName} from ${releaseInfo.releaseStream}:${releaseInfo.commitId.take(7)} - DRY_RUN: ${env.DRY_RUN}")
+    println "[edgeX LTS]: Creating LTS Branch ${ltsBranchName} from ${releaseInfo.releaseStream}:${releaseInfo.commitId.take(7)} - DRY_RUN: ${env.DRY_RUN}"
 
     edgeXReleaseGitTag.cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, ltsBranchName, releaseInfo.commitId, credentials)
+
+    def ltsCommitId
+
     // Create LTS Branch
     sshagent(credentials: [credentials]) {
         if(edgex.isDryRun()) {
             echo("dir ${ltsBranchName}")
             echo("git checkout ${ltsBranchName} || git checkout -b ${ltsBranchName}")
         } else{
-            dir("${ltsBranchName}") {
+            dir(ltsBranchName) {
                 sh "git checkout ${ltsBranchName} || git checkout -b ${ltsBranchName}"
-                
             }
         }
 
-        if (isGoProject(ltsBranchName)) {
+        if (edgex.isGoProject(ltsBranchName)) {
             prepGoProject(ltsBranchName)
         }
 
+        def commitMessage = generateLTSCommitMessage(releaseInfo.version, releaseInfo.commitId)
+
         if(edgex.isDryRun()) {
-            echo("git commit --allow-empty -m\"ci(${ltsBranchName}): LTS release v${releaseInfo.version} @${releaseInfo.commitId.take(7)}\"")
+            echo("git commit --allow-empty -m '${commitMessage}'")
+            echo('git rev-parse HEAD')
             echo("git push origin ${ltsBranchName}")
         } else {
-            dir("${ltsBranchName}") {
-                sh "git commit --allow-empty -m\"ci(${ltsBranchName}): LTS release v${releaseInfo.version} @${releaseInfo.commitId.take(7)}\""
+            dir(ltsBranchName) {
+                sh "git commit --allow-empty -m '${commitMessage}'"
                 sh "git push origin ${ltsBranchName}"
+                ltsCommitId = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
             }
         }
     }
+
+    ltsCommitId
+}
+
+def generateLTSCommitMessage(version, commitId) {
+    "ci(lts-release): LTS release v${version} @${commitId.take(7)}"
 }
 
 def prepGoProject(ltsBranchName){
@@ -65,16 +78,6 @@ def prepGoProject(ltsBranchName){
                 sh "make vendor"
             }
             sh "git add ."
-        }
-    }
-}
-
-def isGoProject(ltsBranchName){
-    dir("${ltsBranchName}") {
-        if (fileExists('go.mod')) {
-            return true
-        } else {
-            return false
         }
     }
 }

@@ -37,14 +37,19 @@ def parallelStepFactoryTransform(step) {
     return {
         stage(step.name.toString()) {
             if (step.lts == true){
-                edgeXLTS.prepLTS(step, [credentials: "edgex-jenkins-ssh"])
+                def ltsCommitId = edgeXLTS.prepLTS(step, [credentials: "edgex-jenkins-ssh"])
+
+                println "[edgeXRelease] New CommitId created for LTS Release [${ltsCommitId}] overriding step CommitId [${step.CommitId}]"
+                step.CommitId = ltsCommitId
+
                 if (step.name.toString().matches(".*-c\$")){
                     def images = getBuilderImagesFromReleasedImages(step)
-                    // }   edgex.waitForImages(images, 5)
-                    println("Wait for these Images: ${images}")
-                    sh 'sleep 5'
+
+                    println("[edgeXRelease] Wait for these Images: ${images}")
+                    edgex.waitForImages(images, 30)
                 }
             }
+
             if(step.gitTag == true) {
                 stage("Git Tag Publish") {
                     edgeXReleaseGitTag(step, [credentials: "edgex-jenkins-ssh", bump: false, tag: true])
@@ -77,23 +82,24 @@ def parallelStepFactoryTransform(step) {
 
 def stageArtifact(step) {
     rebuildRepo = step.repo.split('/')[-1].split('.git')[0]
+
     println "[edgeXRelease]: building/staging for ${rebuildRepo} - DRY_RUN: ${env.DRY_RUN}"
+
     if(edgex.isDryRun()) {
         println("build job: '../${rebuildRepo}/${step.releaseStream}, parameters: [CommitId: ${step.commitId}], propagate: true, wait: true)")
-    }
-    else {
+    } else {
         try{
-            build(
-                job: '../' + rebuildRepo + '/' + step.releaseStream,
+            build(job: "../${rebuildRepo}/${step.releaseStream}",
                 parameters: [[$class: 'StringParameterValue', name: 'CommitId', value: step.commitId]],
                 propagate: true,
-                wait: true)
+                wait: true
+            )
         } catch (hudson.AbortException e) {
             if (e.message.matches("No item named(.*)found")){
                 catchError(stageResult: 'UNSTABLE', buildResult: 'SUCCESS'){
                     error ('[edgeXRelease]: No build pipeline found - No artifact to stage')
                 }
-            }else{
+            } else{
                 throw e
             }
         }
@@ -109,17 +115,20 @@ def stageArtifact(step) {
 // nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:jakarta
 
 def getBuilderImagesFromReleasedImages(step) {
-    def builderImages = []
-    step.docker.each {
-        it.image.split("/")[-1]
+    // TODO: allow configuration of some of these hardcoded vars
+    def releaseRegistry = 'nexus3.edgexfoundry.org:10002'
+    def x86Tag = 'x86_64'
+    def armTag = 'arm64'
+
+    def builderImages = step.docker.collect {
         def imageName = it.image.split("/")[-1]
-        if (imageName.matches(".*-arm64\$")){
-            imageName = imageName.replaceAll("-arm64","-builder-arm64")
-            imageName = "nexus3.edgexfoundry.org:10002/${imageName}:${step.releaseName}"
-        } else{
-            imageName = "nexus3.edgexfoundry.org:10002/${imageName}-builder-x86_64:${step.releaseName}"
+        if (imageName =~ /.*-arm64$/) {
+            imageName = imageName.replaceAll("-${armTag}","-builder-${armTag}")
+            imageName = "${releaseRegistry}/${imageName}:${step.releaseName}"
+        } else {
+            imageName = "${releaseRegistry}/${imageName}-builder-${x86Tag}:${step.releaseName}"
         }
-        builderImages.add(imageName)
     }
+
     return builderImages
 }

@@ -738,6 +738,22 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
     }
 
+    def "Test isGoProject [Should] call with expected arguments [When] go.mod exists with no folder" () {
+        setup:
+            getPipelineMock('fileExists').call('go.mod') >> true
+        expect:
+            edgeX.isGoProject() == true
+
+    }
+
+    def "Test isGoProject [Should] call with expected arguments [When] go.mod does not exist with no folder" () {
+        setup:
+            getPipelineMock('fileExists').call('go.mod') >> false
+        expect:
+            edgeX.isGoProject() == false
+
+    }
+
     def "Test getCBaseImage [Should] return expected #expectedResult [When] called with with version #version and on non lts branch" () {
         setup:
             def environmentVariables = [

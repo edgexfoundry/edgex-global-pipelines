@@ -534,40 +534,6 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
             thrown hudson.AbortException
     }
 
-    def "Test getBuilderImagesFromReleasedImages [Should] return expected [When] called with C-based docker image" () {
-        setup:
-            getPipelineMock('edgex.isDryRun').call() >> false
-            def step =
-                [
-                    name:'sample-service-c',
-                    version:'1.11.83',
-                    releaseName:'jakarta',
-                    releaseStream:'main',
-                    commitId:'0123456789',
-                    repo:'https://github.com/edgexfoundry/sample-service.git',
-                    gitTag:false,
-                    dockerImages:false,
-                    docker:[[
-                        image: 'nexus3.edgexfoundry.org:10004/sample-service-c',
-                        destination: [
-                            'nexus3.edgexfoundry.org:10002/sample-service-c',
-                            'docker.io/edgexfoundry/sample-service-c'
-                        ]
-                    ], [
-                        image: 'nexus3.edgexfoundry.org:10004/sample-service-c-arm64',
-                        destination: [
-                            'nexus3.edgexfoundry.org:10002/sample-service-c-arm64',
-                            'docker.io/edgexfoundry/sample-service-c-arm64'
-                        ]
-                    ]]
-                ]
-        when:
-            def images = edgeXRelease.getBuilderImagesFromReleasedImages(step)
-        then:
-            assert images == ["nexus3.edgexfoundry.org:10002/sample-service-c-builder-x86_64:jakarta",
-            "nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:jakarta"]
-    }
-    
     def "Test parallelStepFactoryTransform [Should Not] wait for builder images [When] called with Go-based docker image" () {
         setup:
             getPipelineMock('edgex.isDryRun').call() >> false
@@ -671,5 +637,66 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
             edgeXRelease.parallelStepFactoryTransform(step).asWritable().toString()
         then:
             1 * getPipelineMock('edgeXLTS.prepLTS').call(_)
+    }
+
+    def "Test getBuilderImagesFromReleasedImages [Should] return expected [When] called with C-based docker image and both architectures" () {
+        setup:
+            getPipelineMock('edgex.isDryRun').call() >> false
+            def step =
+                [
+                    name:'sample-service-c',
+                    version:'1.11.83',
+                    releaseName:'jakarta',
+                    releaseStream:'main',
+                    commitId:'0123456789',
+                    repo:'https://github.com/edgexfoundry/sample-service.git',
+                    gitTag:false,
+                    dockerImages:false,
+                    docker:[[
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service-c',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service-c',
+                            'docker.io/edgexfoundry/sample-service-c'
+                        ]
+                    ], [
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service-c-arm64',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service-c-arm64',
+                            'docker.io/edgexfoundry/sample-service-c-arm64'
+                        ]
+                    ]]
+                ]
+        when:
+            def images = edgeXRelease.getBuilderImagesFromReleasedImages(step)
+        then:
+            assert images == ["nexus3.edgexfoundry.org:10002/sample-service-c-builder-x86_64:jakarta",
+            "nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:jakarta"]
+    }
+
+    def "Test getBuilderImagesFromReleasedImages [Should] return expected [When] called with C-based docker image and only ARM architecture" () {
+        setup:
+            getPipelineMock('edgex.isDryRun').call() >> false
+            def step =
+                [
+                    name:'sample-service-c',
+                    version:'1.11.83',
+                    releaseName:'lts-test',
+                    releaseStream:'main',
+                    commitId:'0123456789',
+                    repo:'https://github.com/edgexfoundry/sample-service.git',
+                    gitTag:false,
+                    dockerImages:false,
+                    docker:[[
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service-c-arm64',
+                        destination: [
+                            'nexus3.edgexfoundry.org:10002/sample-service-c-arm64',
+                            'docker.io/edgexfoundry/sample-service-c-arm64'
+                        ]
+                    ]]
+                ]
+        when:
+            def images = edgeXRelease.getBuilderImagesFromReleasedImages(step)
+        then:
+            assert images == ["nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:lts-test"]
     }
 }

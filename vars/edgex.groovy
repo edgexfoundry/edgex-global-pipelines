@@ -250,6 +250,16 @@ def getGoLangBaseImage(version, alpineBased) {
     baseImage
 }
 
+def isGoProject(folder){
+    if(folder) {
+        dir(folder) {
+            fileExists('go.mod')
+        }
+    } else  {
+        fileExists('go.mod')
+    }
+}
+
 def getCBaseImage(version = 'latest') {
     isLTS()
     ? 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-gcc-base:gcc-lts'
@@ -275,6 +285,7 @@ def patchAlpineSeccompArm64() {
     sh 'sudo service docker restart'
 }
 
+// TODO: Refactor to edgeXLTS
 def isLTSReleaseBuild(commit = env.GIT_COMMIT) {
     def noopMessages = [/^ci\(lts-release\)/]
 
