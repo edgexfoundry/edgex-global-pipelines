@@ -46,7 +46,7 @@ def didChange(expression, previous='origin/main') {
     } else{
         // If we are merging into main then both previous and the current will be the same
         // so we need to calculate the previous commit has
-        if(previous =~ /.*main|.*release/ && env.GIT_BRANCH =~ /.*main|.*release/) {
+        if(previous =~ /.*main|.*release|.*release-lts/ && env.GIT_BRANCH =~ /.*main|.*release|.*release-lts/) {
             println "[didChange-DEBUG] currently merging into ${env.GIT_BRANCH}, need to lookup previous commit sha1"
             previous = sh (script: "git show --pretty=%H ${env.GIT_COMMIT}^1 | head -n 1 | xargs", returnStdout: true).trim()
         }

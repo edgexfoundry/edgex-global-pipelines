@@ -16,6 +16,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
 
         validReleaseInfo = [
             'name': 'sample-service',
+            'lts': false,
             'version': '1.2.3',
             'releaseStream': 'main',
             'commitId': 'f33f986d90bbf8c9cd5dc4c341daab837968a04e',
@@ -116,15 +117,37 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('error').call('[edgeXReleaseGitTag]: ERROR occurred releasing git tag: java.lang.Exception: Clone Repository Exception')
     }
 
-    def "Test releaseGitTag [Should] call expected [When] called" () {
+    def "Test releaseGitTag [Should] call expected [When] called with LTS false" () {
         setup:
         when:
             edgeXReleaseGitTagUtil.releaseGitTag(validReleaseInfo, 'MyCredentials')
         then:
             1 * getPipelineMock('edgeXReleaseGitTag.cloneRepo').call('https://github.com/edgexfoundry/sample-service.git', 'main', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
             1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
-                    assert _arguments[0][0][0] == 'SEMVER_BRANCH=main'
-                }
+                assert _arguments[0][0][0] == 'SEMVER_BRANCH=main'
+            }
+            1 * getPipelineMock('edgeXReleaseGitTag.setAndSignGitTag').call('sample-service', '1.2.3')
+            1 * getPipelineMock('edgeXReleaseGitTag.bumpAndPushGitTag').call('sample-service', '1.2.3', '-pre=dev pre', true)
+    }
+
+    def "Test releaseGitTag [Should] call expected [When] called with LTS true" () {
+        setup:
+            def ltsReleaseInfo = [
+                'name': 'sample-service',
+                'lts': true,
+                'version': '1.2.3',
+                'releaseName': 'jakarta',
+                'releaseStream': 'main',
+                'commitId': 'f33f986d90bbf8c9cd5dc4c341daab837968a04e',
+                'repo': 'https://github.com/edgexfoundry/sample-service.git'
+            ]
+        when:
+            edgeXReleaseGitTagUtil.releaseGitTag(ltsReleaseInfo, 'MyCredentials')
+        then:
+            1 * getPipelineMock('edgeXReleaseGitTag.cloneRepo').call('https://github.com/edgexfoundry/sample-service.git', 'main', 'sample-service', 'f33f986d90bbf8c9cd5dc4c341daab837968a04e', 'MyCredentials')
+            1 * getPipelineMock('withEnv').call(_) >> { _arguments ->
+                assert _arguments[0][0][0] == 'SEMVER_BRANCH=jakarta'
+            }
             1 * getPipelineMock('edgeXReleaseGitTag.setAndSignGitTag').call('sample-service', '1.2.3')
             1 * getPipelineMock('edgeXReleaseGitTag.bumpAndPushGitTag').call('sample-service', '1.2.3', '-pre=dev pre', true)
     }

@@ -19,7 +19,7 @@ public class EdgeXReleaseDockerImageIntSpec extends JenkinsPipelineSpecification
         validReleaseYaml = [
             name:'app-functions-sdk-go',
             version:'v1.2.0',
-            releaseName:'geneva',
+            releaseName:'jakarta',
             releaseStream:'main',
             repo:'https://github.com/edgexfoundry/app-functions-sdk-go.git',
             dockerImages:true,
@@ -41,7 +41,7 @@ public class EdgeXReleaseDockerImageIntSpec extends JenkinsPipelineSpecification
         invalidReleaseYaml = [
             name:'app-functions-sdk-go',
             version:'v1.2.0',
-            releaseName:'geneva',
+            releaseName:'jakarta',
             releaseStream:'main',
             repo:'https://github.com/edgexfoundry/app-functions-sdk-go.git',
             dockerImages:true,
@@ -230,4 +230,37 @@ public class EdgeXReleaseDockerImageIntSpec extends JenkinsPipelineSpecification
                 1 * getPipelineMock('sh').call("docker push docker.io/edgexfoundry/docker-app-functions-sdk-go:v1.2.0")
         }
 
+        def "Test edgeXReleaseDockerImage [Should] run sh commands to tag and push when DRY_RUN is false and LTS is true [When] called" () {
+        setup:
+            def environmentVariables = [
+                'DRY_RUN': 'false',
+                'RELEASE_DOCKER_SETTINGS': 'some-settings'
+            ]
+            edgeXReleaseDockerImage.getBinding().setVariable('env', environmentVariables)
+            edgex.getBinding().setVariable('env', environmentVariables)
+
+            explicitlyMockPipelineVariable('edgeXDockerLogin')
+
+            validReleaseYaml.lts = true
+        when:
+            edgeXReleaseDockerImage.publishDockerImages(validReleaseYaml)
+        then:
+            1 * getPipelineMock('edgeXDockerLogin.call')(settingsFile: 'some-settings')
+
+            2 * getPipelineMock('sh').call("docker pull nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:jakarta")
+
+            1 * getPipelineMock('sh').call("docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:jakarta nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go:v1.2.0")
+            1 * getPipelineMock('sh').call("docker push nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go:v1.2.0")
+            1 * getPipelineMock('sh').call("docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go:jakarta docker.io/edgexfoundry/docker-app-functions-sdk-go:v1.2.0")
+            1 * getPipelineMock('sh').call("docker push docker.io/edgexfoundry/docker-app-functions-sdk-go:v1.2.0")
+
+            2 * getPipelineMock('sh').call("docker pull nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go-arm64:jakarta")
+
+            1 * getPipelineMock('sh').call("docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go-arm64:jakarta nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go-arm64:v1.2.0")
+            1 * getPipelineMock('sh').call("docker push nexus3.edgexfoundry.org:10002/docker-app-functions-sdk-go-arm64:v1.2.0")
+            1 * getPipelineMock('sh').call("docker tag nexus3.edgexfoundry.org:10004/docker-app-functions-sdk-go-arm64:jakarta docker.io/edgexfoundry/docker-app-functions-sdk-go-arm64:v1.2.0")
+            1 * getPipelineMock('sh').call("docker push docker.io/edgexfoundry/docker-app-functions-sdk-go-arm64:v1.2.0")
+
+            2 * getPipelineMock('echo').call("[edgeXReleaseDockerImage] Successfully published [2] images")
+    }
 }

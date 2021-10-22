@@ -82,7 +82,8 @@ def publishDockerImages (releaseInfo) {
 
         if(dockerFrom) {
             // set the source version to the releaseStream from the yaml
-            dockerFrom.tag = releaseInfo.releaseStream
+            def sourceTag = releaseInfo.lts ? releaseInfo.releaseName : releaseInfo.releaseStream
+            dockerFrom.tag = sourceTag
 
             for(int j = 0; j < dockerInfo.destination.size(); j++) {
                 def dockerTo = edgeXDocker.parse(dockerInfo.destination[j])
