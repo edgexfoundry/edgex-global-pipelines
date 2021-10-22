@@ -37,16 +37,18 @@ def parallelStepFactoryTransform(step) {
     return {
         stage(step.name.toString()) {
             if (step.lts == true){
-                def ltsCommitId = edgeXLTS.prepLTS(step, [credentials: "edgex-jenkins-ssh"])
+                stage("LTS Prep") {
+                    def ltsCommitId = edgeXLTS.prepLTS(step, [credentials: "edgex-jenkins-ssh"])
 
-                println "[edgeXRelease] New CommitId created for LTS Release [${ltsCommitId}] overriding step CommitId [${step.CommitId}]"
-                step.CommitId = ltsCommitId
+                    println "[edgeXRelease] New CommitId created for LTS Release [${ltsCommitId}] overriding step CommitId [${step.CommitId}]"
+                    step.CommitId = ltsCommitId
 
-                if (step.name.toString().matches(".*-c\$")){
-                    def images = getBuilderImagesFromReleasedImages(step)
+                    if (step.name.toString().matches(".*-c\$")){
+                        def images = getBuilderImagesFromReleasedImages(step)
 
-                    println("[edgeXRelease] Wait for these Images: ${images}")
-                    edgex.waitForImages(images, 30)
+                        println("[edgeXRelease] Wait for these Images: ${images}")
+                        edgex.waitForImages(images, 30)
+                    }
                 }
             }
 

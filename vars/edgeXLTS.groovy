@@ -20,7 +20,7 @@ def prepLTS(releaseInfo, options) {
     def ltsBranchName = releaseInfo.releaseName
 
     // clone the repo branch to name using the specified ssh credentials
-    println "[edgeX LTS]: Creating LTS Branch ${ltsBranchName} from ${releaseInfo.releaseStream}:${releaseInfo.commitId.take(7)} - DRY_RUN: ${env.DRY_RUN}"
+    println "[edgeXLTS]: Creating LTS Branch ${ltsBranchName} from ${releaseInfo.releaseStream}:${releaseInfo.commitId.take(7)} - DRY_RUN: ${env.DRY_RUN}"
 
     edgeXReleaseGitTag.cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, ltsBranchName, releaseInfo.commitId, credentials)
 
@@ -65,6 +65,8 @@ def generateLTSCommitMessage(version, commitId) {
 
 def prepGoProject(ltsBranchName){
     if(edgex.isDryRun()) {
+        println "[edgeXLTS]: Creating Vendored dependencies for Go project"
+
         echo("grep -v vendor .gitignore > .gitignore.tmp")
         echo("mv .gitignore.tmp .gitignore")
         echo("make vendor")
@@ -74,8 +76,10 @@ def prepGoProject(ltsBranchName){
         dir("${ltsBranchName}") {
             sh "grep -v vendor .gitignore > .gitignore.tmp"
             sh "mv .gitignore.tmp .gitignore"
-            docker.image('golang').inside('-u 0:0') {
-                sh "make vendor"
+
+            def baseImage = edgex.getGoLangBaseImage('1.16', true)
+            docker.image(baseImage).inside('-u 0:0') {
+                sh 'make vendor'
             }
             sh "git add ."
         }
