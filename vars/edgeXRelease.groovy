@@ -40,8 +40,13 @@ def parallelStepFactoryTransform(step) {
                 stage("LTS Prep") {
                     def ltsCommitId = edgeXLTS.prepLTS(step, [credentials: "edgex-jenkins-ssh"])
 
-                    println "[edgeXRelease] New CommitId created for LTS Release [${ltsCommitId}] overriding step CommitId [${step.CommitId}]"
-                    step.CommitId = ltsCommitId
+                    if(edgex.isDryRun()) {
+                        println "[edgeXRelease] Will override CommitId [${step.commitId}] with new CommitId from edgeXLTS.prepLTS"
+                        step.commitId = 'mock-lts-build'
+                    } else {
+                        println "[edgeXRelease] New CommitId created for LTS Release [${ltsCommitId}] overriding step CommitId [${step.commitId}]"
+                        step.commitId = ltsCommitId
+                    }
 
                     if (step.name.toString().matches(".*-c\$")){
                         def images = getBuilderImagesFromReleasedImages(step)
