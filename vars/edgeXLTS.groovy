@@ -59,6 +59,12 @@ def prepLTS(releaseInfo, options) {
     ltsCommitId
 }
 
+// NOTE: This function will only work when run on an LTS branch
+// This function is used in the C pipelines to determine the builder image tag to use
+def getLatestLTSCommitId() {
+    sh(script: 'git log --pretty="%H %s" | grep "ci(lts-release)" | head -n 1 | awk \'{print $1}\'', returnStdout: true).trim()
+}
+
 def generateLTSCommitMessage(version, commitId) {
     "ci(lts-release): LTS release v${version} @${commitId.take(7)}"
 }

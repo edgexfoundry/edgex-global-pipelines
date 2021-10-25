@@ -694,10 +694,10 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
                     ]]
                 ]
         when:
-            def images = edgeXRelease.getBuilderImagesFromReleasedImages(step)
+            def images = edgeXRelease.getBuilderImagesFromReleasedImages(step, 'MockTag')
         then:
-            assert images == ["nexus3.edgexfoundry.org:10002/sample-service-c-builder-x86_64:jakarta",
-            "nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:jakarta"]
+            assert images == ["nexus3.edgexfoundry.org:10002/sample-service-c-builder-x86_64:MockTag",
+            "nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:MockTag"]
     }
 
     def "Test getBuilderImagesFromReleasedImages [Should] return expected [When] called with C-based docker image and only ARM architecture" () {
@@ -722,8 +722,8 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
                     ]]
                 ]
         when:
-            def images = edgeXRelease.getBuilderImagesFromReleasedImages(step)
+            def images = edgeXRelease.getBuilderImagesFromReleasedImages(step, '9f8c2f471')
         then:
-            assert images == ["nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:lts-test"]
+            assert images == ["nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:9f8c2f471"]
     }
 }

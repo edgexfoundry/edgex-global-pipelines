@@ -42,14 +42,15 @@ def parallelStepFactoryTransform(step) {
 
                     if(edgex.isDryRun()) {
                         println "[edgeXRelease] Will override CommitId [${step.commitId}] with new CommitId from edgeXLTS.prepLTS"
-                        step.commitId = 'mock-lts-build'
+                        ltsCommitId = 'mock-lts-build'
                     } else {
                         println "[edgeXRelease] New CommitId created for LTS Release [${ltsCommitId}] overriding step CommitId [${step.commitId}]"
-                        step.commitId = ltsCommitId
                     }
 
+                    step.commitId = ltsCommitId
+
                     if (step.name.toString().matches(".*-c\$")){
-                        def images = getBuilderImagesFromReleasedImages(step)
+                        def images = getBuilderImagesFromReleasedImages(step, ltsCommitId)
 
                         println("[edgeXRelease] Wait for these Images: ${images}")
                         if(!edgex.isDryRun()) {
@@ -125,7 +126,7 @@ def stageArtifact(step) {
 // nexus3.edgexfoundry.org:10002/sample-service-c-builder-x86_64:jakarta
 // nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:jakarta
 
-def getBuilderImagesFromReleasedImages(step) {
+def getBuilderImagesFromReleasedImages(step, tag) {
     // TODO: allow configuration of some of these hardcoded vars
     def releaseRegistry = 'nexus3.edgexfoundry.org:10002'
     def x86Tag = 'x86_64'
@@ -137,9 +138,9 @@ def getBuilderImagesFromReleasedImages(step) {
     step.docker.each {
         def imageName = it.image.split("/")[-1]
         if (imageName =~ /.*-arm64$/) {
-            builderImages << "${releaseRegistry}/${builderImageName}-builder-${armTag}:${step.releaseName}"
+            builderImages << "${releaseRegistry}/${builderImageName}-builder-${armTag}:${tag}"
         } else {
-            builderImages << "${releaseRegistry}/${builderImageName}-builder-${x86Tag}:${step.releaseName}"
+            builderImages << "${releaseRegistry}/${builderImageName}-builder-${x86Tag}:${tag}"
         }
     }
 

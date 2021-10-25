@@ -166,11 +166,11 @@ def call(config) {
                         steps {
                             script {
                                 def ltsReleaseImage = prepBaseBuildImage(true) // example return: device-grove-c-builder-x86_64
+                                def releaseCommitId = edgeXLTS.getLatestLTSCommitId()
 
-                                // this will push to nexus3.edgexfoundry.org:10002/${PROJECT}-builder-${ARCH}:${GIT_BRANCH}
-                                // nexus3.edgexfoundry.org:10002/device-grove-c-builder-x86_64:jakarta
-                                // GIT_BRANCH will be OK here becuase this is happening on a branch push
-                                edgeXDocker.push(ltsReleaseImage, false, 'release', [env.GIT_BRANCH])
+                                // this will push to nexus3.edgexfoundry.org:10002/${PROJECT}-builder-${ARCH}:releaseCommitId
+                                // nexus3.edgexfoundry.org:10002/device-grove-c-builder-x86_64:acbc8cf39f8c2f4713e3718bdd54e13e9fbdda26
+                                edgeXDocker.push(ltsReleaseImage, false, 'release', [releaseCommitId])
                             }
                         }
                     }
@@ -192,11 +192,11 @@ def call(config) {
                                 edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
 
                                 def ltsReleaseImage = prepBaseBuildImage(true) // example return: device-grove-c-builder-arm64
+                                def releaseCommitId = edgeXLTS.getLatestLTSCommitId()
 
-                                // this will push to nexus3.edgexfoundry.org:10002/${PROJECT}-builder-${ARCH}:${GIT_BRANCH}
-                                // nexus3.edgexfoundry.org:10002/device-grove-c-builder-arm64:jakarta
-                                // GIT_BRANCH will be OK here becuase this is happening on a branch push
-                                edgeXDocker.push(ltsReleaseImage, false, 'release', [env.GIT_BRANCH])
+                                // this will push to nexus3.edgexfoundry.org:10002/${PROJECT}-builder-${ARCH}:releaseCommitId
+                                // nexus3.edgexfoundry.org:10002/device-grove-c-builder-x86_64:acbc8cf39f8c2f4713e3718bdd54e13e9fbdda26
+                                edgeXDocker.push(ltsReleaseImage, false, 'release', [releaseCommitId])
                             }
                         }
                     }
@@ -510,7 +510,7 @@ def prepBaseBuildImage(forceBuild = false) {
 
     def lts = edgex.isLTS()
     if (lts && !forceBuild) {
-        def tag = edgex.getTargetBranch() // returns proper tag for LTS builds
+        def tag = edgeXLTS.getLatestLTSCommitId()
         buildImageName = "nexus3.edgexfoundry.org:10002/${env.PROJECT}-builder-${env.ARCH}:${tag}"
 
         println "[prepBaseBuildImage] Re-Tagging exiting image: ${buildImageName}"

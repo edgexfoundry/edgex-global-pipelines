@@ -26,6 +26,7 @@ trap ctrl_c INT
 ctrl_c() {
     echo "Cleanup bg jobs"
     kill $(jobs -p)
+    exit 1
 }
 
 for image in "${images[@]}"; do

@@ -23,13 +23,15 @@ public class EdgeXBuildCAppSpec extends JenkinsPipelineSpecification {
             ]
             edgeXBuildCApp.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('edgex.isLTS').call() >> true
-            getPipelineMock('edgex.getTargetBranch').call() >> 'lts'
+
+            explicitlyMockPipelineVariable('edgeXLTS')
+            getPipelineMock('edgeXLTS.getLatestLTSCommitId').call() >> 'acbc8cf'
 
         when:
             edgeXBuildCApp.prepBaseBuildImage(false)
         then:
-            1 * getPipelineMock('sh').call('docker pull nexus3.edgexfoundry.org:10002/MyProject-builder-MyArch:lts')
-            1 * getPipelineMock('sh').call('docker tag nexus3.edgexfoundry.org:10002/MyProject-builder-MyArch:lts ci-base-image-MyArch')
+            1 * getPipelineMock('sh').call('docker pull nexus3.edgexfoundry.org:10002/MyProject-builder-MyArch:acbc8cf')
+            1 * getPipelineMock('sh').call('docker tag nexus3.edgexfoundry.org:10002/MyProject-builder-MyArch:acbc8cf ci-base-image-MyArch')
     }
 
     // this is the use case when we have an LTS release and we are building the repo builder images
