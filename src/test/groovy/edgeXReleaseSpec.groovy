@@ -680,16 +680,16 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
                     gitTag:false,
                     dockerImages:false,
                     docker:[[
-                        image: 'nexus3.edgexfoundry.org:10004/sample-service-c',
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service',
                         destination: [
-                            'nexus3.edgexfoundry.org:10002/sample-service-c',
-                            'docker.io/edgexfoundry/sample-service-c'
+                            'nexus3.edgexfoundry.org:10002/sample-service',
+                            'docker.io/edgexfoundry/sample-service'
                         ]
                     ], [
-                        image: 'nexus3.edgexfoundry.org:10004/sample-service-c-arm64',
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service-arm64',
                         destination: [
-                            'nexus3.edgexfoundry.org:10002/sample-service-c-arm64',
-                            'docker.io/edgexfoundry/sample-service-c-arm64'
+                            'nexus3.edgexfoundry.org:10002/sample-service-arm64',
+                            'docker.io/edgexfoundry/sample-service-arm64'
                         ]
                     ]]
                 ]
@@ -714,10 +714,10 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
                     gitTag:false,
                     dockerImages:false,
                     docker:[[
-                        image: 'nexus3.edgexfoundry.org:10004/sample-service-c-arm64',
+                        image: 'nexus3.edgexfoundry.org:10004/sample-service-arm64',
                         destination: [
-                            'nexus3.edgexfoundry.org:10002/sample-service-c-arm64',
-                            'docker.io/edgexfoundry/sample-service-c-arm64'
+                            'nexus3.edgexfoundry.org:10002/sample-service-arm64',
+                            'docker.io/edgexfoundry/sample-service-arm64'
                         ]
                     ]]
                 ]

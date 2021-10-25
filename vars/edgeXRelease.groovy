@@ -52,7 +52,9 @@ def parallelStepFactoryTransform(step) {
                         def images = getBuilderImagesFromReleasedImages(step)
 
                         println("[edgeXRelease] Wait for these Images: ${images}")
-                        edgex.waitForImages(images, 30)
+                        if(!edgex.isDryRun()) {
+                            edgex.waitForImages(images, 30)
+                        }
                     }
                 }
             }
@@ -129,13 +131,15 @@ def getBuilderImagesFromReleasedImages(step) {
     def x86Tag = 'x86_64'
     def armTag = 'arm64'
 
-    def builderImages = step.docker.collect {
+    def builderImages = []
+
+    def builderImageName = step.name
+    step.docker.each {
         def imageName = it.image.split("/")[-1]
         if (imageName =~ /.*-arm64$/) {
-            imageName = imageName.replaceAll("-${armTag}","-builder-${armTag}")
-            imageName = "${releaseRegistry}/${imageName}:${step.releaseName}"
+            builderImages << "${releaseRegistry}/${builderImageName}-builder-${armTag}:${step.releaseName}"
         } else {
-            imageName = "${releaseRegistry}/${imageName}-builder-${x86Tag}:${step.releaseName}"
+            builderImages << "${releaseRegistry}/${builderImageName}-builder-${x86Tag}:${step.releaseName}"
         }
     }
 
