@@ -91,7 +91,18 @@ def publishDockerImages (releaseInfo) {
                     // set the destination version to the version from the yaml
                     dockerTo.tag = releaseInfo.version
 
-                    def exists = imageExists(dockerTo)
+                    def exists = false
+                    if(releaseInfo.lts) {
+                        try {
+                            exists = imageExists(dockerTo)
+                        } catch (e) {
+                            prinln "[edgeXReleaseDockerImage] LTS Release. Destination image does not exist ignoring error."
+                            exists = false
+                        }
+                    } else {
+                        exists = imageExists(dockerTo)
+                    }
+
                     // if destination image doesn't exit or we are forcing it, go ahead and publish.
                     if (!exists || releaseInfo.dockerForce) {
                         // if we have matching image names...then publish the image
