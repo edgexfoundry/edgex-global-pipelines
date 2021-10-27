@@ -2,57 +2,67 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildCApp/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildDocker/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildGoApp/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildGoMod/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXBuildGoParallel/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://edgexfoundry.github.io/edgex-global-pipelines/releases/jakarta-lts-initial/</loc>
+         <lastmod>2021-10-27</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://edgexfoundry.github.io/edgex-global-pipelines/releases/jakarta-release-stages/</loc>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/docker-build-strategy/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/manual-bump/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/pr-commit-for-testing/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/tutorials/unit-testing-best-practices/</loc>
-         <lastmod>2021-10-13</lastmod>
+         <lastmod>2021-10-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
