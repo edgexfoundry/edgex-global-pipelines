@@ -16,8 +16,21 @@
 
 def isReleaseStream(branchName = env.GIT_BRANCH) {
     // what defines a main release branch
-    def releaseStreams = [/^main$/, /^master$/, /^california$/, /^delhi$/, /^edinburgh$/, /^fuji$/, /^geneva$/, /^hanoi$/]
+    def releaseStreams = [/^main$/, /^master$/, /^california$/, /^delhi$/, /^edinburgh$/, /^fuji$/, /^geneva$/, /^hanoi$/, /^lts-test$/, /^jakarta$/]
     env.SILO == 'production' && (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
+}
+
+def isLTS() {
+    def branchName = getTargetBranch()
+    def ltsStreams = [/^jakarta$/, /^lts-test$/]
+    println "[edgeX.isLTS] Checking if [${branchName}] matches against LTS streams [${ltsStreams}]"
+    (branchName && (ltsStreams.collect { branchName =~ it ? true : false }).contains(true))
+}
+
+def getTargetBranch() {
+    // if CHANGE_ID is present, then we are deailing with a PR, we need to check against
+    // the CHANGE_TARGET rather than GIT_BRANCH
+    (env.CHANGE_ID && env.CHANGE_TARGET) ? env.CHANGE_TARGET : env.GIT_BRANCH
 }
 
 def didChange(expression, previous='origin/main') {
@@ -33,7 +46,7 @@ def didChange(expression, previous='origin/main') {
     } else{
         // If we are merging into main then both previous and the current will be the same
         // so we need to calculate the previous commit has
-        if(previous =~ /.*main|.*release/ && env.GIT_BRANCH =~ /.*main|.*release/) {
+        if(previous =~ /.*main|.*release|.*release-lts/ && env.GIT_BRANCH =~ /.*main|.*release|.*release-lts/) {
             println "[didChange-DEBUG] currently merging into ${env.GIT_BRANCH}, need to lookup previous commit sha1"
             previous = sh (script: "git show --pretty=%H ${env.GIT_COMMIT}^1 | head -n 1 | xargs", returnStdout: true).trim()
         }
@@ -207,7 +220,7 @@ def getTmpDir(pattern = 'ci-XXXXX') {
 def getGoLangBaseImage(version, alpineBased) {
     def baseImage
 
-    if(alpineBased) {
+    if(alpineBased == true || alpineBased == 'true') {
         def goBaseImages = [
             '1.11': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.11.13-alpine',
             '1.12': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.12.14-alpine',
@@ -216,7 +229,16 @@ def getGoLangBaseImage(version, alpineBased) {
             '1.16': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.16-alpine'
         ]
 
-        baseImage = goBaseImages[version]
+        def goLTSImages = [
+            '1.16': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.16-alpine-lts'
+        ]
+
+        // isLTS uses env.GIT_BRANCH to determine if the build is a LTS build
+        if(isLTS()) {
+            baseImage = goLTSImages[version]
+        } else {
+            baseImage = goBaseImages[version]
+        }
 
         if(!baseImage) {
             baseImage = "golang:${version}-alpine"
@@ -226,6 +248,22 @@ def getGoLangBaseImage(version, alpineBased) {
     }
 
     baseImage
+}
+
+def isGoProject(folder){
+    if(folder) {
+        dir(folder) {
+            fileExists('go.mod')
+        }
+    } else  {
+        fileExists('go.mod')
+    }
+}
+
+def getCBaseImage(version = 'latest') {
+    isLTS()
+    ? 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-gcc-base:gcc-lts'
+    : "nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base:${version}"
 }
 
 def parallelJobCost(tag='latest') {
@@ -245,4 +283,86 @@ def patchAlpineSeccompArm64() {
     sh 'sudo jq \'. += {"seccomp-profile": "/etc/docker/seccomp.json"}\' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.new'
     sh 'sudo mv /etc/docker/daemon.new /etc/docker/daemon.json'
     sh 'sudo service docker restart'
+}
+
+// TODO: Refactor to edgeXLTS
+def isLTSReleaseBuild(commit = env.GIT_COMMIT) {
+    def noopMessages = [/^ci\(lts-release\)/]
+
+    // Merge commits should not happen for a lts-release, but I am just being paranoid here
+    // need to resolve the correct commit sha. If we are on a merge commit, then we need to lookup commit sha from the previous commit
+    def resolvedCommit = isMergeCommit(commit) ? getPreviousCommit(commit) : commit
+
+    def commitMsg = getCommitMessage(resolvedCommit)
+    def isLTSRelease = (commitMsg && (noopMessages.collect { commitMsg =~ it ? true : false }).contains(true))
+
+    // This handles the case when the build is triggered with a CommitId, typically in
+    // the release process, we the commit message does not change, but we still need
+    // to do the regular build process
+    if(isLTSRelease && env.CommitId) {
+        isLTSRelease = false
+    }
+
+    if(isLTSRelease) {
+        bannerMessage "[isLTSReleaseBuild] No build required. isLTSRelease: [${isLTSRelease}]"
+    }
+    else {
+        bannerMessage "[isLTSReleaseBuild] Regular build required. isLTSRelease: [${isLTSRelease}] ${(env.CommitId) ? 'However, we have a env.CommitId' : ''}"
+    }
+    isLTSRelease
+}
+
+// Refactored this out of edgeXBuildGoApp for cleanup
+// I dont see the build commit concept really being useful
+// at the moment. But will remove this functionality later
+def semverPrep(commit = env.GIT_COMMIT) {
+    def commitMsg = getCommitMessage(commit)
+    println "[semverPrep] GIT_COMMIT: ${commit}, Commit Message: ${commitMsg}"
+
+    def buildVersion = null
+    if(isBuildCommit(commitMsg)) {
+        def parsedCommitMsg = parseBuildCommit(commitMsg)
+        buildVersion = parsedCommitMsg.version
+
+        println "[semverPrep] This is a build commit. buildVersion: [${buildVersion}], namedTag: [${parsedCommitMsg.namedTag}]"
+
+        env.NAMED_TAG = parsedCommitMsg.namedTag
+        env.BUILD_STABLE_DOCKER_IMAGE = true
+    }
+    else {
+        println "[semverPrep] This is not a build commit."
+        env.BUILD_STABLE_DOCKER_IMAGE = false
+    }
+
+    buildVersion
+}
+
+def waitFor(command, timeoutMinutes = 60, exitCode = 0, sleepFor = 5) {
+    // the writeFile allows us to call the script with arguments
+    def waitScript = libraryResource('wait-for.sh')
+    writeFile(file: './wait-for.sh', text: waitScript)
+    sh 'chmod +x ./wait-for.sh'
+
+    try {
+        timeout(timeoutMinutes) {
+            sh "./wait-for.sh '${command}' ${exitCode} ${sleepFor}"
+        }
+    } catch (e) {
+        error("Timeout reached for command [${command}]")
+    }
+}
+
+def waitForImages(images, timeoutMinutes = 30) {
+    // the writeFile allows us to call the script with arguments
+    def waitScript = libraryResource('wait-for-images.sh')
+    writeFile(file: './wait-for-images.sh', text: waitScript)
+    sh 'chmod +x ./wait-for-images.sh'
+
+    try {
+        timeout(timeoutMinutes) {
+            sh "./wait-for-images.sh ${images.join(' ')}"
+        }
+    } catch (e) {
+        error("Timeout reached while pulling images [${images}]")
+    }
 }

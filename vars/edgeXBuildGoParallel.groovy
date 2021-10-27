@@ -166,271 +166,278 @@ def call(config) {
                 }
             }
 
-            stage('Semver Prep') {
-                when { environment name: 'USE_SEMVER', value: 'true' }
-                steps {
-                    edgeXSemver 'init' // <-- Generates a VERSION file and .semver directory
-                }
-            }
-
-            stage('Build') {
-                parallel {
-                    stage('amd64') {
-                        // should be running on the initial "mainNode"
-                        when {
-                            beforeAgent true
-                            expression { edgex.nodeExists(config, 'amd64') }
-                        }
-                        environment {
-                            ARCH = 'x86_64'
-                        }
-                        stages {
-                            stage('Prep') {
-                                steps {
-                                    script {
-                                        if(params.CommitId) {
-                                            sh "git checkout ${params.CommitId}"
-                                        }
-                                        // builds ci-base-image used to cache dependencies and system libs
-                                        prepBaseBuildImage()
-                                        docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') { sh 'go version' }
-                                    }
-                                }
-                            }
-
-                            stage('Test') {
-                                // need to always run this stage due to codecov always needing the coverage.out file
-                                // when {
-                                //     expression { !edgex.isReleaseStream() }
-                                // }
-                                steps {
-                                    script {
-                                        // docker.sock bind mount needed due to `make raml_verify` launching a docker image
-                                        // docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:
-                                        docker.image("ci-base-image-${env.ARCH}")
-                                            .inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged')
-                                        {
-                                            testAndVerify()
-                                        }
-                                    }
-                                }
-                            }
-
-                            stage('Docker Build') {
-                                when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
-                                steps {
-                                    script {
-                                        edgeXDocker.buildInParallel(dockerImagesToBuild, null, "ci-base-image-${env.ARCH}")
-                                    }
-                                }
-                            }
-
-                            stage('Docker Push') {
-                                when {
-                                    allOf {
-                                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
-                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                        expression { edgex.isReleaseStream() }
-                                    }
-                                }
-
-                                steps {
-                                    script {
-                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS) // TODO: this should not be needed anymore
-                                        taggedAMD64Images = edgeXDocker.pushAll(dockerImagesToBuild, true, env.DOCKER_NEXUS_REPO, env.ARCH)
-                                    }
-                                }
-                            }
-
-                            stage('Snap') {
-                                agent {
-                                    node {
-                                        label 'ubuntu18.04-docker-8c-8g'
-                                        customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
-                                    }
-                                }
-                                when {
-                                    beforeAgent true
-                                    allOf {
-                                        environment name: 'BUILD_SNAP', value: 'true'
-                                        expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
-                                        expression { !edgex.isReleaseStream() }
-                                    }
-                                }
-                                steps {
-                                    edgeXSnap()
-                                }
-                            }
-                        }
-                    }
-
-                    stage('arm64') {
-                        when {
-                            beforeAgent true
-                            expression { edgex.nodeExists(config, 'arm64') }
-                        }
-                        agent {
-                            node {
-                                label edgex.getNode(config, 'arm64')
-                                customWorkspace "/w/workspace/${config.project}/${env.BUILD_ID}"
-                            }
-                        }
-                        environment {
-                            ARCH = 'arm64'
-                        }
-                        stages {
-                            stage('Prep') {
-                                steps {
-                                    script {
-                                        edgex.patchAlpineSeccompArm64()
-
-                                        if(params.CommitId) {
-                                            sh "git checkout ${params.CommitId}"
-                                        }
-                                        // docker login for the to make sure all docker commands are authenticated
-                                        // in this specific node
-                                        if(env.BUILD_DOCKER_IMAGE == 'true') {
-                                            edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
-                                        }
-                                        if(env.USE_SEMVER == 'true') {
-                                            unstash 'semver'
-                                        }
-                                        prepBaseBuildImage()
-                                        docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') { sh 'go version' }
-                                    }
-                                }
-                            }
-
-                            stage('Test') {
-                                when {
-                                    expression { !edgex.isReleaseStream() }
-                                }
-                                steps {
-                                    script {
-                                        // docker.sock bind mount needed due to `make raml_verify` launching a docker image
-                                        //docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:
-                                        docker.image("ci-base-image-${env.ARCH}")
-                                            .inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged')
-                                        {
-                                            testAndVerify()
-                                        }
-                                    }
-                                }
-                            }
-
-                            stage('Docker Build') {
-                                when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
-                                steps {
-                                    script {
-                                        edgeXDocker.buildInParallel(dockerImagesToBuild, null, "ci-base-image-${env.ARCH}")
-                                    }
-                                }
-                            }
-
-                            stage('Docker Push') {
-                                when {
-                                    allOf {
-                                        environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
-                                        environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                        expression { edgex.isReleaseStream() }
-                                    }
-                                }
-
-                                steps {
-                                    script {
-                                        edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS) // TODO: this should not be needed anymore
-                                        taggedARM64Images = edgeXDocker.pushAll(dockerImagesToBuild, true, env.DOCKER_NEXUS_REPO, env.ARCH)
-                                    }
-                                }
-                            }
-
-                            // Turning off arm64 Snap stage Per WG meeting 08/27/20
-                            /*stage('Snap') {
-                                agent {
-                                    node {
-                                        label 'ubuntu18.04-docker-arm64-16c-16g'
-                                        customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
-                                    }
-                                }
-                                when {
-                                    beforeAgent true
-                                    allOf {
-                                        environment name: 'BUILD_SNAP', value: 'true'
-                                        expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
-                                        expression { !edgex.isReleaseStream() }
-                                    }
-                                }
-                                steps {
-                                    edgeXSnap()
-                                }
-                            }*/
-                        }
-                        post {
-                            always {
-                                script { edgex.parallelJobCost('arm64') }
-                            }
-                        }
-                    }
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////
-            // We should be back on the mainAgent here.
-
-            // CodeCov should only run once during each PR build
-            stage('CodeCov') {
+            stage('Build Check') {
                 when {
-                    allOf {
-                        environment name: 'SILO', value: 'production'
-                        // expression { !edgex.isReleaseStream() } // always run the codecov scan
-                    }
-                }
-                steps {
-                    unstash 'coverage-report'
-                    edgeXCodecov "${env.PROJECT}-codecov-token"
-                }
-            }
-
-            // Scan Go Dependencies
-            stage('Snyk Scan') {
-                when { expression { edgex.isReleaseStream() } }
-                steps {
-                    edgeXSnyk()
-                }
-            }
-
-            stage('Publish Swagger') {
-                when {
-                    allOf {
-                        environment name: 'PUBLISH_SWAGGER_DOCS', value: 'true'
-                        expression { edgex.isReleaseStream() }
-                    }
-                }
-                steps {
-                    edgeXSwaggerPublish(apiFolders: env.SWAGGER_API_FOLDERS)
-                }
-            }
-
-            stage('Semver') {
-                when {
-                    allOf {
-                        environment name: 'USE_SEMVER', value: 'true'
-                        expression { edgex.isReleaseStream() }
-                    }
+                    expression { !edgex.isLTSReleaseBuild() }
                 }
                 stages {
-                    stage('Tag') {
+                    stage('Semver Prep') {
+                        when { environment name: 'USE_SEMVER', value: 'true' }
                         steps {
-                            unstash 'semver'
-
-                            edgeXSemver 'tag'
-                            edgeXInfraLFToolsSign(command: 'git-tag', version: 'v${VERSION}')
+                            edgeXSemver 'init' // <-- Generates a VERSION file and .semver directory
                         }
                     }
-                    stage('Bump Pre-Release Version') {
+
+                    stage('Build') {
+                        parallel {
+                            stage('amd64') {
+                                // should be running on the initial "mainNode"
+                                when {
+                                    beforeAgent true
+                                    expression { edgex.nodeExists(config, 'amd64') }
+                                }
+                                environment {
+                                    ARCH = 'x86_64'
+                                }
+                                stages {
+                                    stage('Prep') {
+                                        steps {
+                                            script {
+                                                if(params.CommitId) {
+                                                    sh "git checkout ${params.CommitId}"
+                                                }
+                                                // builds ci-base-image used to cache dependencies and system libs
+                                                prepBaseBuildImage()
+                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') { sh 'go version' }
+                                            }
+                                        }
+                                    }
+
+                                    stage('Test') {
+                                        // need to always run this stage due to codecov always needing the coverage.out file
+                                        // when {
+                                        //     expression { !edgex.isReleaseStream() }
+                                        // }
+                                        steps {
+                                            script {
+                                                // docker.sock bind mount needed due to `make raml_verify` launching a docker image
+                                                // docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:
+                                                docker.image("ci-base-image-${env.ARCH}")
+                                                    .inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged')
+                                                {
+                                                    testAndVerify()
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    stage('Docker Build') {
+                                        when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
+                                        steps {
+                                            script {
+                                                edgeXDocker.buildInParallel(dockerImagesToBuild, null, "ci-base-image-${env.ARCH}")
+                                            }
+                                        }
+                                    }
+
+                                    stage('Docker Push') {
+                                        when {
+                                            allOf {
+                                                environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
+                                                environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                                                expression { edgex.isReleaseStream() }
+                                            }
+                                        }
+
+                                        steps {
+                                            script {
+                                                edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS) // TODO: this should not be needed anymore
+                                                taggedAMD64Images = edgeXDocker.pushAll(dockerImagesToBuild, !edgex.isLTS(), env.DOCKER_NEXUS_REPO, env.ARCH)
+                                            }
+                                        }
+                                    }
+
+                                    stage('Snap') {
+                                        agent {
+                                            node {
+                                                label 'ubuntu18.04-docker-8c-8g'
+                                                customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                                            }
+                                        }
+                                        when {
+                                            beforeAgent true
+                                            allOf {
+                                                environment name: 'BUILD_SNAP', value: 'true'
+                                                expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                                expression { !edgex.isReleaseStream() }
+                                            }
+                                        }
+                                        steps {
+                                            edgeXSnap()
+                                        }
+                                    }
+                                }
+                            }
+
+                            stage('arm64') {
+                                when {
+                                    beforeAgent true
+                                    expression { edgex.nodeExists(config, 'arm64') }
+                                }
+                                agent {
+                                    node {
+                                        label edgex.getNode(config, 'arm64')
+                                        customWorkspace "/w/workspace/${config.project}/${env.BUILD_ID}"
+                                    }
+                                }
+                                environment {
+                                    ARCH = 'arm64'
+                                }
+                                stages {
+                                    stage('Prep') {
+                                        steps {
+                                            script {
+                                                edgex.patchAlpineSeccompArm64()
+
+                                                if(params.CommitId) {
+                                                    sh "git checkout ${params.CommitId}"
+                                                }
+                                                // docker login for the to make sure all docker commands are authenticated
+                                                // in this specific node
+                                                if(env.BUILD_DOCKER_IMAGE == 'true') {
+                                                    edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
+                                                }
+                                                if(env.USE_SEMVER == 'true') {
+                                                    unstash 'semver'
+                                                }
+                                                prepBaseBuildImage()
+                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') { sh 'go version' }
+                                            }
+                                        }
+                                    }
+
+                                    stage('Test') {
+                                        when {
+                                            expression { !edgex.isReleaseStream() }
+                                        }
+                                        steps {
+                                            script {
+                                                // docker.sock bind mount needed due to `make raml_verify` launching a docker image
+                                                //docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:
+                                                docker.image("ci-base-image-${env.ARCH}")
+                                                    .inside('-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock --privileged')
+                                                {
+                                                    testAndVerify()
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    stage('Docker Build') {
+                                        when { environment name: 'BUILD_DOCKER_IMAGE', value: 'true' }
+                                        steps {
+                                            script {
+                                                edgeXDocker.buildInParallel(dockerImagesToBuild, null, "ci-base-image-${env.ARCH}")
+                                            }
+                                        }
+                                    }
+
+                                    stage('Docker Push') {
+                                        when {
+                                            allOf {
+                                                environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
+                                                environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                                                expression { edgex.isReleaseStream() }
+                                            }
+                                        }
+
+                                        steps {
+                                            script {
+                                                edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS) // TODO: this should not be needed anymore
+                                                taggedARM64Images = edgeXDocker.pushAll(dockerImagesToBuild, !edgex.isLTS(), env.DOCKER_NEXUS_REPO, env.ARCH)
+                                            }
+                                        }
+                                    }
+
+                                    // Turning off arm64 Snap stage Per WG meeting 08/27/20
+                                    /*stage('Snap') {
+                                        agent {
+                                            node {
+                                                label 'ubuntu18.04-docker-arm64-16c-16g'
+                                                customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                                            }
+                                        }
+                                        when {
+                                            beforeAgent true
+                                            allOf {
+                                                environment name: 'BUILD_SNAP', value: 'true'
+                                                expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                                expression { !edgex.isReleaseStream() }
+                                            }
+                                        }
+                                        steps {
+                                            edgeXSnap()
+                                        }
+                                    }*/
+                                }
+                                post {
+                                    always {
+                                        script { edgex.parallelJobCost('arm64') }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////
+                    // We should be back on the mainAgent here.
+
+                    // CodeCov should only run once during each PR build
+                    stage('CodeCov') {
+                        when {
+                            allOf {
+                                environment name: 'SILO', value: 'production'
+                                // expression { !edgex.isReleaseStream() } // always run the codecov scan
+                            }
+                        }
                         steps {
-                            edgeXSemver "bump ${env.SEMVER_BUMP_LEVEL}"
-                            edgeXSemver 'push'
+                            unstash 'coverage-report'
+                            edgeXCodecov "${env.PROJECT}-codecov-token"
+                        }
+                    }
+
+                    // Scan Go Dependencies
+                    stage('Snyk Scan') {
+                        when { expression { edgex.isReleaseStream() } }
+                        steps {
+                            edgeXSnyk()
+                        }
+                    }
+
+                    stage('Publish Swagger') {
+                        when {
+                            allOf {
+                                environment name: 'PUBLISH_SWAGGER_DOCS', value: 'true'
+                                expression { edgex.isReleaseStream() }
+                            }
+                        }
+                        steps {
+                            edgeXSwaggerPublish(apiFolders: env.SWAGGER_API_FOLDERS)
+                        }
+                    }
+
+                    stage('Semver') {
+                        when {
+                            allOf {
+                                environment name: 'USE_SEMVER', value: 'true'
+                                expression { edgex.isReleaseStream() }
+                            }
+                        }
+                        stages {
+                            stage('Tag') {
+                                steps {
+                                    unstash 'semver'
+
+                                    edgeXSemver 'tag'
+                                    edgeXInfraLFToolsSign(command: 'git-tag', version: 'v${VERSION}')
+                                }
+                            }
+                            stage('Bump Pre-Release Version') {
+                                steps {
+                                    edgeXSemver "bump ${env.SEMVER_BUMP_LEVEL}"
+                                    edgeXSemver 'push'
+                                }
+                            }
                         }
                     }
                 }
@@ -482,10 +489,10 @@ def testAndVerify(codeCov = true) {
 
 def prepBaseBuildImage() {
     // this would be something like golang:1.13 or a pre-built devops managed image from ci-build-images
-    def baseImage = env.DOCKER_BASE_IMAGE
+    def baseImage = edgex.getGoLangBaseImage(env.GO_VERSION, env.USE_ALPINE)
 
     if(env.ARCH == 'arm64' && baseImage.contains(env.DOCKER_REGISTRY)) {
-        baseImage = "${env.DOCKER_BASE_IMAGE}".replace('edgex-golang-base', "edgex-golang-base-${env.ARCH}")
+        baseImage = baseImage.replace('edgex-golang-base', "edgex-golang-base-${env.ARCH}")
     }
 
     edgex.bannerMessage "[edgeXBuildGoParallel] Building Code With image [${baseImage}]"
@@ -546,7 +553,6 @@ def toEnvironment(config) {
     def _buildScript     = config.buildScript ?: 'make build'
     def _goVersion       = config.goVersion ?: '1.16'
     def _useAlpine       = edgex.defaultTrue(config.useAlpineBase)
-    def _dockerBaseImage = edgex.getGoLangBaseImage(_goVersion, _useAlpine)
 
     def _dockerFileGlob        = config.dockerFileGlobPath ?: 'cmd/**/Dockerfile'
     def _dockerImageNamePrefix = config.dockerImageNamePrefix ?: '' //'docker-'
@@ -579,7 +585,7 @@ def toEnvironment(config) {
         TEST_SCRIPT: _testScript,
         BUILD_SCRIPT: _buildScript,
         GO_VERSION: _goVersion,
-        DOCKER_BASE_IMAGE: _dockerBaseImage,
+        USE_ALPINE: _useAlpine,
         DOCKER_FILE_GLOB: _dockerFileGlob,
         DOCKER_IMAGE_NAME_PREFIX: _dockerImageNamePrefix,
         DOCKER_IMAGE_NAME_SUFFIX: _dockerImageNameSuffix,

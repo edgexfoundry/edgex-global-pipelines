@@ -72,7 +72,10 @@ def releaseGitTag(releaseInfo, credentials, bump = true, tag = true) {
     // exception handled function that clones, sets and signs git tag version
     try {
         edgeXReleaseGitTag.cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, releaseInfo.name, releaseInfo.commitId, credentials)
-        withEnv(["SEMVER_BRANCH=${releaseInfo.releaseStream}"]) {
+        
+        def semverBranch = releaseInfo.lts ? releaseInfo.releaseName : releaseInfo.releaseStream
+
+        withEnv(["SEMVER_BRANCH=${semverBranch}"]) {
             if (tag){
                 edgeXReleaseGitTag.setAndSignGitTag(releaseInfo.name, releaseInfo.version)
             }
