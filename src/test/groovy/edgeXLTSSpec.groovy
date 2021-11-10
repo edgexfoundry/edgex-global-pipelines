@@ -50,7 +50,7 @@ public class EdgeXLTSSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock("edgeXReleaseGitTag.cloneRepo").call(
                 'https://github.com/edgexfoundry/sample-service.git',
                 'main',
-                'jakarta',
+                'sample-service-jakarta',
                 '0123456789',
                 'edgex-jenkins-ssh'
             )
@@ -98,7 +98,7 @@ public class EdgeXLTSSpec extends JenkinsPipelineSpecification {
             getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'edgex-golang-base:1.16-alpine'
             getPipelineMock('docker.image')('edgex-golang-base:1.16-alpine') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
-            edgeXLTS.prepGoProject("jakarta")
+            edgeXLTS.prepGoProject("mock-project-jakarta")
         then:
             1 * getPipelineMock('DockerImageMock.inside').call(_)
             1 * getPipelineMock("sh").call("make vendor")
