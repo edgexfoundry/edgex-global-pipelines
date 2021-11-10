@@ -18,37 +18,39 @@ def prepLTS(releaseInfo, options) {
     def credentials = options.credentials != null ? options.credentials : 'edgex-jenkins-ssh'
     edgeXReleaseGitTagUtil.validate(releaseInfo)
     def ltsBranchName = releaseInfo.releaseName
+    def dirName = "${releaseInfo.name}-${ltsBranchName}"
 
     // clone the repo branch to name using the specified ssh credentials
     println "[edgeXLTS]: Creating LTS Branch ${ltsBranchName} from ${releaseInfo.releaseStream}:${releaseInfo.commitId.take(7)} - DRY_RUN: ${env.DRY_RUN}"
 
-    edgeXReleaseGitTag.cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, ltsBranchName, releaseInfo.commitId, credentials)
+    edgeXReleaseGitTag.cloneRepo(releaseInfo.repo, releaseInfo.releaseStream, dirName, releaseInfo.commitId, credentials)
 
     def ltsCommitId
 
     // Create LTS Branch
     sshagent(credentials: [credentials]) {
         if(edgex.isDryRun()) {
-            echo("dir ${ltsBranchName}")
+            echo("dir ${env.WORKSPACE}/${dirName}")
             echo("git checkout ${ltsBranchName} || git checkout -b ${ltsBranchName}")
         } else{
-            dir(ltsBranchName) {
+            dir(dirName) {
                 sh "git checkout ${ltsBranchName} || git checkout -b ${ltsBranchName}"
             }
         }
 
         if (edgex.isGoProject(ltsBranchName)) {
-            prepGoProject(ltsBranchName)
+            prepGoProject(dirName)
         }
 
         def commitMessage = generateLTSCommitMessage(releaseInfo.version, releaseInfo.commitId)
 
         if(edgex.isDryRun()) {
+            echo("dir ${env.WORKSPACE}/${dirName}")
             echo("git commit --allow-empty -m '${commitMessage}'")
             echo('git rev-parse HEAD')
             echo("git push origin ${ltsBranchName}")
         } else {
-            dir(ltsBranchName) {
+            dir(dirName) {
                 sh "git commit --allow-empty -m '${commitMessage}'"
                 sh "git push origin ${ltsBranchName}"
                 ltsCommitId = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
@@ -69,17 +71,18 @@ def generateLTSCommitMessage(version, commitId) {
     "ci(lts-release): LTS release v${version} @${commitId.take(7)}"
 }
 
-def prepGoProject(ltsBranchName){
+def prepGoProject(name){
     if(edgex.isDryRun()) {
         println "[edgeXLTS]: Creating Vendored dependencies for Go project"
 
+        echo("dir ${name}")
         echo("grep -v vendor .gitignore > .gitignore.tmp")
         echo("mv .gitignore.tmp .gitignore")
         echo("make vendor")
         echo("git add .")
     }
     else {
-        dir("${ltsBranchName}") {
+        dir(name) {
             sh "grep -v vendor .gitignore > .gitignore.tmp"
             sh "mv .gitignore.tmp .gitignore"
 
