@@ -38,7 +38,7 @@ def prepLTS(releaseInfo, options) {
             }
         }
 
-        if (edgex.isGoProject(ltsBranchName)) {
+        if (edgex.isGoProject(dirName)) {
             prepGoProject(dirName)
         }
 
