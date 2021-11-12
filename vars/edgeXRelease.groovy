@@ -55,6 +55,9 @@ def parallelStepFactoryTransform(step) {
                         println("[edgeXRelease] Wait for these Images: ${images}")
                         if(!edgex.isDryRun()) {
                             edgex.waitForImages(images, 30)
+
+                            // Adding extra sleep. Have seen issues where images are not "available" after push happens
+                            sh 'sleep 15'
                         }
                     }
                 }

@@ -467,11 +467,16 @@ def call(config) {
 def testAndVerify(codeCov = true) {
     edgex.bannerMessage "[edgeXBuildGoParallel] Running Tests and Build..."
 
-    // make test raml_verify
+    // TODO: This should go away after Kamakura, all repos now have a go.sum file.
     if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
         sh 'go mod tidy' // for Go 1.16
     }
     sh env.TEST_SCRIPT
+
+    // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
+    if(edgex.isLTS() && fileExists('vendor')) {
+        sh 'go mod tidy'
+    }
 
     if(codeCov) {
         sh 'ls -al .'
