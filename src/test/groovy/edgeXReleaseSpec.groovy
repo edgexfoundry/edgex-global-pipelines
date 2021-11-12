@@ -610,7 +610,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
                     commitId:'0123456789',
                     repo:'https://github.com/edgexfoundry/sample-service.git',
                     gitTag:false,
-                    dockerImages:false,
+                    dockerImages:true,
                     docker:[[
                         image: 'nexus3.edgexfoundry.org:10004/sample-service',
                         destination: [
@@ -645,7 +645,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
                     commitId:'0123456789',
                     repo:'https://github.com/edgexfoundry/sample-service.git',
                     gitTag:false,
-                    dockerImages:false,
+                    dockerImages:true,
                     docker:[[
                         image: 'nexus3.edgexfoundry.org:10004/sample-service',
                         destination: [
@@ -678,7 +678,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
                     commitId:'0123456789',
                     repo:'https://github.com/edgexfoundry/sample-service.git',
                     gitTag:false,
-                    dockerImages:false,
+                    dockerImages:true,
                     docker:[[
                         image: 'nexus3.edgexfoundry.org:10004/sample-service',
                         destination: [
@@ -712,7 +712,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
                     commitId:'0123456789',
                     repo:'https://github.com/edgexfoundry/sample-service.git',
                     gitTag:false,
-                    dockerImages:false,
+                    dockerImages:true,
                     docker:[[
                         image: 'nexus3.edgexfoundry.org:10004/sample-service-arm64',
                         destination: [
@@ -725,5 +725,29 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
             def images = edgeXRelease.getBuilderImagesFromReleasedImages(step, '9f8c2f471')
         then:
             assert images == ["nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:9f8c2f471"]
+    }
+
+    def "Test getBuilderImagesFromReleasedImages [Should] return expected [When] called with C-based Device SDK" () {
+        setup:
+            getPipelineMock('edgex.isDryRun').call() >> false
+            def step =
+                [
+                    name:'device-sdk-c',
+                    version:'1.11.83',
+                    releaseName:'lts-test',
+                    releaseStream:'main',
+                    commitId:'0123456789',
+                    repo:'https://github.com/edgexfoundry/device-sdk-c.git',
+                    gitTag:false,
+                    dockerImages:false,
+                    lts: true
+                ]
+        when:
+            def images = edgeXRelease.getBuilderImagesFromReleasedImages(step, '9f8c2f471')
+        then:
+            assert images == [
+                "nexus3.edgexfoundry.org:10002/device-sdk-c-builder-x86_64:9f8c2f471",
+                "nexus3.edgexfoundry.org:10002/device-sdk-c-builder-arm64:9f8c2f471"
+            ]
     }
 }
