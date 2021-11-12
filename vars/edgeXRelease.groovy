@@ -138,12 +138,18 @@ def getBuilderImagesFromReleasedImages(step, tag) {
     def builderImages = []
 
     def builderImageName = step.name
-    step.docker.each {
-        def imageName = it.image.split("/")[-1]
-        if (imageName =~ /.*-arm64$/) {
-            builderImages << "${releaseRegistry}/${builderImageName}-builder-${armTag}:${tag}"
-        } else {
-            builderImages << "${releaseRegistry}/${builderImageName}-builder-${x86Tag}:${tag}"
+
+    if(builderImageName == 'device-sdk-c') {
+        builderImages << "${releaseRegistry}/${builderImageName}-builder-${x86Tag}:${tag}"
+        builderImages << "${releaseRegistry}/${builderImageName}-builder-${armTag}:${tag}"
+    } else {
+        step.docker.each {
+            def imageName = it.image.split("/")[-1]
+            if (imageName =~ /.*-arm64$/) {
+                builderImages << "${releaseRegistry}/${builderImageName}-builder-${armTag}:${tag}"
+            } else {
+                builderImages << "${releaseRegistry}/${builderImageName}-builder-${x86Tag}:${tag}"
+            }
         }
     }
 
