@@ -235,10 +235,16 @@ def call(config) {
                                         steps {
                                             script {
                                                 docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
+                                                    // TODO: This should go away after Kamakura, all repos now have a go.sum file.
                                                     if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
                                                         sh 'go mod tidy' // for Go 1.16
                                                     }
                                                     sh "${env.TEST_SCRIPT}"
+
+                                                    // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
+                                                    if(edgex.isLTS() && fileExists('vendor')) {
+                                                        sh 'go mod tidy'
+                                                    }
                                                 }
                                                 sh 'sudo chown -R jenkins:jenkins .' // fix perms
                                                 stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
@@ -340,10 +346,16 @@ def call(config) {
                                         steps {
                                             script {
                                                 docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
+                                                    // TODO: This should go away after Kamakura, all repos now have a go.sum file.
                                                     if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
                                                         sh 'go mod tidy' // for Go 1.16
                                                     }
                                                     sh "${env.TEST_SCRIPT}"
+
+                                                    // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
+                                                    if(edgex.isLTS() && fileExists('vendor')) {
+                                                        sh 'go mod tidy'
+                                                    }
                                                 }
                                                 sh 'sudo chown -R jenkins:jenkins .' // fix perms
                                                 stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
