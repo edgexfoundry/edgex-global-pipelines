@@ -42,6 +42,11 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
             semverCommand << "-force"
         }
 
+        // re-write the known hosts for git-semver
+        sh 'grep -v github /etc/ssh/ssh_known_hosts > /tmp/known_hosts'
+        sh 'sudo mv /tmp/known_hosts /etc/ssh/ssh_known_hosts'
+        sh 'echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=" | sudo tee -a /etc/ssh/ssh_known_hosts'
+
         docker.image(semverImage).inside('-u 0:0 -v /etc/ssh:/etc/ssh') {
             withEnv(envVars) {
                 if((env.GITSEMVER_HEAD_TAG) && (command != 'init')) {
