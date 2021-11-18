@@ -42,12 +42,19 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
             semverCommand << "-force"
         }
 
-        // re-write the known hosts for git-semver
-        sh 'grep -v github /etc/ssh/ssh_known_hosts > /tmp/known_hosts'
-        sh 'sudo mv /tmp/known_hosts /etc/ssh/ssh_known_hosts'
-        sh 'echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=" | sudo tee -a /etc/ssh/ssh_known_hosts'
-
         docker.image(semverImage).inside('-u 0:0 -v /etc/ssh:/etc/ssh') {
+            // re-write the known hosts for git-semver
+            sh '''
+            if ! grep "github.com ecdsa" /etc/ssh/ssh_known_hosts; then
+                rm -f /tmp/ssh_known_hosts
+                grep -v github /etc/ssh/ssh_known_hosts > /tmp/ssh_known_hosts
+                if [ -e /tmp/ssh_known_hosts ]; then
+                    mv /tmp/ssh_known_hosts /etc/ssh/ssh_known_hosts
+                    echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=" | tee -a /etc/ssh/ssh_known_hosts
+                fi
+            fi
+            '''
+
             withEnv(envVars) {
                 if((env.GITSEMVER_HEAD_TAG) && (command != 'init')) {
                     // setting and checking GITSEMVER_HEAD_TAG is the pattern we implement to facilitate re-execution
