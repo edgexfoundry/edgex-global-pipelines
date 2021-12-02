@@ -18,7 +18,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: nexus3.edgexfoundry.org:10003/edgex-devops/egp-unit-test:gradle
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -34,3 +34,11 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+  Test:
+    runs-on: ubuntu-latest
+    container: 
+      image: nexus3.edgexfoundry.org:10003/edgex-devops/egp-unit-test:gradle
+    steps:
+    - uses: actions/checkout@v2
+    - name: Gradle Test
+      run: "gradle -Dgradle.user.home=/gradleCache clean test --parallel"
