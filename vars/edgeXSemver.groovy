@@ -42,7 +42,7 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
             semverCommand << "-force"
         }
 
-        setupKnownHosts()
+        //setupKnownHosts()
 
         docker.image(semverImage).inside('-u 0:0 -v /etc/ssh:/etc/ssh') {
             withEnv(envVars) {
