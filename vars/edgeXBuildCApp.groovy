@@ -218,16 +218,6 @@ def call(config) {
                     stage('Build') {
                         parallel {
                             stage('amd64') {
-                                when {
-                                    beforeAgent true
-                                    expression { edgex.nodeExists(config, 'amd64') }
-                                }
-                                agent { // comment out to reuse mainNode
-                                    node {
-                                        label edgex.getNode(config, 'amd64')
-                                        customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
-                                    }
-                                }
                                 environment {
                                     ARCH = 'x86_64'
                                 }
