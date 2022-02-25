@@ -86,7 +86,7 @@ def getLogPublishContainerArgs() {
         '--net host', // required for the calls to the metadata IP 169.254.169.254 global-jjb/shell/job-cost.sh
 
         // These are the required bind mounts for the scripts to work properly
-        '-v /var/log/sa:/var/log/sa-host',          // global-jjb/shell/logs-deploy.sh
+        '-v /var/log/sysstat:/var/log/sysstat',     // global-jjb/shell/logs-deploy.sh
         '-v /var/log/secure:/var/log/secure',       // global-jjb/shell/sudo-logs.shgho
         '-v /var/log/auth.log:/var/log/auth.log',   // global-jjb/shell/sudo-logs.sh
         "-v ${env.WORKSPACE}/facter-os:/facter-os", // global-jjb/shell/sudo-logs.sh
