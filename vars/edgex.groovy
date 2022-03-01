@@ -67,7 +67,7 @@ def didChange(expression, previous='origin/main') {
 
 def mainNode(config) {
     def defaultNode = config.nodes.find { it.isDefault == true }
-    defaultNode ? defaultNode.label : 'centos7-docker-4c-2g'
+    defaultNode ? defaultNode.label : 'ubuntu20.04-docker-8c-8g'
 }
 
 def nodeExists(config, arch) {
@@ -81,8 +81,8 @@ def getNode(config, arch) {
 
 def setupNodes(config) {
     def defaultNodes = [
-        [label: 'centos7-docker-4c-2g', arch: 'amd64', isDefault: true],
-        [label: 'ubuntu18.04-docker-arm64-4c-16g', arch: 'arm64', isDefault: false]
+        [label: 'ubuntu20.04-docker-8c-8g', arch: 'amd64', isDefault: true],
+        [label: 'ubuntu20.04-docker-arm64-4c-16g', arch: 'arm64', isDefault: false]
     ]
 
     def _arch = config.arch ?: ['amd64', 'arm64']

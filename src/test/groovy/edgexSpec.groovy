@@ -169,7 +169,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.mainNode([nodes: [[]]]) == expectedResult
         where:
             expectedResult << [
-                'centos7-docker-4c-2g'
+                'ubuntu20.04-docker-8c-8g'
             ]
     }
 
@@ -206,7 +206,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 ]
             ]
             expectedResult << [
-                'centos7-docker-4c-2g',
+                'ubuntu20.04-docker-8c-8g',
                 'soda stereo'
             ]
     }
@@ -269,7 +269,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 ]
             ]
             expectedResult << [
-                'centos7-docker-4c-2g',
+                'ubuntu20.04-docker-8c-8g',
                 'soda stereo'
             ]
     }
@@ -289,17 +289,17 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             expectedResult << [
                 [
                     [
-                        label: 'centos7-docker-4c-2g',
+                        label: 'ubuntu20.04-docker-8c-8g',
                         arch: 'amd64',
                         isDefault: true
                     ], [
-                        label: 'ubuntu18.04-docker-arm64-4c-16g',
+                        label: 'ubuntu20.04-docker-arm64-4c-16g',
                         arch: 'arm64',
                         isDefault: false
                     ]
                 ], [
                     [
-                        label: 'centos7-docker-4c-2g',
+                        label: 'ubuntu20.04-docker-8c-8g',
                         arch: 'amd64',
                         isDefault: true
                     ]

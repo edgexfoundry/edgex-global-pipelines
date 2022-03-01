@@ -621,9 +621,10 @@ def toEnvironment(config) {
     def _projectName   = config.project
     def _mavenSettings = config.mavenSettings ?: "${_projectName}-settings"
 
-    if(env.SILO == 'sandbox') {
-        _mavenSettings = 'sandbox-settings'
-    }
+    // These seem to be sync'd with prod now
+    // if(env.SILO == 'sandbox') {
+    //     _mavenSettings = 'sandbox-settings'
+    // }
 
     def _useSemver     = edgex.defaultTrue(config.semver)
     def _testScript    = config.testScript ?: 'make test'
