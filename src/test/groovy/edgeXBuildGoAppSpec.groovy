@@ -177,56 +177,6 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('error').call('[edgeXBuildGoApp] The parameter "project" is required. This is typically the project name.')
     }
 
-    def "Test toEnvironment [Should] return expected map of default values [When] sandbox environment" () {
-        setup:
-            def environmentVariables = [
-                'SILO': 'sandbox'
-            ]
-            edgeXBuildGoApp.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('edgex.defaultTrue').call(_) >> true
-            getPipelineMock('edgex.defaultFalse').call(_) >> false
-        expect:
-            edgeXBuildGoApp.toEnvironment(config) == expectedResult
-        where:
-            config << [
-                [
-                    project: 'pSoda-go'
-                ]
-            ]
-            expectedResult << [
-                [
-                    MAVEN_SETTINGS: 'sandbox-settings',
-                    PROJECT: 'pSoda-go',
-                    USE_SEMVER: true,
-                    TEST_SCRIPT: 'make test',
-                    BUILD_SCRIPT: 'make build',
-                    GO_VERSION: '1.17',
-                    USE_ALPINE: true,
-                    DOCKER_FILE_PATH: 'Dockerfile',
-                    DOCKER_BUILD_FILE_PATH: 'Dockerfile.build',
-                    DOCKER_BUILD_CONTEXT: '.',
-                    DOCKER_BUILD_IMAGE_TARGET: 'builder',
-                    DOCKER_IMAGE_NAME: 'pSoda',
-                    DOCKER_REGISTRY_NAMESPACE: '',
-                    DOCKER_NEXUS_REPO: 'staging',
-                    BUILD_DOCKER_IMAGE: true,
-                    PUSH_DOCKER_IMAGE: true,
-                    BUILD_EXPERIMENTAL_DOCKER_IMAGE: false,
-                    BUILD_STABLE_DOCKER_IMAGE: false,
-                    SEMVER_BUMP_LEVEL: 'pre',
-                    //GOPROXY: 'https://nexus3.edgexfoundry.org/repository/go-proxy/',
-                    // SNAP_CHANNEL: 'latest/edge',
-                    BUILD_SNAP: false,
-                    PUBLISH_SWAGGER_DOCS: false,
-                    SWAGGER_API_FOLDERS: 'openapi/v1',
-                    ARTIFACT_ROOT: "archives/bin",
-                    ARTIFACT_TYPES: 'docker',
-                    SHOULD_BUILD: true,
-                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
-                ]
-            ]
-    }
-
     def "Test toEnvironment [Should] return expected map of overriden values [When] non-sandbox environment and custom config and artifact is a docker image" () {
         setup:
             getPipelineMock('edgex.defaultTrue').call(null) >> true

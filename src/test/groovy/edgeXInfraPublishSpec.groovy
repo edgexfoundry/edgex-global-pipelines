@@ -38,12 +38,10 @@ public class EdgeXInfraPublishSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('sh').call([script:'package-listing'])
             1 * getPipelineMock('sh').call('facter operatingsystem > ./facter-os')
             1 * getPipelineMock('DockerImageMock.inside').call(_) >> { _arguments ->
-                def dockerArgs = '--privileged -u 0:0 --net host -v /var/log/sa:/var/log/sa-host -v /var/log/secure:/var/log/secure -v /var/log/auth.log:/var/log/auth.log -v MyWorkspace/facter-os:/facter-os -v /proc/uptime:/proc/uptime -v /run/cloud-init/result.json:/run/cloud-init/result.json'
+                def dockerArgs = '--privileged -u 0:0 --net host -v /var/log/sysstat:/var/log/sysstat -v /var/log/secure:/var/log/secure -v /var/log/auth.log:/var/log/auth.log -v MyWorkspace/facter-os:/facter-os -v /proc/uptime:/proc/uptime -v /run/cloud-init/result.json:/run/cloud-init/result.json'
                 assert dockerArgs == _arguments[0][0]
             }
             1 * getPipelineMock('sh').call('touch /tmp/pre-build-complete')
-            1 * getPipelineMock('sh').call('mkdir -p /var/log/sysstat')
-            1 * getPipelineMock('sh').call('for file in `ls /var/log/sa-host`; do sadf -c /var/log/sa-host/${file} > /var/log/sysstat/${file}; done')
     }
 
     def "Test getLogPublishContainerArgs [Should] return expected #expectedResult [When] called" () {
@@ -59,7 +57,7 @@ public class EdgeXInfraPublishSpec extends JenkinsPipelineSpecification {
                 '--privileged',
                 '-u 0:0',
                 '--net host',
-                '-v /var/log/sa:/var/log/sa-host',
+                '-v /var/log/sysstat:/var/log/sysstat',
                 '-v /var/log/secure:/var/log/secure',
                 '-v /var/log/auth.log:/var/log/auth.log',
                 '-v MyWorkspace/facter-os:/facter-os',
