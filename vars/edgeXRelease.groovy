@@ -89,6 +89,12 @@ def parallelStepFactoryTransform(step) {
                     edgeXReleaseGitHubAssets(step)
                 }
             }
+
+            if(step.docs == true) {
+                stage("Docs Release") {
+                    edgeXReleaseDocs(step)
+                }
+            }
         }
     }
 }
