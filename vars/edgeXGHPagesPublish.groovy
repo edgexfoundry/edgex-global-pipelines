@@ -14,6 +14,40 @@
 // limitations under the License.
 //
 
+/**
+ # edgeXGHPagesPublish
+
+ ## Overview
+
+ Shared library to publish html and other resources to a GitHub pages branch off the main repository (typically `gh-pages`).
+ This shared library is typically used in conjunction with `mkdocs` and after `mkdocs` generates all the HTML, etc and the
+ calling pipeline stashes the contents into a specific `site-contents` Jenkins stash.
+
+ ## Process
+
+ The typical documentation build process goes like this:
+ 
+ - PR is merged into main in upstream repo
+ - `mkdocs` is called to generate final documentation in upstream repo job
+ - `site-contents` stash is generated in upstream repo job
+ - `edgeXGHPagesPublish()` is called to publish stash to GitHub pages
+
+ ## Parameters
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ repoUrl | true | str | Repo URL where GitHub pages are being published (typically in ssh format for Edgex).
+ credentialId | false | str | Jenkins credentialId used to authenticate to git to push contents. <br /><br />**Default**: `edgex-jenkins-ssh`
+ ghPagesBranch | false | str | Git branch where GitHub pages are stored. <br /><br />**Default**: `gh-pages`
+ stashName | false | str | Stash name that contains generated site contents that will be published. <br /><br />**Default**: `site-contents`
+
+ ## Usage
+ 
+ ```groovy
+ edgeXGHPagesPublish((repoUrl: 'git@github.com:edgexfoundry/edgex-docs.git')
+ ```
+*/
+
 def call(Map config = [:]) {
     def dryRun         = ['1', 'true'].contains(env.DRY_RUN)
     def repoUrl        = config.repoUrl ?: null

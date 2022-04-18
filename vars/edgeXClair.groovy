@@ -14,10 +14,14 @@
 // limitations under the License.
 //
 
-/*
-   Usage: edgeXClair('dockerImage:tag')
-   JSON Output: edgeXClair('dockerImage:tag', [outputFormat: 'json'])
+/**
+ # edgeXClair
+ 
+ ⚠️ Deprecated will be removed in a future version. DO NOT USE ⚠️
+ 
+ Shared library function to scan docker images for vulnerabilities using Klar. Please use `edgeXSnyk` instead.
 */
+
 def call(image, Map options = [:]) {
     def klarImage = options.klarImage ?: "${env.DOCKER_REGISTRY}:10003/edgex-devops/edgex-klar:latest"
     def server    = options.server    ?: 'clair-alb-414217221.us-west-2.elb.amazonaws.com:6060'

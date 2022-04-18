@@ -14,11 +14,36 @@
 // limitations under the License.
 //
 
+/**
+ # edgeXDockerLogin
+ 
+ ## Overview
+
+ Shared library that wraps the Linux Foundation's (LF) docker login script: `./resources/global-jjb/shell/docker-login.sh`. 
+ 
+ The LF Global JJB Docker Login script looks for the following environment variables: 
+ `$SETTINGS_FILE`, `$DOCKER_REGISTRY`, `$REGISTRY_PORTS`, `$DOCKERHUB_REGISTRY`, `$DOCKERHUB_EMAIL` which this script automatically sets. Based on given config map entries passed in
+ 
+ Please refer to the shell script in global-jjb/shell for the usage.
+
+ ## Parameters
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ settingsFile | true | str | Config file Id that contains authentication details to docker registries. Unique to each Edgex repository. |
+ dockerRegistry | false | str | Override docker registry to login to. |
+ dockerRegistryPorts | false | str | Listing of all the registry ports to login to e.g.: `10001 10002 10003 10004` |
+ dockerHubRegistry | false | str | Override docker hub registry. Not commonly used. |
+ dockerHubEmail | false | str | Override docker hub email. Not commonly used. |
+
+ ## Usage
+
+ ```groovy
+ edgeXDockerLogin(settingsFile: 'edgex-repo-settings')
+ ```
+*/
+
 def call(config = [:]) {
-    // The LF Global JJB Docker Login script looks for information in the following variables: 
-    // $SETTINGS_FILE, $DOCKER_REGISTRY, $REGISTRY_PORTS, $DOCKERHUB_REGISTRY, $DOCKERHUB_EMAIL
-    // Please refer to the shell script in global-jjb/shell for the usage.
-    // Most parameters are listed as optional, but without any of them set the script has no operation.
     def _dockerRegistry = config.dockerRegistry ?: ''
     def _dockerRegistryPorts = config.dockerRegistryPorts ?: ''
     def _dockerHubRegistry = config.dockerHubRegistry ?: ''
