@@ -14,10 +14,20 @@
 // limitations under the License.
 //
 
-/* Usage
-Wrapper around resources/snap-build.sh script.
-No parameters required.
-edgeXSnap()
+/**
+ # edgeXSnap
+ 
+ ## Overview
+
+ ⚠️ Deprecated Warning... Snaps are no longer being built as part of the Jenkins pipeline. They are being built and tested using GitHub Actions and are managed by the team at Canonical. DO NOT USE ⚠️
+
+ Wrapper around resources/snap-build.sh script. No parameters required.
+
+ ## Usage
+
+ ```groovy
+ edgeXSnap()
+ ```
 */
 
 def call(config = [:]) {

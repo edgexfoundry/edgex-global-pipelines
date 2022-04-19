@@ -14,6 +14,42 @@
 // limitations under the License.
 //
 
+/**
+ # edgeXInfraLFToolsSign
+
+ ## Overview
+
+ Shared library that wraps signing of git tags or files in a directory using
+ [lftools](https://github.com/lfit/releng-lftools) and [Sigul](https://pagure.io/sigul).
+ The signing is done inside a [docker image](https://github.com/edgexfoundry/ci-build-images/blob/lftools/Dockerfile)
+ managed by the EdgeX DevOps team.
+ 
+ **Important:** Signing git tags, requires the git tag to be an annotated tag. (`git tag -a`)
+
+ ## Parameters
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ sigulConfig | false | str | Config file Id that contains the Sigul Config<br /><br />**Default**: `sigul-config` |
+ sigulPassword | false | str | Config file Id that contains the Sigul Password<br /><br />**Default**: `sigul-password` |
+ sigulPKI | false | str | Config file Id that contains the Sigul PKI information<br /><br />**Default**: `sigul-pki` |
+ lftoolsImageVersion | false | str | DevOps managed lftools image version tag<br /><br />**Default**: `0.23.1-centos7` |
+ command | true | str | Required if comm<br /><br />**Valid values**: `dir, git-tag` |
+ directory | true | str | Required if command is `dir` |
+ version | true | str | Required if command is `git-tag` |
+ mode | false | str | lftools sign mode<br /><br />**Default**: `parallel` |
+
+ ## Usage
+
+ ```groovy
+ edgeXInfraLFToolsSign(command: 'git-tag', version: 'v2.0.0')
+ ```
+
+ ```groovy
+ edgeXInfraLFToolsSign([command: 'dir', directory: 'MyDirectory'])
+ ```
+*/
+
 def call(Map config = [:]) {
     stage('LF Tools Sigul') {
 
