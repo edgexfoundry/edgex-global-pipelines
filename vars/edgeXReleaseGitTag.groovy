@@ -64,13 +64,13 @@ def setAndSignGitTag(name, version) {
     // call edgeXSemver functions to force tag version and push
     println "[edgeXReleaseGitTag]: setting tag for ${name} to: ${version} - DRY_RUN: ${env.DRY_RUN}"
     if(edgex.isDryRun()) {
-        echo("edgeXSemver init ${version}")
-        echo("edgeXSemver tag -force")
+        echo("edgeXSemver init --version=${version}")
+        echo("edgeXSemver tag --force")
     }
     else {
         dir("${name}") {
             edgeXSemver('init', version)
-            edgeXSemver('tag -force')
+            edgeXSemver('tag --force')
         }
     }
     edgeXReleaseGitTagUtil.signGitTag(version, name)
