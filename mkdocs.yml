@@ -6,8 +6,8 @@ site_author: 'EdgeX DevOps Team'
 site_url: 'https://edgexfoundry.github.io/edgex-global-pipelines/'
 repo_url: 'https://github.com/edgexfoundry/edgex-global-pipelines'
 repo_name: 'edgex/edgex-global-pipelines'
-copyright: 'Copyright &copy; 2021 EdgeX Foundry'
-strict: true
+copyright: 'Copyright &copy; 2022 EdgeX Foundry'
+strict: false
 theme:
   name: 'material'
   logo: 'assets/logo_edgex_white.png'
@@ -25,6 +25,16 @@ nav:
     - './libraries/edgeXBuildGoApp.md'
     - './libraries/edgeXBuildGoParallel.md'
     - './libraries/edgeXBuildGoMod.md'
+  - Miscellaneous Functions:
+    - './libraries/edgeXCodecov.md'
+    - './libraries/edgeXDocker.md'
+    - './libraries/edgeXDockerLogin.md'
+    - './libraries/edgeXEmail.md'
+    - './libraries/edgeXEmailUtil.md'
+    - './libraries/edgeXGHPagesPublish.md'
+  - Deprecated Functions:
+    - './libraries/edgeXClair.md'
+    - './libraries/edgeXGeneric.md'
   - Tutorials:
     - './tutorials/index.md'
     - './tutorials/docker-build-strategy.md'

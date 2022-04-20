@@ -1,5 +1,6 @@
 import com.cloudbees.groovy.cps.NonCPS
 import org.jenkinsci.plugins.workflow.libs.Library
+
 //
 // Copyright (c) 2019-2021 Intel Corporation
 //
@@ -15,31 +16,40 @@ import org.jenkinsci.plugins.workflow.libs.Library
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 @Library("lf-pipelines") _
 
-/*edgeXGeneric([
-    project: 'edgex-go',
-    mavenSettings: ['edgex-go-codecov-token:CODECOV_TOKEN'], (optional)
-    credentials: [string(credentialsId: 'credential-id-here', variable: 'APIKEY')], (optional)
-    env: [
-        GOPATH: '/opt/go-custom/go'
-    ],
-    path: [
-        '/opt/go-custom/go/bin'
-    ],
-    branches: [
-        '*': [
-            pre_build: ['shell/install_custom_golang.sh'],
-            build: [
-                'make test raml_verify && make build docker',
-                'shell/codecov-uploader.sh'
-            ]
-        ],
-        'main': [
-            post_build: [ 'shell/edgexfoundry-go-docker-push.sh' ]
-        ]
-    ]
-])*/
+/**
+ # edgeXGeneric
+
+ ⚠️ Deprecated will be removed in a future version. DO NOT USE ⚠️
+
+ ```groovy
+ edgeXGeneric([
+     project: 'edgex-go',
+     mavenSettings: ['edgex-go-codecov-token:CODECOV_TOKEN'], (optional)
+     credentials: [string(credentialsId: 'credential-id-here', variable: 'APIKEY')], (optional)
+     env: [
+         GOPATH: '/opt/go-custom/go'
+     ],
+     path: [
+         '/opt/go-custom/go/bin'
+     ],
+     branches: [
+         '*': [
+             pre_build: ['shell/install_custom_golang.sh'],
+             build: [
+                 'make test raml_verify && make build docker',
+                 'shell/codecov-uploader.sh'
+             ]
+         ],
+         'main': [
+             post_build: [ 'shell/edgexfoundry-go-docker-push.sh' ]
+         ]
+     ]
+ ])
+ ```
+*/
 
 def cfgAmd64
 def cfgArm64

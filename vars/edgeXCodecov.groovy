@@ -14,6 +14,25 @@
 // limitations under the License.
 //
 
+/**
+ # edgeXCodecov
+ 
+ ## Overview
+
+ Shared library to publish Codecov results to [CodeCov.io](https://codecov.io/edgexfoundry)
+
+ ## Parameters
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ tokenFile | false | str | Id of managed config file where token is stored. If `null` or empty, token file is automatically generated with: <br />`${env.PROJECT}-codecov-token` |
+
+ ## Usage
+ ```groovy
+ edgeXCodecov('sample-service-codecov-token')
+ ```
+*/
+
 def call(tokenFile = null) {
     if (tokenFile == null) {
         tokenFile = "${env.PROJECT}-codecov-token"

@@ -97,7 +97,7 @@ pipeline {
                 dockerfile {
                     filename 'Dockerfile.docs'
                     reuseNode true
-                    args '-u 0:0 --privileged'
+                    args '-u 0:0 --privileged --entrypoint='
                 }
             }
             steps {

@@ -17,4 +17,9 @@
 
 FROM python:3-slim
 
-RUN pip install mkdocs && pip install mkdocs-material
+RUN pip install mkdocs "mkdocs-material>=8.2"
+
+EXPOSE 8000
+
+ENTRYPOINT ["mkdocs"]
+CMD ["serve", "--dev-addr=0.0.0.0:8000"]
