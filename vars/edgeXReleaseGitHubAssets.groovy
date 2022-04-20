@@ -14,23 +14,50 @@
 // limitations under the License.
 //
 
-/*
+/**
+ # edgeXReleaseGitHubAssets
 
-releaseYaml:
+ ## Overview
 
----
-name: 'sample-service'
-version: 1.1.2
-releaseStream: 'main'
-repo: 'https://github.com/edgexfoundry/sample-service.git'
-gitHubReleaseAssets:
-  - 'https://nexus-location/asset1'
-  - 'https://nexus-location/asset2'
-  - 'https://nexus-location/asset3'
-gitHubRelease: true
+ Shared library with helper functions to manage GitHub Releases with attached binaries.
+ This function works in conjunction with the docker image generated from
+ 🔗 [Create GitHub Release](https://github.com/edgexfoundry/cd-management/tree/create-github-release)
+ to manage GitHub releases. Currently used by edgex-cli.
 
-edgeXReleaseGitHubAssets(releaseYaml)
+ ## Required Yaml
 
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ gitHubRelease | true | str | Determines whether or not to trigger this function. |
+ gitHubReleaseAssets | true | array | List of binaries to release along with generated GitHub Release |
+
+ ## Functions
+ - `edgeXReleaseGitHubAssets.getCredentialsId`: Return correct PAT based on ENV.SILO to access GitHub api.
+ - `edgeXReleaseGitHubAssets.getRepoInfo`: Extracts pertinent information from repository and returns as Map
+ - `edgeXReleaseGitHubAssets.createGitHubRelease`: Wraps call to `create-github-release` to generate GitHub release.
+ - `edgeXReleaseGitHubAssets.validate`: Validates release yaml input before any automation is run.
+ 
+ ## Usage
+
+ ### Sample Release Yaml
+
+ ```yaml
+ name: 'sample-service'
+ version: 1.1.2
+ releaseStream: 'main'
+ repo: 'https://github.com/edgexfoundry/sample-service.git'
+ gitHubRelease: true
+ gitHubReleaseAssets:
+   - 'https://nexus-location/asset1'
+   - 'https://nexus-location/asset2'
+   - 'https://nexus-location/asset3'
+ ```
+
+ # Groovy Call
+
+ ```groovy
+ edgeXReleaseGitHubAssets(releaseYaml)
+ ```
 */
 
 def call(releaseInfo) {
@@ -59,7 +86,6 @@ def getCredentialsId() {
 }
 
 def getRepoInfo(repo) {
-    // extracts pertinent information from repo and returns as map
     try {
         def repoSplit = repo.split('/')
         def repoMap = [

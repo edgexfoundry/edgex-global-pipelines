@@ -14,21 +14,18 @@
 // limitations under the License.
 //
 
-/*
+/**
+ # edgeXReleaseGitHubTagUtil
 
-releaseYaml:
+ ## Overview
 
----
-name: 'sample-service'
-version: '1.1.2'
-releaseStream: 'main'
-commitId: '0cc1d67607642c9413e4a80d25a2df35ecc76d41'
-repo: 'https://github.com/edgexfoundry/sample-service.git'
-gitTag: true
-semverBumpLevel: 'patch'  # optional and defaults to '-pre=dev pre'
+ Shared library with supporting helper functions to manage Git tags.
 
-edgeXReleaseGitTag(releaseYaml)
-
+ ## Functions
+ - `edgeXReleaseGitHubTagUtil.getSSHRepoName`: Converts `https` repo remote to ssh `git@github.com:` remote.
+ - `edgeXReleaseGitHubTagUtil.signGitTag`: Wrapper around `edgeXInfraLFToolsSign` that signs git tag for a release.
+ - `edgeXReleaseGitHubTagUtil.releaseGitTag`: Main function that does full end-to-end git tag release.
+ - `edgeXReleaseGitHubTagUtil.validate`: Validates release yaml input before any automation is run.
 */
 
 def validate(releaseInfo) {

@@ -14,6 +14,40 @@
 // limitations under the License.
 //
 
+/**
+ # edgeXRelease
+
+ ## Overview
+
+ Shared library with helper functions to manage releases. This is the main entry point for all automated releases using the 🔗 [cd-management/release](https://github.com/edgexfoundry/cd-management/blob/release/Jenkinsfile) repository.
+
+ ## Required Yaml
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ name | true | str | Name of the repository that is being released. |
+ version | true | str | Semver version to be released. |
+ releaseName | true | str | The codename of the release. This is usually used by sub release processes for naming. |
+ releaseStream | true | str | What branch the release is being generated from. (This has been superseded by commitId) |
+ commitId | true | str | Git Commit SHA to tag or branch for the release. |
+ repo | true | str | https git repository url. <br />**Example:** `https://github.com/edgexfoundry/<repo>.git` |
+
+ ## Functions
+ - `edgeXRelease.collectReleaseYamlFiles`: Search through a provided file path and find all the release yaml files to process and parses yaml into a Groovy object using the `readYaml` function. Default file pattern to search for will be: `release/*.yaml`. This function will also validate what files have changed in the commit using `edgex.didChange` and will only release what was changed.
+ - `edgeXRelease.parallelStepFactory`: Returns a Closure to execute the release for all release yaml entries found for the specific commit.
+ - `edgeXRelease.parallelStepFactoryTransform`: Transforms release yaml Groovy object into a Groovy Closure containing all the logic needed to perform the release for the specific repository.
+ - `edgeXRelease.stageArtifact`: If release contains binaries rather than docker images, the binaries need to be staged before the release occurs. This function forces a build of the artifact by triggering the job using the `build(job: ..)` Jenkins function.
+ - `edgeXRelease.getBuilderImagesFromReleasedImages`: Used to determine what static builder image to use when building a LTS C based repository. Below you can see the transformation.
+   ```groovy
+    // Given the release of the following 2 docker images:
+    edgeXRelease.getBuilderImagesFromReleasedImages('nexus3.edgexfoundry.org:10004/sample-service-c')
+    > nexus3.edgexfoundry.org:10002/sample-service-c-builder-x86_64:jakarta
+
+    edgeXRelease.getBuilderImagesFromReleasedImages('nexus3.edgexfoundry.org:10004/sample-service-c-arm64')
+    > nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:jakarta
+   ```
+*/
+
 def collectReleaseYamlFiles(filePath = 'release/*.yaml', releaseBranch = 'release') {
     def releaseData = []
     def yamlFiles = findFiles(glob: filePath)
@@ -126,14 +160,6 @@ def stageArtifact(step) {
         }
     }
 }
-
-// Given the release of the following 2 docker images:
-// nexus3.edgexfoundry.org:10004/sample-service-c
-// nexus3.edgexfoundry.org:10004/sample-service-c-arm64
-//
-// Parse and transform into:
-// nexus3.edgexfoundry.org:10002/sample-service-c-builder-x86_64:jakarta
-// nexus3.edgexfoundry.org:10002/sample-service-c-builder-arm64:jakarta
 
 def getBuilderImagesFromReleasedImages(step, tag) {
     // TODO: allow configuration of some of these hardcoded vars

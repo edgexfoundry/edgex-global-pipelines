@@ -32,7 +32,7 @@
 
  Name | Required | Type | Description and Default Value
  -- | -- | -- | --
- vars | false | str | A Map of key/value pairs to expose to the Jenkins environment |
+ vars | false | str | A Map of key/value pairs to expose to the Jenkins environment. |
 
  ## Usage
 

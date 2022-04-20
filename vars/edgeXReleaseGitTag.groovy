@@ -14,21 +14,44 @@
 // limitations under the License.
 //
 
-/*
+/**
+ # edgeXReleaseGitHubTag
 
-releaseYaml:
+ ## Overview
 
----
-name: 'sample-service'
-version: '1.1.2'
-releaseStream: 'main'
-commitId: '0cc1d67607642c9413e4a80d25a2df35ecc76d41'
-repo: 'https://github.com/edgexfoundry/sample-service.git'
-gitTag: true
-semverBumpLevel: 'patch'  # optional and defaults to '-pre=dev pre'
+ Shared library with helper functions to create, sign and bump Git tags.
 
-edgeXReleaseGitTag(releaseYaml)
+ ## Required Yaml
 
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ gitTag | true | str | Determines whether or not to trigger this function. |
+ semverBumpLevel | false | str | Semver bump level to be used by git-semver. <br /><br />**Default:** `-pre=dev pre` |
+
+ ## Functions
+ - `edgeXReleaseGitHubTag.cloneRepo`: Generic function to properly clone a repository to a specific subfolder. Directory name generated from `releaseYaml.name`.
+ - `edgeXReleaseGitHubTag.setAndSignGitTag`: Sets up release tag using git-semver from the specified version set in `releaseYaml.version`. **NOTE:** git-semver force is used here for impotency in case tag already exists. So existing tags will be overridden.
+ - `edgeXReleaseGitHubTag.bumpAndPushGitTag`: Pushes signed tag and optionally bumps next version.
+ 
+ ## Usage
+
+ ### Sample Release Yaml
+
+ ```yaml
+ name: 'sample-service'
+ version: '1.1.2'
+ releaseStream: 'main'
+ commitId: '0cc1d67607642c9413e4a80d25a2df35ecc76d41'
+ repo: 'https://github.com/edgexfoundry/sample-service.git'
+ gitTag: true
+ semverBumpLevel: 'patch' #optional
+ ```
+
+ # Groovy Call
+
+ ```groovy
+ edgeXReleaseGitTag(releaseYaml)
+ ```
 */
 
 def call(releaseInfo, releaseGitTagOptions) {

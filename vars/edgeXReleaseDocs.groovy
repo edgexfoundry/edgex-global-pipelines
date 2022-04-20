@@ -12,29 +12,57 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// Define parameters
+//
 
-/*
+/**
+ # edgeXReleaseDocs
 
-releaseYaml:
+ ## Overview
 
-name: 'edgex-docs'
-version: '2.2.0'
-releaseName: 'kamakura'
-releaseStream: 'main'
-repo: 'https://github.com/edgexfoundry/edgex-docs.git'
-commitId: 'c72b16708d6eed9a08be464a432ce22db7d90667'
-gitTag: false
-dockerImages: false
-docs: true
-docsInfo:
-  nextReleaseVersion: "2.3.0"
-  nextReleaseName: levski
-  reviewers: lenny-intel
----
+ Shared library with helper functions to manage documentation releases. Currently used by edgex-docs.
 
-edgeXReleaseDocs(releaseYaml)
-)
+ ## Required Yaml
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ docs | true | str | Determines whether or not to trigger this function. |
+ docsInfo.nextReleaseVersion | true | str | Next release version to add to the documentation. |
+ docsInfo.nextReleaseName | true | str | Next release name to add to the documentation. |
+ docsInfo.reviewers | true | str | Who to assign the generated PR's to. |
+
+ ## Functions
+ - `edgeXReleaseDocs.publishReleaseBranch`: Makes release branch related changes in unique branch then commits release branch.
+ - `edgeXReleaseDocs.publishVersionChangesPR`: Makes version file related changes in unique branch then commits and opens PR.
+ - `edgeXReleaseDocs.publishSwaggerChangesPR`: Makes Swagger related changes in unique branch then commits and opens PR.
+ - `edgeXReleaseDocs.commitChange`: Commits a change to the repo with a given message.
+ - `edgeXReleaseDocs.createPR`: Creates a PR with the [GitHub CLI](https://cli.github.com/) for with a given branch, title, message and reviewers for. Note: This is generic enough to be used in other functions.
+ - `edgeXReleaseDocs.validate`: Validates release yaml input before any automation is run.
+ 
+ ## Usage
+
+ ### Sample Release Yaml
+
+ ```yaml
+ name: 'edgex-docs'
+ version: '2.2.0'
+ releaseName: 'kamakura'
+ releaseStream: 'main'
+ repo: 'https://github.com/edgexfoundry/edgex-docs.git'
+ commitId: 'c72b16708d6eed9a08be464a432ce22db7d90667'
+ gitTag: false
+ dockerImages: false
+ docs: true
+ docsInfo:
+   nextReleaseVersion: "2.3.0"
+   nextReleaseName: levski
+   reviewers: edgex-docs-committers
+ ```
+
+ # Groovy Call
+
+ ```groovy
+ edgeXReleaseDocs(releaseYaml)
+ ```
 */
 
 // For this function DRY_RUN is treated differently. For dry run here
@@ -43,7 +71,7 @@ edgeXReleaseDocs(releaseYaml)
 def call (releaseInfo) {
     validate(releaseInfo)
 
-    // if we are release docs, git tag is false so no clone is expicitly called
+    // if we are release docs, git tag is false so no clone is explicitly called
     // so we need to clone here
     withEnv(['DRY_RUN=false']) {
         edgeXReleaseGitTag.cloneRepo(
