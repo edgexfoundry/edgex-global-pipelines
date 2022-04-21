@@ -14,6 +14,53 @@
 // limitations under the License.
 //
 
+/**
+ # edgeXSemver
+
+ ## Overview
+
+ Shared library containing a useful set of functions to help with the creation of semantic versioning using the git-semver python library.
+ The main call function builds the `git semver` command based on the provided input.
+
+ **Please note:** this shared library is responsible for setting the `VERSION` environment variable during `git semver init` execution.
+
+ ## Parameters
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ command | false | str | Specify which git semver sub command to run. <br /><br />**Example:** `init`, `bump`, `push` |
+ semverVersion | false | string | Force a specific override version instead of reading the version from the semver branch. <br /><br />**Default:** `<empty string>` |
+ gitSemverVersion | false | string | What version of the git-semver docker image to use. <br /><br />**Default:** `latest` |
+ credentials | false | string | Which Jenkins credential to use to authenticate to GitHub and push git tag. <br /><br />**Default:** `edgex-jenkins-ssh` |
+
+ ## Functions
+ - `edgeXSemver.executeGitSemver`: Execute semverCommand via ssh with provided credentials.
+ - `edgeXSemver.setGitSemverHeadTag`: set `GITSEMVER_HEAD_TAG` to value of `HEAD` when any of the following conditions are satisfied:
+   - An init version is specified and HEAD is tagged with init version.
+   - An init version is not specified and HEAD is tagged.
+ - `edgeXSemver.getCommitTags`: Return list of all tags at a specific commit point.
+ 
+ ## Usage
+
+ Regular init
+
+ ```groovy
+ edgeXSemver('init')
+ ```
+
+ Force specific the semver version to use.
+
+ ```groovy
+ edgeXSemver('init', '2.0.0')
+ ```
+
+ Bump the semver version using default semver bump level (pre-release).
+
+ ```groovy
+ edgeXSemver('bump')
+ ```
+*/
+
 def call(command = null, semverVersion = '', gitSemverVersion = 'latest', credentials = 'edgex-jenkins-ssh') {
     def semverImage = env.ARCH && env.ARCH == 'arm64'
         ? "nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver-arm64:${gitSemverVersion}"
@@ -99,7 +146,6 @@ def setupKnownHosts() {
 }
 
 def executeGitSemver(credentials, semverCommand) {
-    // execute semverCommand via ssh with provided credentials
     sshagent (credentials: [credentials]) {
         if(semverCommand =~ '^.*tag.*-force$') {
             // remove the GITSEMVER_INIT_VERSION tag from remote and local (if it exists)
@@ -120,9 +166,6 @@ def executeGitSemver(credentials, semverCommand) {
 }
 
 def setGitSemverHeadTag(initVersion, credentials, pointsAt = null) {
-    // set GITSEMVER_HEAD_TAG to value of HEAD when any of the following conditions are satisfied
-    //   an init version is specified and HEAD is tagged with init version
-    //   an init version is not specified and HEAD is tagged
     if(!pointsAt) { pointsAt = 'HEAD' }
     if(env.GITSEMVER_HEAD_TAG) {
         echo "[edgeXSemver]: GITSEMVER_HEAD_TAG is already set to '${env.GITSEMVER_HEAD_TAG}'"
@@ -148,7 +191,6 @@ def setGitSemverHeadTag(initVersion, credentials, pointsAt = null) {
 }
 
 def getCommitTags(credentials, pointsAt) {
-    // return list of all tags at a specific commit point
     def commitTags = []
     def tags
     sshagent (credentials: [credentials]) {

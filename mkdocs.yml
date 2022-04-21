@@ -26,6 +26,7 @@ nav:
     - './libraries/edgeXBuildGoParallel.md'
     - './libraries/edgeXBuildGoMod.md'
   - Miscellaneous Functions:
+    - './libraries/edgex.md'
     - './libraries/edgeXCodecov.md'
     - './libraries/edgeXDocker.md'
     - './libraries/edgeXDockerLogin.md'
@@ -36,6 +37,10 @@ nav:
     - './libraries/edgeXInfraPublish.md'
     - './libraries/edgeXNexusPublish.md'
     - './libraries/edgeXSetupEnvironment.md'
+    - './libraries/edgeXSemver.md'
+    - './libraries/edgeXSnyk.md'
+    - './libraries/edgeXSwaggerPublish.md'
+    - './libraries/edgeXUpdateNamedTag.md'
   - Release Functions:
     - './libraries/edgeXRelease.md'
     - './libraries/edgeXReleaseDockerImage.md'

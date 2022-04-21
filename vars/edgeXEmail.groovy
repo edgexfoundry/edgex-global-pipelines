@@ -26,7 +26,7 @@
  Name | Required | Type | Description and Default Value
  -- | -- | -- | --
  subject | false | str | Email subject. <br /><br />**Default:** `[${buildStatus}] ${env.JOB_NAME} Build #${env.BUILD_NUMBER}` |
- emailTo | true | str | Comma separated list of email address(s) to send email to |
+ emailTo | true | str | Comma separated list of email address(s) to send email to. |
 
  ## Usage
 

@@ -23,7 +23,7 @@
  If you have further questions about implementation details please refer to the [source code](https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/vars/edgeXDocker.groovy).
  
  ## Functions:
- - `edgeXDocker.build`: Build a docker image from optional `baseImage` with a set of default: docker build_args, labels, and tags
+ - `edgeXDocker.build`: Build a docker image from optional `baseImage` with a set of default: docker build_args, labels, and tags.
  - `edgeXDocker.buildInParallel`: Build multiple docker images in parallel. This technique utilizes docker-compose to build multiple images using the parallel flag.
  - `edgeXDocker.generateDockerComposeForBuild`: Supporting function for `edgeXDocker.buildInParallel` that generates a docker compose file for a given list of docker images.
  - `edgeXDocker.generateServiceYaml`: Supporting function for `edgeXDocker.buildInParallel` that generates service level yaml for a specific docker image.
@@ -31,9 +31,9 @@
  - `edgeXDocker.pushAll`: Push all docker images specified in the `dockerImages` list. To be used in conjunction with the same input format used by `edgeXDocker.buildInParallel` to push all images.
  - `edgeXDocker.getDockerTags`: Generates the default set of tags used when pushing all edgex docker images with the `edgeXDocker.push` function.
  - `edgeXDocker.finalImageName`: Prepends a docker image with `env.DOCKER_REGISTRY_NAMESPACE` if defined.
- - `edgeXDocker.cleanImageUrl`: Returns image url without protocol
- - `edgeXDocker.parse`: Reads a docker image url and returns the parsed [image object](#parsed-image-object) components
- - `edgeXDocker.toImageStr`: Returns docker image string from an [image object](#parsed-image-object)
+ - `edgeXDocker.cleanImageUrl`: Returns image url without protocol.
+ - `edgeXDocker.parse`: Reads a docker image url and returns the parsed [image object](#parsed-image-object) components.
+ - `edgeXDocker.toImageStr`: Returns docker image string from an [image object](#parsed-image-object).
 
  ## Parsed image object
 

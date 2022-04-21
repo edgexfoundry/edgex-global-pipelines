@@ -29,11 +29,11 @@
  Name | Required | Type | Description and Default Value
  -- | -- | -- | --
  gitHubRelease | true | str | Determines whether or not to trigger this function. |
- gitHubReleaseAssets | true | array | List of binaries to release along with generated GitHub Release |
+ gitHubReleaseAssets | true | array | List of binaries to release along with generated GitHub Release. |
 
  ## Functions
  - `edgeXReleaseGitHubAssets.getCredentialsId`: Return correct PAT based on ENV.SILO to access GitHub api.
- - `edgeXReleaseGitHubAssets.getRepoInfo`: Extracts pertinent information from repository and returns as Map
+ - `edgeXReleaseGitHubAssets.getRepoInfo`: Extracts pertinent information from repository and returns as Map.
  - `edgeXReleaseGitHubAssets.createGitHubRelease`: Wraps call to `create-github-release` to generate GitHub release.
  - `edgeXReleaseGitHubAssets.validate`: Validates release yaml input before any automation is run.
  
