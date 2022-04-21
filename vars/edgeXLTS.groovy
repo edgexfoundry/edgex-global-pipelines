@@ -14,6 +14,21 @@
 // limitations under the License.
 //
 
+/**
+ # edgeXLTS
+
+ ## Overview
+
+ Shared library with helper functions to manage LTS releases. Used as part of the edgeXRelease.groovy pipeline.
+
+ ## Functions:
+ - `edgeXLTS.prepLTS`: Prepares a repository for an LTS release. If the repository is Golang based, go vendoring is enabled to support LTS releases.
+ - `edgeXLTS.getLatestLTSCommitId`: Retrieves the latest LTS commit sha from a repository.
+ - `edgeXLTS.generateLTSCommitMessage`: Creates a an LTS commit message for a release.
+ - `edgeXLTS.prepGoProject`: Prepares a Golang based project for an LTS release enable vendoring and removing the `vendor` directory from the gitignore file.
+
+*/
+
 def prepLTS(releaseInfo, options) {
     def credentials = options.credentials != null ? options.credentials : 'edgex-jenkins-ssh'
     edgeXReleaseGitTagUtil.validate(releaseInfo)

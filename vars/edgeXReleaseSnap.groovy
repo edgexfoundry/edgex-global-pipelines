@@ -14,8 +14,13 @@
 // limitations under the License.
 //
 
-/*
+/**
+ # edgeXReleaseSnap
 
+ ⚠️ Deprecated... Snaps are no longer published by EdgeX DevOps. They are now managed by the team at Canonical. DO NOT USE ⚠️
+*/
+
+/*
 releaseYaml:
 
 ---

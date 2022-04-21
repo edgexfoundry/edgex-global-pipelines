@@ -14,6 +14,35 @@ import org.jenkinsci.plugins.workflow.libs.Library
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
+/**
+ # edgeXInfraPublish
+
+ ## Overview
+
+ Shared library used as a post build stage to publish build artifacts, logs, metrics to EdgeX [Nexus](https://nexus.edgexfoundry.org/) server.
+
+ ## Parameters
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ logSettingsFile | false | str | Config file id for settings to authenticate to Nexus to publish build logs. <br /><br />**Default:** `jenkins-log-archives-settings` |
+ dockerOptimized | false | str | Whether or not to use a docker image when publishing to Nexus<br /><br />**Default:** `true` |
+
+ ## Usage
+
+ ```groovy
+ edgeXInfraPublish()
+ ```
+
+ ```groovy
+ edgeXInfraPublish {
+     logSettingsFile = 'custom-jenkins-log-archives-settings'
+     dockerOptimized = false
+ }
+ ```
+*/
+
 @Library("lf-pipelines") _
 
 def call(body) {
@@ -64,7 +93,7 @@ def call(body) {
                         logSettingsFile = _logSettingsFile
                     }
                 } catch(e) {
-                    println "[edgeXInfraPublish] An error occurd while publishing logs: ${e.message}"
+                    println "[edgeXInfraPublish] An error occurred while publishing logs: ${e.message}"
                 }
             }
         } else {
@@ -73,7 +102,7 @@ def call(body) {
                     logSettingsFile = _logSettingsFile
                 }
             } catch(e) {
-                println "[edgeXInfraPublish] An error occurd while publishing logs: ${e.message}"
+                println "[edgeXInfraPublish] An error occurred while publishing logs: ${e.message}"
             }
         }
     }

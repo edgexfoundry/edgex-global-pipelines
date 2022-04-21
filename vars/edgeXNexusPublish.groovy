@@ -13,15 +13,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// This library will publish a ZIP file to a specific nexus repo.
-// ------------------------------------------------------------------
-// serverId      - used to lookup credentials in mavenSettings file, example: "logs", "docker", "nexus.edgexfoundry.org"
-// mavenSettings - used by the LF to store credentials for publishing to nexus
-// nexusRepo     - the nexus repository name where you would like to publish your artifacts
-// zipFilePath   - path to ZIP file, typically in the workspace
-// ------------------------------------------------------------------
-// example usage:
-// edgeXNexusPublish([serverId: 'logs', mavenSettings: 'log-settings', nexusRepo: 'logs', zipFilePath: '**/logs/*.zip'])
+
+/**
+ # edgeXNexusPublish
+
+ ## Overview
+
+ Shared library to publish a ZIP file to a specific nexus repo.
+
+ ## Parameters
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ serverId | true | str | used to lookup credentials in mavenSettings file.<br /><br />**Example:** `logs`, `docker`, `nexus.edgexfoundry.org` |
+ mavenSettings | true | str | Config file Id to use publish to Nexus.<br /><br />**Example:** `log-settings` |
+ nexusRepo | true | str | the nexus repository name where you would like to publish your artifacts. |
+ nexusPath | false | str | Path on the nexus server where file should be stored. <br /><br />**Default:**`${env.SILO}/${env.JENKINS_HOSTNAME}/${env.JOB_NAME}/${env.BUILD_NUMBER}` |
+ zipFilePath | true | str | path to ZIP file, typically in the workspace. |
+
+ ## Usage
+
+ ```groovy
+ edgeXNexusPublish([serverId: 'logs', mavenSettings: 'log-settings', nexusRepo: 'logs', zipFilePath: '*.zip'])
+ ```
+*/
 
 def call(Map config = [:]) {
     def serverId      = config.serverId

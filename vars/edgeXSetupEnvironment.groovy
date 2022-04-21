@@ -14,6 +14,37 @@
 // limitations under the License.
 //
 
+/**
+ # edgeXSetupEnvironment
+
+ ## Overview
+
+ Shared library to setup a build environment given a Map of key value pairs. Some extra environment variables are set to help with the build process including:
+ 
+ - `GIT_BRANCH`
+ - `GIT_COMMIT`
+ - `GIT_BRANCH_CLEAN`
+ - `SHORT_GIT_COMMIT`
+ - `SEMVER_BRANCH`
+ - `SEMVER_PRE_PREFIX`
+
+ ## Parameters
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ vars | false | str | A Map of key/value pairs to expose to the Jenkins environment |
+
+ ## Usage
+
+ ```groovy
+ edgeXSetupEnvironment([ PROJECT: 'edgex-global-pipelines' ])
+ ...
+ ...
+ // This will expose an environment variable named `PROJECT` with the value `edgex-global-pipelines`
+ // as well as the extra environment vars mentioned above.
+ ```
+*/
+
 def call(vars) {
     if(!vars) {
         vars = [:]

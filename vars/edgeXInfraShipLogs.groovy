@@ -14,8 +14,12 @@
 // limitations under the License.
 //
 
-// NOTE: This file is no longer in use. This has been replace by lfInfraShipLogs
-// https://github.com/lfit/releng-pipelines/blob/main/vars/lfInfraShipLogs.groovy
+/**
+ # edgeXInfraPublish
+
+ ⚠️ Deprecated no longer in use. This has been replace by [lfInfraShipLogs](https://github.com/lfit/releng-pipelines/blob/main/vars/lfInfraShipLogs.groovy). DO NOT USE ⚠️
+*/
+
 def call(body) {
     // evaluate the body block, and collect configuration into the object
     def config = [:]

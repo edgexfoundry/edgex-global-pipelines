@@ -32,9 +32,17 @@ nav:
     - './libraries/edgeXEmail.md'
     - './libraries/edgeXEmailUtil.md'
     - './libraries/edgeXGHPagesPublish.md'
+    - './libraries/edgeXInfraLFToolsSign.md'
+    - './libraries/edgeXInfraPublish.md'
+    - './libraries/edgeXLTS.md'
+    - './libraries/edgeXNexusPublish.md'
+    - './libraries/edgeXSetupEnvironment.md'
   - Deprecated Functions:
     - './libraries/edgeXClair.md'
     - './libraries/edgeXGeneric.md'
+    - './libraries/edgeXInfraShipLogs.md'
+    - './libraries/edgeXReleaseSnap.md'
+    - './libraries/edgeXSnap.md'
   - Tutorials:
     - './tutorials/index.md'
     - './tutorials/docker-build-strategy.md'
