@@ -12,14 +12,14 @@
         <meta name="author" content="EdgeX DevOps Team">
       
       
-        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXGeneric/">
+        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXLTS/">
       
       <link rel="icon" href="../../assets/logo_edgex.png">
       <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.9">
     
     
       
-        <title>edgeXGeneric - EdgeX Global Pipelines Documentation</title>
+        <title>edgeXLTS - EdgeX Global Pipelines Documentation</title>
       
     
     
@@ -69,7 +69,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#edgexgeneric" class="md-skip">
+        <a href="#edgexlts" class="md-skip">
           Skip to content
         </a>
       
@@ -101,7 +101,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              edgeXGeneric
+              edgeXLTS
             
           </span>
         </div>
@@ -360,12 +360,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
       
       
       
@@ -498,11 +500,59 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../edgeXLTS/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          edgeXLTS
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         edgeXLTS
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions:
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -548,14 +598,12 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
       
       
       
@@ -590,21 +638,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../edgeXGeneric/" class="md-nav__link">
         edgeXGeneric
       </a>
-      
     </li>
   
 
@@ -844,6 +882,28 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions:
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -854,38 +914,22 @@
             <article class="md-content__inner md-typeset">
               
                 
-  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/libraries/edgeXGeneric.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/libraries/edgeXLTS.md" title="Edit this page" class="md-content__button md-icon">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
 
-<h1 id="edgexgeneric">edgeXGeneric</h1>
-<p>⚠️ Deprecated will be removed in a future version. DO NOT USE ⚠️</p>
-<div class="highlight"><pre><span></span><code><span class="n">edgeXGeneric</span><span class="o">([</span>
-    <span class="nl">project:</span> <span class="s1">&#39;edgex-go&#39;</span><span class="o">,</span>
-    <span class="nl">mavenSettings:</span> <span class="o">[</span><span class="s1">&#39;edgex-go-codecov-token:CODECOV_TOKEN&#39;</span><span class="o">],</span> <span class="o">(</span><span class="n">optional</span><span class="o">)</span>
-    <span class="nl">credentials:</span> <span class="o">[</span><span class="n">string</span><span class="o">(</span><span class="nl">credentialsId:</span> <span class="s1">&#39;credential-id-here&#39;</span><span class="o">,</span> <span class="nl">variable:</span> <span class="s1">&#39;APIKEY&#39;</span><span class="o">)],</span> <span class="o">(</span><span class="n">optional</span><span class="o">)</span>
-    <span class="nl">env:</span> <span class="o">[</span>
-        <span class="nl">GOPATH:</span> <span class="s1">&#39;/opt/go-custom/go&#39;</span>
-    <span class="o">],</span>
-    <span class="nl">path:</span> <span class="o">[</span>
-        <span class="s1">&#39;/opt/go-custom/go/bin&#39;</span>
-    <span class="o">],</span>
-    <span class="nl">branches:</span> <span class="o">[</span>
-        <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="o">[</span>
-            <span class="nl">pre_build:</span> <span class="o">[</span><span class="s1">&#39;shell/install_custom_golang.sh&#39;</span><span class="o">],</span>
-            <span class="nl">build:</span> <span class="o">[</span>
-                <span class="s1">&#39;make test raml_verify &amp;&amp; make build docker&#39;</span><span class="o">,</span>
-                <span class="s1">&#39;shell/codecov-uploader.sh&#39;</span>
-            <span class="o">]</span>
-        <span class="o">],</span>
-        <span class="s1">&#39;main&#39;</span><span class="o">:</span> <span class="o">[</span>
-            <span class="nl">post_build:</span> <span class="o">[</span> <span class="s1">&#39;shell/edgexfoundry-go-docker-push.sh&#39;</span> <span class="o">]</span>
-        <span class="o">]</span>
-    <span class="o">]</span>
-<span class="o">])</span>
-</code></pre></div>
+<h1 id="edgexlts">edgeXLTS</h1>
+<h2 id="overview">Overview</h2>
+<p>Shared library with helper functions to manage LTS releases. Used as part of the edgeXRelease.groovy pipeline.</p>
+<h2 id="functions">Functions:</h2>
+<ul>
+<li><code>edgeXLTS.prepLTS</code>: Prepares a repository for an LTS release. If the repository is Golang based, go vendoring is enabled to support LTS releases.</li>
+<li><code>edgeXLTS.getLatestLTSCommitId</code>: Retrieves the latest LTS commit sha from a repository.</li>
+<li><code>edgeXLTS.generateLTSCommitMessage</code>: Creates a an LTS commit message for a release.</li>
+<li><code>edgeXLTS.prepGoProject</code>: Prepares a Golang based project for an LTS release enable vendoring and removing the <code>vendor</code> directory from the gitignore file.</li>
+</ul>
 
               
             </article>
@@ -899,7 +943,7 @@
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../edgeXClair/" class="md-footer__link md-footer__link--prev" aria-label="Previous: edgeXClair" rel="prev">
+        <a href="../edgeXInfraPublish/" class="md-footer__link md-footer__link--prev" aria-label="Previous: edgeXInfraPublish" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -908,20 +952,20 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              edgeXClair
+              edgeXInfraPublish
             </div>
           </div>
         </a>
       
       
         
-        <a href="../edgeXInfraShipLogs/" class="md-footer__link md-footer__link--next" aria-label="Next: edgeXInfraPublish" rel="next">
+        <a href="../edgeXNexusPublish/" class="md-footer__link md-footer__link--next" aria-label="Next: edgeXNexusPublish" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              edgeXInfraPublish
+              edgeXNexusPublish
             </div>
           </div>
           <div class="md-footer__button md-icon">
