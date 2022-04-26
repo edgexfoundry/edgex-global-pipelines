@@ -96,6 +96,36 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXRelease/</loc>
+         <lastmod>2022-04-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXReleaseDockerImage/</loc>
+         <lastmod>2022-04-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXReleaseDocs/</loc>
+         <lastmod>2022-04-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXReleaseGitHubAssets/</loc>
+         <lastmod>2022-04-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXReleaseGitTag/</loc>
+         <lastmod>2022-04-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXReleaseGitTagUtil/</loc>
+         <lastmod>2022-04-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXReleaseSnap/</loc>
          <lastmod>2022-04-26</lastmod>
          <changefreq>daily</changefreq>
