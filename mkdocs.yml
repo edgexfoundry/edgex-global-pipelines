@@ -34,9 +34,15 @@ nav:
     - './libraries/edgeXGHPagesPublish.md'
     - './libraries/edgeXInfraLFToolsSign.md'
     - './libraries/edgeXInfraPublish.md'
-    - './libraries/edgeXLTS.md'
     - './libraries/edgeXNexusPublish.md'
     - './libraries/edgeXSetupEnvironment.md'
+  - Release Functions:
+    - './libraries/edgeXRelease.md'
+    - './libraries/edgeXReleaseDockerImage.md'
+    - './libraries/edgeXReleaseDocs.md'
+    - './libraries/edgeXReleaseGitHubAssets.md'
+    - './libraries/edgeXReleaseGitTag.md'
+    - './libraries/edgeXLTS.md'
   - Deprecated Functions:
     - './libraries/edgeXClair.md'
     - './libraries/edgeXGeneric.md'

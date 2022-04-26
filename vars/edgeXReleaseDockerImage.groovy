@@ -14,28 +14,56 @@
 // limitations under the License.
 // Define parameters
 
-/*
+/**
+ # edgeXReleaseDockerImage
 
-releaseYaml:
+ ## Overview
 
-version: 1.1.2
-releaseStream: main
-dockerImage: true
-docker:
-  - image: nexus3.edgexfoundry.org:10004/sample-service
-    destination:
-      - nexus3.edgexfoundry.org:10002/sample-service
-      - docker.io/edgexfoundry/sample-service
-  - image: nexus3.edgexfoundry.org:10004/sample-service-arm64
-    destination:
-      - nexus3.edgexfoundry.org:10002/sample-service-arm64
-      - docker.io/edgexfoundry/sample-service-arm64
----
+ Shared library with helper functions to manage docker image releases to Nexus release and DockerHub.
 
-edgeXReleaseDockerImage(releaseYaml)
-)
+ ## Required Yaml
 
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ dockerImage | true | str | Determines whether or not to trigger this function. |
+ docker | true | array | Array of docker images to release |
+ docker.image | true | str | Docker image that is being release |
+ docker.destination | true | array | Array of destination registries where to release the image to |
+
+ ## Functions
+ - `edgeXReleaseDockerImage.getAvaliableTargets`: Returns a list of valid release registries.
+ - `edgeXReleaseDockerImage.isValidReleaseRegistry`: Validates registry to ensure we are not pushing images to unknown registries.
+ - `edgeXReleaseDockerImage.publishDockerImages`: Iterates through all release registry targets and pushes images based on validating image exists
+ - `edgeXReleaseDockerImage.publishDockerImage`: Pulls, re-tags and pushes source image to destination registry.
+ - `edgeXReleaseDockerImage.validate`: Validates release yaml input before any automation is run.
+ - `edgeXReleaseDockerImage.imageExists`: Checks docker registry to see if image exists.
+ 
+ ## Usage
+
+ ### Sample Release Yaml
+
+ ```yaml
+ version: 1.1.2
+ releaseStream: main
+ dockerImage: true
+ docker:
+   - image: nexus3.edgexfoundry.org:10004/sample-service
+     destination:
+       - nexus3.edgexfoundry.org:10002/sample-service
+       - docker.io/edgexfoundry/sample-service
+   - image: nexus3.edgexfoundry.org:10004/sample-service-arm64
+     destination:
+       - nexus3.edgexfoundry.org:10002/sample-service-arm64
+       - docker.io/edgexfoundry/sample-service-arm64
+ ```
+
+ # Groovy Call
+
+ ```groovy
+ edgeXReleaseDockerImage(releaseYaml)
+ ```
 */
+
 def call (releaseInfo) {
     validate(releaseInfo)
     publishDockerImages(releaseInfo)
@@ -96,7 +124,7 @@ def publishDockerImages (releaseInfo) {
                         try {
                             exists = imageExists(dockerTo)
                         } catch (e) {
-                            prinln "[edgeXReleaseDockerImage] LTS Release. Destination image does not exist ignoring error."
+                            println "[edgeXReleaseDockerImage] LTS Release. Destination image does not exist ignoring error."
                             exists = false
                         }
                     } else {
