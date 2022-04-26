@@ -479,7 +479,7 @@ def call(config) {
                                         def tagCommand = 'tag'
                                         def _commitMsg = edgex.getCommitMessage(env.GIT_COMMIT)
                                         if(edgex.isBuildCommit(_commitMsg)) {
-                                            tagCommand = 'tag -force'
+                                            tagCommand = 'tag --force'
                                         }
 
                                         edgeXSemver "${tagCommand}"

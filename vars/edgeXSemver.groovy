@@ -16,8 +16,8 @@
 
 def call(command = null, semverVersion = '', gitSemverVersion = 'latest', credentials = 'edgex-jenkins-ssh') {
     def semverImage = env.ARCH && env.ARCH == 'arm64'
-        ? "nexus3.edgexfoundry.org:10004/edgex-devops/git-semver-arm64:${gitSemverVersion}"
-        : "nexus3.edgexfoundry.org:10004/edgex-devops/git-semver:${gitSemverVersion}"
+        ? "nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver-arm64:${gitSemverVersion}"
+        : "nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:${gitSemverVersion}"
 
     def envVars = [
         'SSH_KNOWN_HOSTS=/etc/ssh/ssh_known_hosts',
@@ -38,8 +38,8 @@ def call(command = null, semverVersion = '', gitSemverVersion = 'latest', creden
 
         // If semverVersion is passed in override the version from the .semver directory
         if (command == 'init' && semverVersion) {
-            semverCommand << "-ver=${semverVersion}"
-            semverCommand << "-force"
+            semverCommand << "--version=${semverVersion}"
+            semverCommand << "--force"
         }
 
         setupKnownHosts()

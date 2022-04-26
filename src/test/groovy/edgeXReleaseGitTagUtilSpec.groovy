@@ -127,7 +127,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
                 assert _arguments[0][0][0] == 'SEMVER_BRANCH=main'
             }
             1 * getPipelineMock('edgeXReleaseGitTag.setAndSignGitTag').call('sample-service', '1.2.3')
-            1 * getPipelineMock('edgeXReleaseGitTag.bumpAndPushGitTag').call('sample-service', '1.2.3', '-pre=dev pre', true)
+            1 * getPipelineMock('edgeXReleaseGitTag.bumpAndPushGitTag').call('sample-service', '1.2.3', 'pre --prefix=dev', true)
     }
 
     def "Test releaseGitTag [Should] call expected [When] called with LTS true" () {
@@ -149,7 +149,7 @@ public class EdgeXReleaseGitTagUtilSpec extends JenkinsPipelineSpecification {
                 assert _arguments[0][0][0] == 'SEMVER_BRANCH=jakarta'
             }
             1 * getPipelineMock('edgeXReleaseGitTag.setAndSignGitTag').call('sample-service', '1.2.3')
-            1 * getPipelineMock('edgeXReleaseGitTag.bumpAndPushGitTag').call('sample-service', '1.2.3', '-pre=dev pre', true)
+            1 * getPipelineMock('edgeXReleaseGitTag.bumpAndPushGitTag').call('sample-service', '1.2.3', 'pre --prefix=dev', true)
     }
 
 }

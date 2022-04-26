@@ -79,7 +79,7 @@ def releaseGitTag(releaseInfo, credentials, bump = true, tag = true) {
             if (tag){
                 edgeXReleaseGitTag.setAndSignGitTag(releaseInfo.name, releaseInfo.version)
             }
-            def semverBumpLevel = releaseInfo.semverBumpLevel ?: '-pre=dev pre'
+            def semverBumpLevel = releaseInfo.semverBumpLevel ?: 'pre --prefix=dev'
             edgeXReleaseGitTag.bumpAndPushGitTag(releaseInfo.name, releaseInfo.version, semverBumpLevel, bump)
         }
     }
