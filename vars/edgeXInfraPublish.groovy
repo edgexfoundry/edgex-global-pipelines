@@ -27,7 +27,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  Name | Required | Type | Description and Default Value
  -- | -- | -- | --
  logSettingsFile | false | str | Config file id for settings to authenticate to Nexus to publish build logs. <br /><br />**Default:** `jenkins-log-archives-settings` |
- dockerOptimized | false | str | Whether or not to use a docker image when publishing to Nexus<br /><br />**Default:** `true` |
+ dockerOptimized | false | str | Whether or not to use a docker image when publishing to Nexus. <br /><br />**Default:** `true` |
 
  ## Usage
 

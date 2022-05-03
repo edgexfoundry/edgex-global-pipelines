@@ -14,6 +14,61 @@
 // limitations under the License.
 //
 
+/**
+ # edgeXSnyk
+
+ ## Overview
+
+ Shared library containing a useful set of functions to help with the creation of semantic versioning using the git-semver python library.
+ The main call function builds the `git semver` command based on the provided input.
+
+ **Please note:** this shared library is responsible for setting the `VERSION` environment variable during `git semver init` execution.
+
+ ## Parameters
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ command | false | str | Specify which Snyk command to run. Possible values: `test`, `monitor`. <br /><br />**Default:** `monitor` |
+ dockerImage | false | string | If scanning a docker image either a local image name or remote image name. |
+ dockerFile | false | string | If scanning a docker image, the path to `Dockerfile` relative to the Jenkins `WORKSPACE`. |
+ severity | false | string | Severity threshold to mark the build as `unstable`. |
+ sendEmail | false | string | Whether or not to send an email of the findings. <br /><br />**Default:** `true` |
+ emailTo | false | string | Recipient list of who to send the email to. |
+ htmlReport | false | string | Whether or not to generate an HTML report of findings. <br /><br />**Default:** `false` |
+ 
+ ## Usage
+
+ Test and continuously monitor project **dependencies**. For Go projects, this is typically the `go.mod` file:
+
+ ```groovy
+ edgeXSnyk()
+ ```
+
+ Test docker image for vulnerabilities and output results to Jenkins console:
+
+ ```groovy
+ edgeXSnyk(
+    command: 'test',
+    dockerImage: 'nexus3.edgexfoundry.org:10004/core-command:latest',
+    dockerFile: '<path to Dockerfile>'
+ )
+ ```
+
+ Test docker image for vulnerabilities and send email of findings:
+
+ ```groovy
+ edgeXSnyk(
+    command: 'test',
+    dockerImage: 'nexus3.edgexfoundry.org:10004/core-command:latest',
+    dockerFile: '<path to Dockerfile>',
+    severity: 'high',
+    sendEmail: true,
+    emailTo: <email address(s)>,
+    htmlReport: true
+ )
+ ```
+*/
+
 def call(config = [:]) {
     def snykCmd           = config.command ?: 'monitor'
     def dockerImage       = config.dockerImage

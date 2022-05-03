@@ -14,14 +14,42 @@
 // limitations under the License.
 //
 
-/*
-NOTE: APIKEY needs to be a pointer to a file with the key. This will need to be set locally from your environment or from Jenkins
-edgeXSwaggerPublish(optional owner, apiFolder)
-/*
-   Usage: edgeXSwaggerPublish(apiFolders: 'openapi/v1 openapi/v2') Defaults to owner:EdgeXFoundry1
-   Usage: edgeXSwaggerPublish(apiFolders: 'openapi/v1') Defaults to owner:EdgeXFoundry1
-   Usage: edgeXSwaggerPublish(owner: 'customOwner', apiFolders:'openapi/v1')
-   Usage: edgeXSwaggerPublish(owner: 'customOwner', apiFolders:'openapi/v1 openapi/v2')
+/**
+ # edgeXSwaggerPublish
+
+ ## Overview
+
+ Shared library containing methods to publish Swagger API docs up to [https://api.swaggerhub.com](https://api.swaggerhub.com).
+
+ **NOTE:** `${APIKEY}` needs to be a pointer to a file with the key. This will need to be set locally from your environment or from Jenkins.
+
+ ## Parameters
+
+ Name | Required | Type | Description and Default Value
+ -- | -- | -- | --
+ owner | false | str | Specify Swagger API owner. <br /><br />**Default:** `EdgeXFoundry1` |
+ apiFolders | true | string | Space delimited list of folders to publish. |
+ swaggerCredentialId | false | string | Config file Id that contains the Swagger API key to allow publishing of API docs. <br /><br />**Default:** `swaggerhub-api-key` |
+
+ ## Usage
+
+ Publish single folder to Swagger to owner:EdgeXFoundry1
+
+ ```groovy
+ edgeXSwaggerPublish(apiFolders: 'openapi/v1')
+ ```
+
+ Publish multiple API folders to Swagger to owner:EdgeXFoundry1
+
+ ```groovy
+ edgeXSwaggerPublish(apiFolders: 'openapi/v1 openapi/v2')
+ ```
+
+ Publish single folder to swagger with a customer owner/organization.
+
+ ```groovy
+ edgeXSwaggerPublish(owner: 'customOwner', apiFolders:'openapi/v1')
+ ```
 */
 
 def call(Map config = [:]) {

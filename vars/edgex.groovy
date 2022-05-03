@@ -14,6 +14,55 @@
 // limitations under the License.
 //
 
+/**
+ # edgex
+
+ ## Overview
+
+ Shared library of common helper functions for all EdgeX Jenkins pipelines.
+
+ ## Functions
+
+ - `edgex.isReleaseStream`: Used to validate whether the current branch that Jenkins is building is a branch that is considered a branch with "releasable" artifacts (i.e docker push, git semver push).
+ - `edgex.isLTS`: Used to determine if the current branch that Jenkins is building is for an LTS release.
+ - `edgex.getTargetBranch`: Used to determine the target branch that is being merged into for a PR.
+ - `edgex.didChange`: Determine if the given expression matches the files that changed in a given PR or merge. For example:
+    ```groovy
+    // Did any .go files change from the current branch compared to origin/main
+    didChange('*.go')
+
+    // Did any .yaml files change from the current branch compared to origin/release
+    didChange('*.yaml', 'origin/release')
+    ```
+ - `edgex.mainNode`: Given a config map with `config.nodes`, either return the node label marked as `defaultNode = true` or return the DevOps managed "default" node label.
+ - `edgex.nodeExists`: Verify a given node architecture matches provided architecture.
+ - `edgex.getNode`: Return node with architecture that matches provided architecture.
+ - `edgex.setupNodes`: Setup default node labels for x86_64 and arm64 nodes.
+ - `edgex.getVmArch`: Run uname to determine VM architecture. If `aarch64` is returned, convert to the result to `arm64`.
+ - `edgex.bannerMessage`: Vanity function to wrap given input message with a banner style output for easier readability in Jenkins console.
+ - `edgex.printMap`: Vanity function to print Groovy Map to the Jenkins console.
+ - `edgex.defaultTrue`: Returns true if the input is `true` or `null`. This is useful to setup default values in functions when none is provided.
+ - `edgex.defaultFalse`: Returns true if the input is `false` or `null`. This is useful to setup default values in functions when none is provided.
+ - `edgex.releaseInfo`: Call shell script `resources/releaseinfo.sh` to output current edgex-global-pipeline version information in the Jenkins console. This is really useful for debugging older builds in case issues are discovered.
+ - `edgex.isDryRun`: Whether or not the `env.DRY_RUN` environment variable is set. Will return `true` if DRY_RUN is set, `false` otherwise.
+ - `edgex.isMergeCommit`: Determines if the current commit Jenkins is building is considered a git "merge commit". Useful if determining parent commit info.
+ - `edgex.getPreviousCommit`: Determines the previous commit SHA given the merge commit or squash commit git use-cases. Different git commands have to be run to be able to determine the previous commit.
+ - `edgex.getBranchName`: Returns the current branch name from git.
+ - `edgex.getCommitMessage`: Returns the current commit message from git given a commit SHA.
+ - `edgex.isBuildCommit`: Return true when the commit message follows the pattern `build(...): [semanticVersion,namedTag] ... `.
+ - `edgex.parseBuildCommit`: Return the parameters for the build `[semanticVersion,namedTag]`.
+ - `edgex.getTmpDir`: Run `mktemp` with given pattern to create a temporary directory in `/tmp`.
+ - `edgex.getGoLangBaseImage`: Return DevOps managed base images used in Go pipelines.
+ - `edgex.isGoProject`: Looks at repository directory structure to determine if the repository is Golang based. Uses the existence of the `go.mod` file.
+ - `edgex.getCBaseImage`: Return the base image used as the base image for all C based repositories.
+ - `edgex.parallelJobCost`: Wraps call to `lfParallelCostCapture` inside docker image to save time downloading pip dependencies.
+ - `edgex.patchAlpineSeccompArm64`: A fix for arm64 nodes that enables a security profile for docker. Another workaround is to just use the `--privileged` docker flag.
+ - `edgex.isLTSReleaseBuild`: Returns `true` if current commit message begins with `ci(lts-release)`.
+ - `edgex.semverPrep`: Poorly named function that sets up the `env.NAMED_TAG` and `env.BUILD_STABLE_DOCKER_IMAGE` for the build commit concept. Will be removed in a future release.
+ - `edgex.waitFor`: Useful function to wait for a condition in a shell script to be met.
+ - `edgex.waitForImages`: Useful function to determine if a docker image has been pushed to a repository.
+*/
+
 def isReleaseStream(branchName = env.GIT_BRANCH) {
     // what defines a main release branch
     def releaseStreams = [/^main$/, /^master$/, /^california$/, /^delhi$/, /^edinburgh$/, /^fuji$/, /^geneva$/, /^hanoi$/, /^ireland$/, /^lts-test$/, /^jakarta$/, /^kamakura$/]
@@ -28,7 +77,7 @@ def isLTS() {
 }
 
 def getTargetBranch() {
-    // if CHANGE_ID is present, then we are deailing with a PR, we need to check against
+    // if CHANGE_ID is present, then we are dealing with a PR, we need to check against
     // the CHANGE_TARGET rather than GIT_BRANCH
     (env.CHANGE_ID && env.CHANGE_TARGET) ? env.CHANGE_TARGET : env.GIT_BRANCH
 }
@@ -160,7 +209,6 @@ def releaseInfo(tagVersions='stable experimental') {
 }
 
 def isDryRun() {
-    // return True if DRY_RUN is set False otherwise
     [null, '1', 'true'].contains(env.DRY_RUN)
 }
 
@@ -171,8 +219,6 @@ def isMergeCommit(commit) {
     (mergeCommitParent == commit)
 }
 
-// This method handles the use case for
-// merge-commit vs squash-commit Github merge types
 def getPreviousCommit(commit) {
     def previousCommit
     def mergeCommit = isMergeCommit(commit)
@@ -192,17 +238,16 @@ def getBranchName() {
     sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
 }
 
-// Get the commit message from the commit sha
 def getCommitMessage(commit) {
     sh(script: "git log --format=format:%s -1 ${commit}", returnStdout: true).trim()
 }
 
-// Return true when the commit message follows the pattern "build(...): [semanticVersion,namedTag] ... "
+// TODO: remove build commit functions
 def isBuildCommit(commit) {
     return !!(commit =~ /^build\(.+\): \[(?<semver>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)\,(?<namedTag>\w+)\].+$/)
 }
 
-// Return the paramters for the build [semanticVersion,namedTag]
+// TODO: remove build commit functions
 def parseBuildCommit(commit) {
     try {
         def matcher =  (commit =~ /^build\(.+\): \[(?<semver>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)\,(?<namedTag>\w+)\].+$/)
@@ -293,6 +338,7 @@ def isLTSReleaseBuild(commit = env.GIT_COMMIT) {
 
     // Merge commits should not happen for a lts-release, but I am just being paranoid here
     // need to resolve the correct commit sha. If we are on a merge commit, then we need to lookup commit sha from the previous commit
+    // TODO: getPreviousCommit() already calls isMergeCommit. Remove the use of isMergeCommit here. Needs testing before this change is merged.
     def resolvedCommit = isMergeCommit(commit) ? getPreviousCommit(commit) : commit
 
     def commitMsg = getCommitMessage(resolvedCommit)
@@ -314,9 +360,7 @@ def isLTSReleaseBuild(commit = env.GIT_COMMIT) {
     isLTSRelease
 }
 
-// Refactored this out of edgeXBuildGoApp for cleanup
-// I dont see the build commit concept really being useful
-// at the moment. But will remove this functionality later
+// TODO: remove build commit functions
 def semverPrep(commit = env.GIT_COMMIT) {
     def commitMsg = getCommitMessage(commit)
     println "[semverPrep] GIT_COMMIT: ${commit}, Commit Message: ${commitMsg}"

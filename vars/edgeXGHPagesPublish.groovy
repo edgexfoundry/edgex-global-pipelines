@@ -28,9 +28,9 @@
  The typical documentation build process goes like this:
  
  - PR is merged into main in upstream repo
- - `mkdocs` is called to generate final documentation in upstream repo job
- - `site-contents` stash is generated in upstream repo job
- - `edgeXGHPagesPublish()` is called to publish stash to GitHub pages
+ - `mkdocs` is called to generate final documentation in upstream repo job.
+ - `site-contents` stash is generated in upstream repo job.
+ - `edgeXGHPagesPublish()` is called to publish stash to GitHub pages.
 
  ## Parameters
 

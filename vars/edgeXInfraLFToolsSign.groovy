@@ -30,14 +30,14 @@
 
  Name | Required | Type | Description and Default Value
  -- | -- | -- | --
- sigulConfig | false | str | Config file Id that contains the Sigul Config<br /><br />**Default**: `sigul-config` |
- sigulPassword | false | str | Config file Id that contains the Sigul Password<br /><br />**Default**: `sigul-password` |
- sigulPKI | false | str | Config file Id that contains the Sigul PKI information<br /><br />**Default**: `sigul-pki` |
- lftoolsImageVersion | false | str | DevOps managed lftools image version tag<br /><br />**Default**: `0.23.1-centos7` |
- command | true | str | Required if comm<br /><br />**Valid values**: `dir, git-tag` |
- directory | true | str | Required if command is `dir` |
- version | true | str | Required if command is `git-tag` |
- mode | false | str | lftools sign mode<br /><br />**Default**: `parallel` |
+ sigulConfig | false | str | Config file Id that contains the Sigul config. <br /><br />**Default**: `sigul-config` |
+ sigulPassword | false | str | Config file Id that contains the Sigul password. <br /><br />**Default**: `sigul-password` |
+ sigulPKI | false | str | Config file Id that contains the Sigul PKI information. <br /><br />**Default**: `sigul-pki` |
+ lftoolsImageVersion | false | str | DevOps managed lftools image version tag. <br /><br />**Default**: `0.23.1-centos7` |
+ command | true | str | Command to run. <br /><br />**Valid values**: `dir, git-tag` |
+ directory | true | str | Required if command is `dir`. |
+ version | true | str | Required if command is `git-tag`. |
+ mode | false | str | lftools sign mode. <br /><br />**Default**: `parallel` |
 
  ## Usage
 

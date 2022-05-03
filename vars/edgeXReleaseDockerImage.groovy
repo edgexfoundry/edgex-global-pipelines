@@ -26,14 +26,14 @@
  Name | Required | Type | Description and Default Value
  -- | -- | -- | --
  dockerImage | true | str | Determines whether or not to trigger this function. |
- docker | true | array | Array of docker images to release |
- docker.image | true | str | Docker image that is being release |
- docker.destination | true | array | Array of destination registries where to release the image to |
+ docker | true | array | Array of docker images to release. |
+ docker.image | true | str | Docker image that is being release. |
+ docker.destination | true | array | Array of destination registries where to release the image to. |
 
  ## Functions
  - `edgeXReleaseDockerImage.getAvaliableTargets`: Returns a list of valid release registries.
  - `edgeXReleaseDockerImage.isValidReleaseRegistry`: Validates registry to ensure we are not pushing images to unknown registries.
- - `edgeXReleaseDockerImage.publishDockerImages`: Iterates through all release registry targets and pushes images based on validating image exists
+ - `edgeXReleaseDockerImage.publishDockerImages`: Iterates through all release registry targets and pushes images based on validating image exists.
  - `edgeXReleaseDockerImage.publishDockerImage`: Pulls, re-tags and pushes source image to destination registry.
  - `edgeXReleaseDockerImage.validate`: Validates release yaml input before any automation is run.
  - `edgeXReleaseDockerImage.imageExists`: Checks docker registry to see if image exists.
