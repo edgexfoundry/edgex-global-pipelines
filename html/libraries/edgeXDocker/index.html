@@ -390,6 +390,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../edgex/" class="md-nav__link">
+        edgex
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../edgeXCodecov/" class="md-nav__link">
         edgeXCodecov
       </a>
@@ -573,6 +587,62 @@
     <li class="md-nav__item">
       <a href="../edgeXSetupEnvironment/" class="md-nav__link">
         edgeXSetupEnvironment
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edgeXSemver/" class="md-nav__link">
+        edgeXSemver
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edgeXSnyk/" class="md-nav__link">
+        edgeXSnyk
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edgeXSwaggerPublish/" class="md-nav__link">
+        edgeXSwaggerPublish
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edgeXUpdateNamedTag/" class="md-nav__link">
+        edgeXUpdateNamedTag
       </a>
     </li>
   
@@ -1044,7 +1114,7 @@
 If you have further questions about implementation details please refer to the <a href="https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/vars/edgeXDocker.groovy">source code</a>.</p>
 <h2 id="functions">Functions:</h2>
 <ul>
-<li><code>edgeXDocker.build</code>: Build a docker image from optional <code>baseImage</code> with a set of default: docker build_args, labels, and tags</li>
+<li><code>edgeXDocker.build</code>: Build a docker image from optional <code>baseImage</code> with a set of default: docker build_args, labels, and tags.</li>
 <li><code>edgeXDocker.buildInParallel</code>: Build multiple docker images in parallel. This technique utilizes docker-compose to build multiple images using the parallel flag.</li>
 <li><code>edgeXDocker.generateDockerComposeForBuild</code>: Supporting function for <code>edgeXDocker.buildInParallel</code> that generates a docker compose file for a given list of docker images.</li>
 <li><code>edgeXDocker.generateServiceYaml</code>: Supporting function for <code>edgeXDocker.buildInParallel</code> that generates service level yaml for a specific docker image.</li>
@@ -1052,9 +1122,9 @@ If you have further questions about implementation details please refer to the <
 <li><code>edgeXDocker.pushAll</code>: Push all docker images specified in the <code>dockerImages</code> list. To be used in conjunction with the same input format used by <code>edgeXDocker.buildInParallel</code> to push all images.</li>
 <li><code>edgeXDocker.getDockerTags</code>: Generates the default set of tags used when pushing all edgex docker images with the <code>edgeXDocker.push</code> function.</li>
 <li><code>edgeXDocker.finalImageName</code>: Prepends a docker image with <code>env.DOCKER_REGISTRY_NAMESPACE</code> if defined.</li>
-<li><code>edgeXDocker.cleanImageUrl</code>: Returns image url without protocol</li>
-<li><code>edgeXDocker.parse</code>: Reads a docker image url and returns the parsed <a href="#parsed-image-object">image object</a> components</li>
-<li><code>edgeXDocker.toImageStr</code>: Returns docker image string from an <a href="#parsed-image-object">image object</a></li>
+<li><code>edgeXDocker.cleanImageUrl</code>: Returns image url without protocol.</li>
+<li><code>edgeXDocker.parse</code>: Reads a docker image url and returns the parsed <a href="#parsed-image-object">image object</a> components.</li>
+<li><code>edgeXDocker.toImageStr</code>: Returns docker image string from an <a href="#parsed-image-object">image object</a>.</li>
 </ul>
 <h2 id="parsed-image-object">Parsed image object</h2>
 <div class="highlight"><pre><span></span><code><span class="o">[</span><span class="w"></span>

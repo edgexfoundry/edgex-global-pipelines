@@ -388,6 +388,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../edgex/" class="md-nav__link">
+        edgex
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../edgeXCodecov/" class="md-nav__link">
         edgeXCodecov
       </a>
@@ -516,6 +530,62 @@
     <li class="md-nav__item">
       <a href="../edgeXSetupEnvironment/" class="md-nav__link">
         edgeXSetupEnvironment
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edgeXSemver/" class="md-nav__link">
+        edgeXSemver
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edgeXSnyk/" class="md-nav__link">
+        edgeXSnyk
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edgeXSwaggerPublish/" class="md-nav__link">
+        edgeXSwaggerPublish
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edgeXUpdateNamedTag/" class="md-nav__link">
+        edgeXUpdateNamedTag
       </a>
     </li>
   
@@ -1102,19 +1172,19 @@
 <td>docker</td>
 <td>true</td>
 <td>array</td>
-<td>Array of docker images to release</td>
+<td>Array of docker images to release.</td>
 </tr>
 <tr>
 <td>docker.image</td>
 <td>true</td>
 <td>str</td>
-<td>Docker image that is being release</td>
+<td>Docker image that is being release.</td>
 </tr>
 <tr>
 <td>docker.destination</td>
 <td>true</td>
 <td>array</td>
-<td>Array of destination registries where to release the image to</td>
+<td>Array of destination registries where to release the image to.</td>
 </tr>
 </tbody>
 </table>
@@ -1122,7 +1192,7 @@
 <ul>
 <li><code>edgeXReleaseDockerImage.getAvaliableTargets</code>: Returns a list of valid release registries.</li>
 <li><code>edgeXReleaseDockerImage.isValidReleaseRegistry</code>: Validates registry to ensure we are not pushing images to unknown registries.</li>
-<li><code>edgeXReleaseDockerImage.publishDockerImages</code>: Iterates through all release registry targets and pushes images based on validating image exists</li>
+<li><code>edgeXReleaseDockerImage.publishDockerImages</code>: Iterates through all release registry targets and pushes images based on validating image exists.</li>
 <li><code>edgeXReleaseDockerImage.publishDockerImage</code>: Pulls, re-tags and pushes source image to destination registry.</li>
 <li><code>edgeXReleaseDockerImage.validate</code>: Validates release yaml input before any automation is run.</li>
 <li><code>edgeXReleaseDockerImage.imageExists</code>: Checks docker registry to see if image exists.</li>
