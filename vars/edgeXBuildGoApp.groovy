@@ -144,6 +144,7 @@ def call(config) {
             quietPeriod(5) // wait a few seconds before starting to aggregate builds...??
             durabilityHint 'PERFORMANCE_OPTIMIZED'
             timeout(360)
+            disableConcurrentBuilds()
         }
         triggers {
             issueCommentTrigger('.*^recheck$.*')

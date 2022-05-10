@@ -138,6 +138,7 @@ def call(config) {
             quietPeriod(5)
             durabilityHint 'PERFORMANCE_OPTIMIZED'
             timeout(360)
+            disableConcurrentBuilds()
         }
         triggers {
             issueCommentTrigger('.*^recheck$.*')
