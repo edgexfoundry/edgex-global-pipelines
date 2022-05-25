@@ -532,7 +532,10 @@ def prepBaseBuildImage() {
             // This will build a new ci-base-image with all the Go modules enabled.
             // This could externalized to another file, but for now due to simplicity, I am doing the build inline
             if(fileExists('go.mod')) {
-                sh "echo \"FROM ${baseImage}\nWORKDIR /edgex\nCOPY go.mod .\nRUN go mod download\" | docker build -t ci-base-image-${env.ARCH} -f - ."
+                def spireBase = env.ARCH == 'arm64' ? 'edgex-spire-base-arm64' : 'edgex-spire-base'
+                def spireImage = "nexus3.edgexfoundry.org:10004/edgex-devops/${spireBase}:1.2.1"
+
+                sh "echo \"FROM ${baseImage}\nWORKDIR /edgex\nCOPY go.mod .\nRUN go mod download\nCOPY --from=${spireImage} /usr/local/bin/spire* /usr/local/bin/\nRUN ls -al /usr/local/bin\" | docker build -t ci-base-image-${env.ARCH} -f - ."
             } else {
                 sh "docker tag ${baseImage} ci-base-image-${env.ARCH}"
             }
