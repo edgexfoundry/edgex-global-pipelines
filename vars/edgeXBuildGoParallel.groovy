@@ -236,7 +236,7 @@ def call(config) {
                                             allOf {
                                                 environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                                 environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                                expression { edgex.isReleaseStream() }
+                                                //expression { edgex.isReleaseStream() }
                                             }
                                         }
 
@@ -338,7 +338,7 @@ def call(config) {
                                             allOf {
                                                 environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                                 environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                                expression { edgex.isReleaseStream() }
+                                                //expression { edgex.isReleaseStream() }
                                             }
                                         }
 
