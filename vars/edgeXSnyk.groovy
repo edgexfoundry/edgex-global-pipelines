@@ -84,7 +84,7 @@ def call(config = [:]) {
     def globalIgnorePolicy = config.ignorePolicy ?: 'https://raw.githubusercontent.com/edgexfoundry/security-pipeline-policies/main/snyk/.snyk'
 
     // Run snyk monitor by default
-    def command = ['snyk', snykCmd, "--org=${org}"]
+    def command = ['snyk', snykCmd, "--org=${org}", "-d"]
 
     println "[edgeXSnyk] dockerImage=${dockerImage}, dockerFile=${dockerFile}"
 
