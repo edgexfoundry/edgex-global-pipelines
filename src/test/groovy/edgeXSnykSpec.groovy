@@ -40,6 +40,41 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock("sh").call([script: 'set -o pipefail ; snyk monitor --org=MySnykOrg', returnStatus: true])
     }
 
+    def "Test edgeXSnyk [Should] call snyk monitor with options [When] called with no arguments when SNYK_DEBUG is true" () {
+        setup:
+            def environmentVariables = [
+                'SNYK_DEBUG': 'true'
+            ]
+            edgeXSnyk.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')(snykImage) >> explicitlyMockPipelineVariable('DockerImageMock')
+        when:
+            edgeXSnyk()
+        then:
+            1 * getPipelineMock("sh").call([script: 'set -o pipefail ; snyk monitor --org=edgex-jenkins -d', returnStatus: true])
+    }
+
+    def "Test edgeXSnyk [Should] call snyk monitor without options [When] called with no arguments when SNYK_DEBUG is false" () {
+        setup:
+            def environmentVariables = [
+                'SNYK_DEBUG': 'false'
+            ]
+            edgeXSnyk.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')(snykImage) >> explicitlyMockPipelineVariable('DockerImageMock')
+        when:
+            edgeXSnyk()
+        then:
+            1 * getPipelineMock("sh").call([script: 'set -o pipefail ; snyk monitor --org=edgex-jenkins', returnStatus: true])
+    }
+
+    def "Test edgeXSnyk [Should] call snyk monitor with options [When] called with projectName argument" () {
+        setup:
+            getPipelineMock('docker.image')(snykImage) >> explicitlyMockPipelineVariable('DockerImageMock')
+        when:
+            edgeXSnyk(projectName: 'mock-project')
+        then:
+            1 * getPipelineMock("sh").call([script: "set -o pipefail ; snyk monitor --org=edgex-jenkins --project-name='mock-project'", returnStatus: true])
+    }
+
     // Docker image tests
 
     def "Test edgeXSnyk [Should] provide the expected arguments to the snyk docker image [When] called" () {
@@ -94,7 +129,7 @@ public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
             }
             getPipelineMock('readFile').call(file: './snykResults.log') >> 'MockSnykLog'
 
-            def messageBody = '''Possible vulnerablities have been found by Snyk in for the following build: MyMockJob
+            def messageBody = '''Possible vulnerabilities have been found by Snyk in for the following build: MyMockJob
 More details can be found here:
 ===============================================
 Build URL: MockBuildUrl/

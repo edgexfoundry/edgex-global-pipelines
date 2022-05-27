@@ -431,7 +431,7 @@ def call(config) {
                     stage('Snyk Dependency Scan') {
                         when { expression { edgex.isReleaseStream() } }
                         steps {
-                            edgeXSnyk()
+                            edgeXSnyk(projectName: "edgexfoundry/${env.PROJECT}:${env.GIT_BRANCH}")
                         }
                     }
 
@@ -651,9 +651,11 @@ def toEnvironment(config) {
     def _publishSwaggerDocs  = edgex.defaultFalse(config.publishSwaggerDocs)
     def _swaggerApiFolders   = config.swaggerApiFolders ?: ['openapi/v1']
     def _failureNotify       = config.failureNotify ?: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
+    def _snykDebug            = edgex.defaultFalse(config.snykDebug)
 
     def _buildExperimentalDockerImage  = edgex.defaultFalse(config.buildExperimentalDockerImage)
     def _buildStableDockerImage        = false
+
 
     def _artifactTypes = config.artifactTypes ?: ['docker']
 
@@ -717,7 +719,8 @@ def toEnvironment(config) {
         ARTIFACT_ROOT: _artifactRoot,
         ARTIFACT_TYPES: _artifactTypes.join(' '),
         SHOULD_BUILD: _shouldBuild,
-        BUILD_FAILURE_NOTIFY_LIST: _failureNotify
+        BUILD_FAILURE_NOTIFY_LIST: _failureNotify,
+        SNYK_DEBUG: _snykDebug
     ]
 
     // encode with comma in case build arg has space

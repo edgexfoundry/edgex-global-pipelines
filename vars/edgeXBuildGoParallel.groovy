@@ -401,7 +401,7 @@ def call(config) {
                     stage('Snyk Scan') {
                         when { expression { edgex.isReleaseStream() } }
                         steps {
-                            edgeXSnyk()
+                            edgeXSnyk(projectName: "edgexfoundry/${env.PROJECT}:${env.GIT_BRANCH}")
                         }
                     }
 
@@ -575,6 +575,7 @@ def toEnvironment(config) {
     def _publishSwaggerDocs    = edgex.defaultFalse(config.publishSwaggerDocs)
     def _swaggerApiFolders     = config.swaggerApiFolders ?: ['openapi/v1', 'openapi/v2']
     def _failureNotify         = config.failureNotify ?: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
+    def _snykDebug             = edgex.defaultFalse(config.snykDebug)
 
     // def _snapChannel           = config.snapChannel ?: 'latest/edge'
     def _buildSnap             = edgex.defaultFalse(config.buildSnap)
@@ -608,7 +609,8 @@ def toEnvironment(config) {
         SWAGGER_API_FOLDERS: _swaggerApiFolders.join(' '),
         // SNAP_CHANNEL: _snapChannel,
         BUILD_SNAP: _buildSnap,
-        BUILD_FAILURE_NOTIFY_LIST: _failureNotify
+        BUILD_FAILURE_NOTIFY_LIST: _failureNotify,
+        SNYK_DEBUG: _snykDebug
     ]
 
     edgex.bannerMessage "[edgeXBuildGoParallel] Pipeline Parameters:"

@@ -77,6 +77,7 @@ def call(config = [:]) {
     def sendEmail         = edgex.defaultTrue(config.sendEmail)
     def snykRecipients    = config.emailTo
     def htmlReport        = edgex.defaultFalse(config.htmlReport)
+    def projectName       = config.projectName
 
     def snykScannerImage  = 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.410.4'
     def org               = env.SNYK_ORG ?: 'edgex-jenkins'
@@ -85,6 +86,14 @@ def call(config = [:]) {
 
     // Run snyk monitor by default
     def command = ['snyk', snykCmd, "--org=${org}"]
+
+    if(projectName) {
+        command << "--project-name='${projectName}'"
+    }
+
+    if(env.SNYK_DEBUG != null && env.SNYK_DEBUG == 'true') {
+        command << '-d'
+    }
 
     println "[edgeXSnyk] dockerImage=${dockerImage}, dockerFile=${dockerFile}"
 
@@ -153,7 +162,7 @@ def call(config = [:]) {
 
                     mail body: messageBody, subject: subject, to: snykRecipients, mimeType: 'text/html'
                 } else {
-                    def messageBody = """Possible vulnerablities have been found by Snyk in for the following build: ${env.JOB_NAME}
+                    def messageBody = """Possible vulnerabilities have been found by Snyk in for the following build: ${env.JOB_NAME}
 More details can be found here:
 ===============================================
 Build URL: ${env.BUILD_URL}
@@ -174,7 +183,7 @@ ${readFile(file: './snykResults.log')}
                 }
             }
 
-            unstable(message: 'Snyk Found Vulnerabilites')
+            unstable(message: 'Snyk Found Vulnerabilities')
         }
         // 2 and up
         else {

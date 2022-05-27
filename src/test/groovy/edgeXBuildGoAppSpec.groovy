@@ -210,7 +210,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     publishSwaggerDocs: true,
                     swaggerApiFolders: ['api/v20', 'api/v30'],
                     artifactTypes: ['docker'],
-                    failureNotify: 'mock@lists.edgexfoundry.org'
+                    failureNotify: 'mock@lists.edgexfoundry.org',
+                    snykDebug: true
                 ]
             ]
             expectedResult << [
@@ -243,7 +244,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     ARTIFACT_ROOT: "archives/bin",
                     ARTIFACT_TYPES: 'docker',
                     SHOULD_BUILD: true,
-                    BUILD_FAILURE_NOTIFY_LIST: 'mock@lists.edgexfoundry.org'
+                    BUILD_FAILURE_NOTIFY_LIST: 'mock@lists.edgexfoundry.org',
+                    SNYK_DEBUG: true
                 ]
             ]
     }
@@ -300,7 +302,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     ARTIFACT_TYPES: 'archive',
                     SHOULD_BUILD: true,
                     ARCHIVE_ARTIFACTS: '**/*.tar.gz **/*.zip',
-                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
+                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org',
+                    SNYK_DEBUG: false
                 ]
             ]
     }
@@ -355,7 +358,8 @@ public class EdgeXBuildGoAppSpec extends JenkinsPipelineSpecification {
                     ARTIFACT_ROOT: 'archives/bin',
                     ARTIFACT_TYPES: 'foo',
                     SHOULD_BUILD: false,
-                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
+                    BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org',
+                    SNYK_DEBUG: false
                 ]
             ]
     }
