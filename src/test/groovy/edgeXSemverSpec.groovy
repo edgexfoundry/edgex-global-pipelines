@@ -17,7 +17,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         when:
             edgeXSemver()
         then:
-            1 * getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            1 * getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             1 * getPipelineMock('sh')([script: 'git semver', returnStdout: true]) >> '1.2.3-dev.4\n'
             environmentVariables['VERSION'] == '1.2.3-dev.4'
     }
@@ -26,7 +26,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')([script: 'git semver', returnStdout: true]) >> '1.2.3-dev.4\n'
         expect:
             def result = edgeXSemver()
@@ -43,7 +43,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
             edgeXSemver('init', '1.2.4')
         then:
             // verify docker.image
-            1 * getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable('DockerImageMock')
+            1 * getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable('DockerImageMock')
             // verify docker.image.inside arguments
             1 * getPipelineMock('DockerImageMock.inside').call(_) >> { _arguments ->
                 def dockerArgs = '-u 0:0 -v /etc/ssh:/etc/ssh'
@@ -77,7 +77,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         when:
             edgeXSemver('init')
         then:
-            1 * getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            1 * getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
 
             1 * getPipelineMock('echo')("[edgeXSemver]: GITSEMVER_HEAD_TAG is already set to 'MyTag'")
 
@@ -92,7 +92,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> 'v1.2.3'
             getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
         when:
@@ -109,7 +109,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> ''
             getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
         when:
@@ -126,7 +126,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> 'v2.3.4\nstable'
         when:
             edgeXSemver('init', '2.3.4')
@@ -142,7 +142,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> ''
         when:
             edgeXSemver('init', '2.3.4')
@@ -158,7 +158,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> 'v2.3.4-dev.13'
         when:
             edgeXSemver('init', '2.3.4')
@@ -174,7 +174,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
         when:
             // TODO: I'm not convinced this should be supported - specify semverVersion if specific version is to be specified
@@ -193,7 +193,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
                 'GITSEMVER_HEAD_TAG': '1.2.3'
             ]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
         when:
             edgeXSemver('tag')
@@ -208,7 +208,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> ''
             getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
         when:
@@ -225,7 +225,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
                 'GITSEMVER_INIT_VERSION': '1.2.3'
             ]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git tag --points-at HEAD', returnStdout: true) >> ''
             getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.3'
         when:
@@ -242,7 +242,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
         when:
             edgeXSemver('bump pre')
@@ -258,7 +258,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
                 'GITSEMVER_HEAD_TAG': '1.2.4-dev.1'
             ]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
         when:
             edgeXSemver('bump pre')
@@ -273,7 +273,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
         setup:
             def environmentVariables = [:]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
         when:
             edgeXSemver('push')
@@ -289,7 +289,7 @@ public class EdgeXSemverSpec extends JenkinsPipelineSpecification {
                 'GITSEMVER_HEAD_TAG': '1.2.4-dev.1'
             ]
             edgeXSemver.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:latest') >> explicitlyMockPipelineVariable()
+            getPipelineMock('docker.image')('nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:0.1.4') >> explicitlyMockPipelineVariable()
             getPipelineMock('sh')(script: 'git semver', returnStdout: true) >> '1.2.4-dev.1'
         when:
             edgeXSemver('push')
