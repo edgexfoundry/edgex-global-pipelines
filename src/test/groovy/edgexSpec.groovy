@@ -742,6 +742,15 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
     }
 
+    def "Test getGoModVersion [Should] extract Go version from go.mod file [When] called" () {
+        setup:
+            getPipelineMock('sh')([
+                returnStdout: true,
+                script: "grep '^go [0-9].[0-9]*' go.mod | cut -d' ' -f 2"]) >> '1.17'
+        expect:
+            edgeX.getGoModVersion() == '1.17'
+    }
+
     def "Test isGoProject [Should] call with expected arguments [When] go.mod exists with no folder" () {
         setup:
             getPipelineMock('fileExists').call('go.mod') >> true
