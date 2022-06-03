@@ -61,7 +61,7 @@
  ```
 */
 
-def call(command = null, semverVersion = '', gitSemverVersion = 'latest', credentials = 'edgex-jenkins-ssh') {
+def call(command = null, semverVersion = '', gitSemverVersion = '0.1.4', credentials = 'edgex-jenkins-ssh') {
     def semverImage = env.ARCH && env.ARCH == 'arm64'
         ? "nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver-arm64:${gitSemverVersion}"
         : "nexus3.edgexfoundry.org:10003/edgex-devops/py-git-semver:${gitSemverVersion}"
