@@ -297,7 +297,11 @@ def getGoLangBaseImage(version, alpineBased) {
     baseImage
 }
 
-def isGoProject(folder){
+def getGoModVersion() {
+    sh(script: "grep '^go [0-9].[0-9]*' go.mod | cut -d' ' -f 2", returnStdout: true).trim()
+}
+
+def isGoProject(folder) {
     if(folder) {
         dir(folder) {
             fileExists('go.mod')
