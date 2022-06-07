@@ -87,20 +87,20 @@ def generateLTSCommitMessage(version, commitId) {
 }
 
 def prepGoProject(name){
-    def goModVersion = edgex.getGoModVersion()
-
     if(edgex.isDryRun()) {
         println "[edgeXLTS]: Creating Vendored dependencies for Go project"
-
+        
         echo("dir ${name}")
         echo("grep -v vendor .gitignore > .gitignore.tmp")
         echo("mv .gitignore.tmp .gitignore")
-        echo("go version to be used: ${goModVersion}")
+        echo("go version to be used: ${edgex.getGoModVersion()}")
         echo("make vendor")
         echo("git add .")
     }
     else {
         dir(name) {
+            def goModVersion = edgex.getGoModVersion()
+
             sh "grep -v vendor .gitignore > .gitignore.tmp"
             sh "mv .gitignore.tmp .gitignore"
 
