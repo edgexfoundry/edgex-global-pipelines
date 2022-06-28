@@ -143,6 +143,10 @@ def publishVersionChangesPR(releaseInfo) {
 
     writeFile(file: 'docs/versions.json', text: newVersionJson)
 
+    println("[edgeXReleaseDocs] Updating release version mkdocs.yml")
+
+    sh "sed -i 's|${currentVersion}|${nextVersion}|g' mkdocs.yml"
+
     edgex.bannerMessage "[edgeXReleaseDocs] Here is the diff related to the version changes"
     sh 'git diff'
 
