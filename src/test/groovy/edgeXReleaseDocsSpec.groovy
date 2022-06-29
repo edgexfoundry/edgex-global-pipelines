@@ -144,6 +144,7 @@ public class EdgeXReleaseDocsSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('sh').call('git reset --hard c0818f6da75fef2ffe509345f5fc87075bcd5114')
             1 * getPipelineMock('sh').call('git checkout -b currentRelease-version-changes')
             1 * getPipelineMock('sh').call("sed -E -i 's|replace\\(\".*\"\\)|replace\\(\"2.2\"\\)|g' docs/index.html")
+            1 * getPipelineMock('sh').call("sed -i 's|2.2|2.3|g' mkdocs.yml")
 
             1 * getPipelineMock('writeFile').call(['file': 'docs/versions.json',  'text':'\n[ {     "version": "2.0",     "title": "2.0-Ireland",     "aliases": [] }, {     "version": "2.1",     "title": "2.1-Jakarta",     "aliases": [] }, {     "version": "2.2",     "title": "2.2-Kamakura",     "aliases": [] }, {     "version": "2.3",     "title": "2.3-NextRelease",     "aliases": [] }\n]\n'])
 
