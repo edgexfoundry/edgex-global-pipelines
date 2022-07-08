@@ -272,7 +272,8 @@ def getGoLangBaseImage(version, alpineBased) {
             '1.13': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.13-alpine',
             '1.15': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.15-alpine',
             '1.16': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.16-alpine',
-            '1.17': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.17-alpine'
+            '1.17': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.17-alpine',
+            '1.18': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.18-alpine'
         ]
 
         def goLTSImages = [
