@@ -225,7 +225,10 @@ def call(config) {
                                         // }
                                         steps {
                                             script {
-                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
+                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged') {
+                                                    // fixes permissions issues due new Go 1.18 buildvcs checks
+                                                    sh 'git config --global --add safe.directory $WORKSPACE'
+                                                    
                                                     // TODO: This should go away after Kamakura, all repos now have a go.sum file.
                                                     if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
                                                         sh 'go mod tidy' // for Go 1.16
@@ -336,7 +339,10 @@ def call(config) {
                                         // }
                                         steps {
                                             script {
-                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
+                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged') {
+                                                    // fixes permissions issues due new Go 1.18 buildvcs checks
+                                                    sh 'git config --global --add safe.directory $WORKSPACE'
+
                                                     // TODO: This should go away after Kamakura, all repos now have a go.sum file.
                                                     if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
                                                         sh 'go mod tidy' // for Go 1.16
