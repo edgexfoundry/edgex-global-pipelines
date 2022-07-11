@@ -468,6 +468,9 @@ def call(config) {
 def testAndVerify(codeCov = true) {
     edgex.bannerMessage "[edgeXBuildGoParallel] Running Tests and Build..."
 
+    // fixes permissions issues due new Go 1.18 buildvcs checks
+    sh 'git config --global --add safe.directory $WORKSPACE'
+
     // TODO: This should go away after Kamakura, all repos now have a go.sum file.
     if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
         sh 'go mod tidy' // for Go 1.16
