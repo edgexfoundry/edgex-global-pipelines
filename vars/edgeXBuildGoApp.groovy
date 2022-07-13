@@ -611,6 +611,7 @@ def buildArtifact() {
 
     if(artifactTypes.contains('archive')) {
         docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0') {
+            sh 'git config --global --add safe.directory $WORKSPACE'
             sh env.BUILD_SCRIPT
             // change permissions of archive root parent directory
             sh 'chown -R 1001:1001 ${ARTIFACT_ROOT}/..'

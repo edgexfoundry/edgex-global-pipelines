@@ -497,6 +497,8 @@ def testAndVerify(codeCov = true) {
 }
 
 def prepBaseBuildImage() {
+    sh 'git config --global --add safe.directory $WORKSPACE'
+
     // this would be something like golang:1.13 or a pre-built devops managed image from ci-build-images
     def goVersion = edgex.isLTS() ? edgex.getGoModVersion() : env.GO_VERSION
     def baseImage = edgex.getGoLangBaseImage(goVersion, env.USE_ALPINE)
