@@ -225,7 +225,7 @@ def call(config) {
                                         // }
                                         steps {
                                             script {
-                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged') {
+                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock') {
                                                     // fixes permissions issues due new Go 1.18 buildvcs checks
                                                     sh 'git config --global --add safe.directory $WORKSPACE'
                                                     
@@ -339,7 +339,7 @@ def call(config) {
                                         // }
                                         steps {
                                             script {
-                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged') {
+                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock') {
                                                     // fixes permissions issues due new Go 1.18 buildvcs checks
                                                     sh 'git config --global --add safe.directory $WORKSPACE'
 
