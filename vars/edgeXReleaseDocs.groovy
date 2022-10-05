@@ -33,9 +33,6 @@
  ## Functions
  - `edgeXReleaseDocs.publishReleaseBranch`: Makes release branch related changes in unique branch then commits release branch.
  - `edgeXReleaseDocs.publishVersionChangesPR`: Makes version file related changes in unique branch then commits and opens PR.
- - `edgeXReleaseDocs.publishSwaggerChangesPR`: Makes Swagger related changes in unique branch then commits and opens PR.
- - `edgeXReleaseDocs.commitChange`: Commits a change to the repo with a given message.
- - `edgeXReleaseDocs.createPR`: Creates a PR with the [GitHub CLI](https://cli.github.com/) for with a given branch, title, message and reviewers for. Note: This is generic enough to be used in other functions.
  - `edgeXReleaseDocs.validate`: Validates release yaml input before any automation is run.
  
  ## Usage
@@ -90,7 +87,6 @@ def call (releaseInfo) {
     dir(releaseInfo.name) {
         publishReleaseBranch(releaseInfo)
         publishVersionChangesPR(releaseInfo)
-        publishSwaggerChangesPR(releaseInfo)
     }
 }
 
@@ -106,7 +102,7 @@ def publishReleaseBranch(releaseInfo) {
     edgex.bannerMessage "[edgeXReleaseDocs] Here is the diff related release branch changes"
     sh 'git status'
 
-    commitChange("ci: Automated changes for [${branchName}] release")
+    edgex.commitChange("ci: Automated changes for [${branchName}] release")
 
     // only push the change when we are not doing a DRY_RUN
     if(edgex.isDryRun()) {
@@ -126,22 +122,36 @@ def publishVersionChangesPR(releaseInfo) {
     def currentVersion = releaseInfo.version.substring(0, releaseInfo.version.lastIndexOf('.'))
 
     // index.html change
-    println("[edgeXReleaseDocs] Updating index.html default version")
-
-    // do the change
-    sh "sed -E -i 's|replace\\(\".*\"\\)|replace\\(\"${currentVersion}\"\\)|g' docs/index.html"
+    println("[edgeXReleaseDocs] Updating 'latest' version alias")
 
     // versions.json change
     def nextVersion     = releaseInfo.docsInfo.nextReleaseVersion.substring(0, releaseInfo.docsInfo.nextReleaseVersion.lastIndexOf('.'))
     def nextReleaseName = releaseInfo.docsInfo.nextReleaseName.capitalize()
 
-    def versionAddScript = "jq '. += [{\"version\": \"${nextVersion}\", \"title\": \"${nextVersion}-${nextReleaseName}\", \"aliases\": []}]' docs/versions.json"
+    // versions.1 = remove latest, versions.2 new version
+    // remove current version alias
+    sh "jq 'map((select(.aliases[0] == \"latest\") | .aliases) |= [])' docs/versions.json | tee docs/versions.1"
+
+    // set latest alias for release version
+    sh "jq 'map((select(.version == \"${currentVersion}\") | .aliases) |= [\"latest\"])' docs/versions.1 | tee docs/versions.2"
+
+    println("[edgeXReleaseDocs] Adding next version to version json")
+
+    def versionAddScript = "jq '. += [{\"version\": \"${nextVersion}\", \"title\": \"${nextVersion}-${nextReleaseName}\", \"aliases\": []}]' docs/versions.2"
     def newVersionJson = sh(script: versionAddScript, returnStdout: true)
 
     // this is to keep the current JSON syntax (could change in the future)
-    newVersionJson = newVersionJson.replaceAll(/\n    /, ' ').replaceAll(/\n  \}/, ' }')
+    newVersionJson = newVersionJson.replaceAll(/\n    /, ' ').replaceAll(/\[   /, "[ ").replaceAll(/\n  \}/, ' }')
 
+    // override the existing version json
     writeFile(file: 'docs/versions.json', text: newVersionJson)
+
+    // clean up temp files
+    sh 'rm -f docs/versions.1 docs/versions.2'
+
+    println("[edgeXReleaseDocs] Creating new version macro file")
+    def newMacroFile = createVersionMacroFile(releaseInfo.version, releaseInfo.releaseName, releaseInfo.docsInfo.nextReleaseVersion)
+    writeFile(file: 'template_macros.yaml', text: newMacroFile)
 
     println("[edgeXReleaseDocs] Updating release version mkdocs.yml")
 
@@ -151,77 +161,17 @@ def publishVersionChangesPR(releaseInfo) {
     sh 'git diff'
 
     def title = "ci: automated version file changes for [${nextVersion}]"
-    def body = "This PR updates the versions file and index.html to the current release version ${currentVersion}"
+    def body = "This PR updates the version files to the next release version ${nextVersion}"
 
-    createPR(branch, title, body, releaseInfo.docsInfo.reviewers)
+    edgex.createPR(branch, title, body, releaseInfo.docsInfo.reviewers)
 }
 
-def publishSwaggerChangesPR(releaseInfo) {
-    def branch = "${releaseInfo.releaseName}-swagger-changes"
-
-    sh "git reset --hard ${releaseInfo.commitId}"
-    sh "git checkout -b ${branch}"
-
-    sh """
-    for file in \$(find docs_src/api -name '*.md'); do
-        echo "Processing \${file}"
-        sed -E -i 's|EdgeXFoundry1/(.*)/${releaseInfo.version}|EdgeXFoundry1/\\1/${releaseInfo.docsInfo.nextReleaseVersion}|g' \${file}
-    done
-    """.stripIndent()
-
-    edgex.bannerMessage "[edgeXReleaseDocs] Here is the diff related to the Swagger changes"
-    sh 'git diff'
-
-    def title = "ci: automated Swagger API version changes: ${releaseInfo.version} --> ${releaseInfo.docsInfo.nextReleaseVersion}"
-    def body = "This PR updates the swagger links to the next release version: ${releaseInfo.docsInfo.nextReleaseVersion}"
-
-    createPR(branch, title, body, releaseInfo.docsInfo.reviewers)
-}
-
-def commitChange(commitMessage) {
-    def script = """
-    git add .
-    if ! git diff-index --quiet HEAD --; then
-        git commit -s -m '${commitMessage}'
-    else
-        echo 'No changes detected to commit'
-        exit 1
-    fi
-    """.stripIndent()
-
-    println "[edgeXReleaseDocs] committing change(s)"
-
-    if(edgex.isDryRun()) {
-        echo "git commit -s -m '${commitMessage}'"
-    } else {
-        sh script
-    }
-}
-
-def createPR(branch, title, message, reviewers, pushCredentials = 'edgex-jenkins-ssh', ghCliCredentials='edgex-jenkins-github-personal-access-token') {
-    commitChange(title)
-
-    withCredentials([
-        usernamePassword(
-            credentialsId: ghCliCredentials,
-            usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN'
-        )
-    ]) {
-        def prCreate = "gh pr create --base main --head ${branch} --title '${title}' --body '${message}' --reviewer '${reviewers}' --label 'ci,documentation'"
-
-        if(edgex.isDryRun()) {
-            echo "git push origin ${branch}"
-            echo prCreate
-        } else {
-            sshagent(credentials: [pushCredentials]) {
-                sh "git push origin ${branch}"
-            }
-
-            docker.image('ghcr.io/supportpal/github-gh-cli').inside('--entrypoint=') {
-                sh prCreate
-            }
-        }
-    }
+def createVersionMacroFile(releaseVersion, releaseName, nextVersion) {
+    """
+    latest_released_version: '${releaseVersion}'
+    latest_release_name: '${releaseName}'
+    next_version: '${nextVersion}'
+    """.stripIndent().replaceAll("(?m)^[ \t]*\r?\n", "")
 }
 
 def validate(releaseYaml) {

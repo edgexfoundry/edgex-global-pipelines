@@ -70,7 +70,7 @@ def parallelStepFactory(data) {
 def parallelStepFactoryTransform(step) {
     return {
         stage(step.name.toString()) {
-            if (step.lts == true){
+            if (step.lts == true) {
                 stage("LTS Prep") {
                     def ltsCommitId = edgeXLTS.prepLTS(step, [credentials: "edgex-jenkins-ssh"])
 
@@ -129,6 +129,8 @@ def parallelStepFactoryTransform(step) {
                     edgeXReleaseDocs(step)
                 }
             }
+
+            edgeXReleaseOpenApi(step)
         }
     }
 }
