@@ -83,7 +83,7 @@ Integration Testing is defined as a type of testing where software modules are i
 A good example of this practice is the [EdgeXReleaseDockerImageIntSpec](https://github.com/edgexfoundry/edgex-global-pipelines/blob/main/src/test/groovy/edgeXReleaseDockerImageIntSpec.groovy)
 
 # Mock errors
-Always leverage `error` when wanting to conditionally abort part of your script. Error is a Pipeline Step whose plugin has been added as a dependency to our project thus is already mocked by the framework. An example showing how you can assert that an error is thrown with a specific message:
+Always leverage `error` when wanting to conditionally terminate part of your script. Error is a Pipeline Step whose plugin has been added as a dependency to our project thus is already mocked by the framework. An example showing how you can assert that an error is thrown with a specific message:
 ```
 1 * getPipelineMock('error').call('error message')
 ```
