@@ -12,14 +12,14 @@
         <meta name="author" content="EdgeX DevOps Team">
       
       
-        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXReleaseGitTagUtil/">
+        <link rel="canonical" href="https://edgexfoundry.github.io/edgex-global-pipelines/libraries/edgeXReleaseOpenApi/">
       
       <link rel="icon" href="../../assets/logo_edgex.png">
       <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.6">
     
     
       
-        <title>edgeXReleaseGitHubTagUtil - EdgeX Global Pipelines Documentation</title>
+        <title>edgeXReleaseOpenApi - EdgeX Global Pipelines Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#edgexreleasegithubtagutil" class="md-skip">
+        <a href="#edgexreleaseopenapi" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +104,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              edgeXReleaseGitHubTagUtil
+              edgeXReleaseOpenApi
             
           </span>
         </div>
@@ -1023,9 +1023,36 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#required-yaml" class="md-nav__link">
+    Required Yaml
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#functions" class="md-nav__link">
     Functions
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sample-release-yaml" class="md-nav__link">
+    Sample Release Yaml
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1043,22 +1070,65 @@
                 
                   
 
-  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/libraries/edgeXReleaseGitTagUtil.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/edgexfoundry/edgex-global-pipelines/edit/master/docs/libraries/edgeXReleaseOpenApi.md" title="Edit this page" class="md-content__button md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
-<h1 id="edgexreleasegithubtagutil">edgeXReleaseGitHubTagUtil</h1>
+<h1 id="edgexreleaseopenapi">edgeXReleaseOpenApi</h1>
 <h2 id="overview">Overview</h2>
-<p>Shared library with supporting helper functions to manage Git tags.</p>
+<p>Shared library with helper functions to manage OpenAPI YAML related changes. Currently used by sdk repos.</p>
+<h2 id="required-yaml">Required Yaml</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description and Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>apiInfo.nextReleaseVersion</td>
+<td>true</td>
+<td>str</td>
+<td>Next release version to for the OpenAPI yaml files.</td>
+</tr>
+<tr>
+<td>apiInfo.reviewers</td>
+<td>true</td>
+<td>str</td>
+<td>Who to assign the generated PR to.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="functions">Functions</h2>
 <ul>
-<li><code>edgeXReleaseGitHubTagUtil.getSSHRepoName</code>: Converts <code>https</code> repo remote to ssh <code>git@github.com:</code> remote.</li>
-<li><code>edgeXReleaseGitHubTagUtil.signGitTag</code>: Wrapper around <code>edgeXInfraLFToolsSign</code> that signs git tag for a release.</li>
-<li><code>edgeXReleaseGitHubTagUtil.releaseGitTag</code>: Main function that does full end-to-end git tag release.</li>
-<li><code>edgeXReleaseGitHubTagUtil.validate</code>: Validates release yaml input before any automation is run.</li>
+<li><code>edgeXReleaseOpenApi.publishReleaseBranch</code>: Makes release branch related changes in unique branch then commits release branch.</li>
+<li><code>edgeXReleaseOpenApi.publishOpenApiChanges</code>: Makes OpenAPI related changes in unique branch then commits and opens PR.</li>
+<li><code>edgeXReleaseOpenApi.validate</code>: Validates release yaml input before any automation is run.</li>
 </ul>
+<h2 id="usage">Usage</h2>
+<h3 id="sample-release-yaml">Sample Release Yaml</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;device-sdk-go&#39;</span><span class="w"></span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2.2.0&#39;</span><span class="w"></span>
+<span class="nt">releaseName</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;kamakura&#39;</span><span class="w"></span>
+<span class="nt">releaseStream</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;main&#39;</span><span class="w"></span>
+<span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;https://github.com/edgexfoundry/device-sdk-go.git&#39;</span><span class="w"></span>
+<span class="nt">commitId</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;c72b16708d6eed9a08be464a432ce22db7d90667&#39;</span><span class="w"></span>
+<span class="nt">gitTag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="nt">dockerImages</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<span class="nt">gitHubRelease</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<span class="nt">apiInfo</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"></span>
+<span class="w">   </span><span class="nv">nextReleaseVersion</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;2.3.0&#39;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">   </span><span class="nv">reviewers</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">edgexfoundry/edgex-committers</span><span class="w"></span>
+<span class="p p-Indicator">]</span><span class="w"></span>
+</code></pre></div>
+<h1 id="groovy-call">Groovy Call</h1>
+<div class="highlight"><pre><span></span><code><span class="n">edgeXReleaseOpenApi</span><span class="o">(</span><span class="n">releaseYaml</span><span class="o">)</span><span class="w"></span>
+</code></pre></div>
 
 
 
