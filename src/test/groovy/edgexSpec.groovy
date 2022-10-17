@@ -134,7 +134,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test didChange [Should] return true [When] there is no previous commit" () {
-        setup:
         expect:
             edgeX.didChange('test', null) == expectedResult
 
@@ -164,7 +163,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test mainNode [Should] return default label [When] empty nodes are passed in" () {
-        setup:
         expect:
             edgeX.mainNode([nodes: [[]]]) == expectedResult
         where:
@@ -174,7 +172,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test mainNode [Should] return node label [When] list that contains a default node is passed in" () {
-        setup:
         expect:
             edgeX.mainNode([nodes: [[label: 'soda stereo', isDefault: true]]]) == expectedResult
         where:
@@ -187,7 +184,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
         // example of how the previous two tests can be combined into one test
         // my preference is to use explicit tests like the ones above unless the method
         // under test is straight forward to test
-        setup:
         expect:
             edgeX.mainNode(config) == expectedResult
         where:
@@ -212,7 +208,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test nodeExists [Should] return expected [When] called" () {
-        setup:
         expect:
             edgeX.nodeExists(config, 'amd64') == expectedResult
         where:
@@ -247,7 +242,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test getNode [Should] return expected [When] called" () {
-        setup:
         expect:
             edgeX.getNode(config, 'amd64') == expectedResult
         where:
@@ -275,7 +269,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test setupNodes [Should] return expected [When] called" () {
-        setup:
         expect:
             edgeX.setupNodes(config) == expectedResult
         where:
@@ -338,7 +331,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test bannerMessage [Should] call expected [When] called" () {
-        setup:
         when:
             edgeX.bannerMessage('hello world')
         then:
@@ -347,7 +339,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test printMap [Should] call expected [When] called" () {
-        setup:
         when:
             def map = [
                 name: 'the beatles',
@@ -361,7 +352,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test defaultTrue [Should] return expected [When] called" () {
-        setup:
         expect:
             edgeX.defaultTrue(value) == expectedResult
         where:
@@ -378,7 +368,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test defaultFalse [Should] return expected [When] called" () {
-        setup:
         expect:
             edgeX.defaultFalse(value) == expectedResult
         where:
@@ -560,7 +549,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     // isBuildCommit should return true for strings that match the "build(...): ..." pattern only
     def "Test isBuildCommit [Should] return expected [When] called" () {
-        setup:
         expect:
             edgeX.isBuildCommit(value) == expectedResult
         where:
@@ -583,7 +571,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test parseBuildCommit [Should] return expected [When] called" () {
-        setup:
         expect:
                 edgeX.parseBuildCommit(value) == expectedResult
         where:
@@ -600,7 +587,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test parseBuildCommit [Should] raise error [When] no matches are found in release(geneva) commit" () {
-        setup:
         when:
             edgeX.parseBuildCommit('release(geneva): Release Device Grove C service (1.2.0) and Testing frameworks (1.2.1)')
         then:
@@ -608,7 +594,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test parseBuildCommit [Should] raise error [When] no matches are found in release(geneva) PR commit" () {
-        setup:
         when:
             edgeX.parseBuildCommit('Merge pull request #46 from lranjbar/geneva-release')
         then:
@@ -616,7 +601,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test parseBuildCommit [Should] raise error [When] no matches are found in release(geneva dot) commit" () {
-        setup:
         when:
             edgeX.parseBuildCommit('release(geneva dot): Release App Service Configurable to latest track')
         then:
@@ -624,7 +608,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test parseBuildCommit [Should] raise error [When] no matches are found in build(hanoi): PR commit" () {
-        setup:
         when:
             edgeX.parseBuildCommit('Merge pull request #46 from lranjbar/build(hanoi): release')
         then:
@@ -632,7 +615,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test parseBuildCommit [Should] raise error [When] no matches are found in build(hanoi) commit" () {
-        setup:
         when:
             edgeX.parseBuildCommit('build(hanoi): [1.2.0-dev.1,1.0.0] Stage Artifacts for edgex-go')
         then:
@@ -641,12 +623,12 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
 
     def "Test getTmpDir [Should] return a directory name [When] called" () {
         setup:
-        getPipelineMock('sh')([
-                returnStdout: true,
-                script: 'mktemp -d -t ci-XXXXX']) >>
-        {
-            '/tmp/ci-20jBb'
-        }
+            getPipelineMock('sh')([
+                    returnStdout: true,
+                    script: 'mktemp -d -t ci-XXXXX']) >>
+            {
+                '/tmp/ci-20jBb'
+            }
 
         expect:
             edgeX.getTmpDir() =~ expectedResult
@@ -945,7 +927,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test waitFor [Should] call shell script with expected arguments [When] command is provided" () {
-        setup:
         when:
             edgeX.waitFor('mock-command')
         then:
@@ -956,7 +937,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test waitFor [Should] call shell script with expected arguments [When] command, timeout, exit code and sleepFor are provided" () {
-        setup:
         when:
             edgeX.waitFor('mock-command', 60, 99, 20)
         then:
@@ -967,7 +947,6 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
     }
 
     def "Test waitForImages [Should] call shell script with expected arguments [When] images are provided" () {
-        setup:
         when:
             edgeX.waitForImages(['mock-image-1', 'mock-image-2'])
         then:
@@ -975,5 +954,92 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('writeFile').call(['file': './wait-for-images.sh', 'text': 'wait-for-script'])
             1 * getPipelineMock('sh').call('chmod +x ./wait-for-images.sh')
             1 * getPipelineMock('sh').call('./wait-for-images.sh mock-image-1 mock-image-2')
+    }
+
+    def "Test createPR [Should] push branch and create pull request [When] called " () {
+        setup:
+            def environmentVariables = [
+                'DRY_RUN': 'false'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('ghcr.io/supportpal/github-gh-cli') >> explicitlyMockPipelineVariable('DockerImageMock')
+        when:
+            edgeX.createPR('mock-branch', 'mock title', 'mock message', 'reviwer1,reviwer2')
+        then:
+            // Going to skip testing commit change in this function because it is already covered in another test
+            1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
+                assert ['credentials': ['edgex-jenkins-ssh']] == _arguments[0][0]
+            }
+            1 * getPipelineMock('DockerImageMock.inside').call(_) >> { _arguments ->
+                assert "--entrypoint=" == _arguments[0][0]
+            }
+            1 * getPipelineMock('sh').call('git push origin mock-branch')
+            1 * getPipelineMock('sh').call("gh pr create --base main --head mock-branch --title 'mock title' --body 'mock message' --reviewer 'reviwer1,reviwer2' --label 'ci,documentation'")
+    }
+
+    def "Test createPR [Should] push branch and create pull request [When] called with custom credentials" () {
+        setup:
+            def environmentVariables = [
+                'DRY_RUN': 'false'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+            getPipelineMock('docker.image')('ghcr.io/supportpal/github-gh-cli') >> explicitlyMockPipelineVariable('DockerImageMock')
+        when:
+            edgeX.createPR('mock-branch', 'mock title', 'mock message', 'reviwer1,reviwer2', 'customPushCredentials')
+        then:
+            // Going to skip testing commit change in this function because it is already covered in another test
+            1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
+                assert ['credentials': ['customPushCredentials']] == _arguments[0][0]
+            }
+            1 * getPipelineMock('DockerImageMock.inside').call(_) >> { _arguments ->
+                assert "--entrypoint=" == _arguments[0][0]
+            }
+            1 * getPipelineMock('sh').call('git push origin mock-branch')
+            1 * getPipelineMock('sh').call("gh pr create --base main --head mock-branch --title 'mock title' --body 'mock message' --reviewer 'reviwer1,reviwer2' --label 'ci,documentation'")
+    }
+
+    def "Test createPR [Should] mock push branch and create pull request [When] called with DRY_RUN" () {
+        setup:
+            def environmentVariables = [
+                'DRY_RUN': 'true'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+        when:
+            edgeX.createPR('mock-branch', 'mock title', 'mock message', 'reviwer1,reviwer2')
+        then:
+            // Going to skip testing commit change in this function because it is already covered in another test
+            1 * getPipelineMock('echo').call('git push origin mock-branch')
+            1 * getPipelineMock('echo').call("gh pr create --base main --head mock-branch --title 'mock title' --body 'mock message' --reviewer 'reviwer1,reviwer2' --label 'ci,documentation'")
+    }
+
+    def "Test commitChange [Should] commit changes [When] called" () {
+        when:
+            def environmentVariables = [
+                'DRY_RUN': 'false'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+            edgeX.commitChange('ci: mock commit message')
+        then:
+            1 * getPipelineMock('sh').call('''
+                git add .
+                if ! git diff-index --quiet HEAD --; then
+                    git commit -s -m 'ci: mock commit message'
+                else
+                    echo 'No changes detected to commit'
+                    exit 1
+                fi
+            '''.stripIndent())
+    }
+
+    def "Test commitChange [Should] commit changes [When] called with DRY_RUN" () {
+        setup:
+            def environmentVariables = [
+                'DRY_RUN': 'true'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+        when:
+            edgeX.commitChange('ci: mock commit message')
+        then:
+            1 * getPipelineMock('echo').call("git commit -s -m 'ci: mock commit message'")
     }
 }

@@ -61,6 +61,8 @@
  - `edgex.semverPrep`: Poorly named function that sets up the `env.NAMED_TAG` and `env.BUILD_STABLE_DOCKER_IMAGE` for the build commit concept. Will be removed in a future release.
  - `edgex.waitFor`: Useful function to wait for a condition in a shell script to be met.
  - `edgex.waitForImages`: Useful function to determine if a docker image has been pushed to a repository.
+ - `edgex.commitChange`: Commits a change to the repo with a given message.
+ - `edgex.createPR`: Creates a PR with the [GitHub CLI](https://cli.github.com/) for with a given branch, title, message and reviewers for. Note: This is generic enough to be used in other functions.
 */
 
 def isReleaseStream(branchName = env.GIT_BRANCH) {
@@ -415,5 +417,51 @@ def waitForImages(images, timeoutMinutes = 30) {
         }
     } catch (e) {
         error("Timeout reached while pulling images [${images}]")
+    }
+}
+
+def commitChange(commitMessage) {
+    def script = """
+    git add .
+    if ! git diff-index --quiet HEAD --; then
+        git commit -s -m '${commitMessage}'
+    else
+        echo 'No changes detected to commit'
+        exit 1
+    fi
+    """.stripIndent()
+
+    println "[edgeXReleaseDocs] committing change(s)"
+
+    if(isDryRun()) {
+        echo "git commit -s -m '${commitMessage}'"
+    } else {
+        sh script
+    }
+}
+
+def createPR(branch, title, message, reviewers, pushCredentials = 'edgex-jenkins-ssh', ghCliCredentials='edgex-jenkins-github-personal-access-token') {
+    commitChange(title)
+
+    withCredentials([
+        usernamePassword(
+            credentialsId: ghCliCredentials,
+            usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN'
+        )
+    ]) {
+        def prCreate = "gh pr create --base main --head ${branch} --title '${title}' --body '${message}' --reviewer '${reviewers}' --label 'ci,documentation'"
+
+        if(isDryRun()) {
+            echo "git push origin ${branch}"
+            echo prCreate
+        } else {
+            sshagent(credentials: [pushCredentials]) {
+                sh "git push origin ${branch}"
+            }
+
+            docker.image('ghcr.io/supportpal/github-gh-cli').inside('--entrypoint=') {
+                sh prCreate
+            }
+        }
     }
 }
