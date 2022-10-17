@@ -42,7 +42,7 @@ sourceSets {
 dependencies {
   def withoutIcu = { exclude group: 'com.ibm.icu', module: 'icu4j' }
 
-  compile "org.jenkins-ci.plugins.workflow:workflow-cps-global-lib:2.15@jar"
+  implementation "org.jenkins-ci.plugins.workflow:workflow-cps-global-lib:2.15@jar"
 
   // mandatory dependencies for using Spock
   implementation "org.codehaus.groovy:groovy-all:2.5.8"
@@ -98,7 +98,7 @@ test {
   systemProperty 'logdir', './target/logs'
 
   reports {
-    junitXml.enabled = true
+    junitXml.required = true
   }
 
   // prints a summary after test execution
@@ -113,9 +113,9 @@ test {
 
 jacocoTestReport {
   reports {
-    xml.enabled true
-    csv.enabled false
-    html.enabled true
+    xml.required = true
+    csv.required = false
+    html.required = true
   }
 }
 
@@ -147,7 +147,7 @@ task printClasspath {
 
 // Runs the groovy custom script to generate documentation in MD files
 task generateDocumentation (type: JavaExec){
-  main = 'edgeXDocGenerator'
+  mainClass = 'edgeXDocGenerator'
   classpath = sourceSets.main.runtimeClasspath
   def config = [
     sourcePath : "vars" , // value is  mandatory

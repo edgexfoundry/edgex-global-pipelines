@@ -82,7 +82,7 @@ pipeline {
         stage('Generate Documentation') {
             agent {
                 docker {
-                    image 'gradle:6.6.1'
+                    image 'gradle:7.5.1-jdk8'
                     reuseNode true
                     args '-u 0:0 --privileged'
                 }
