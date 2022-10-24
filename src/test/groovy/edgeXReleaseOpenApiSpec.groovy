@@ -57,7 +57,7 @@ public class EdgeXReleaseOpenApiSpec extends JenkinsPipelineSpecification {
             1 * getPipelineMock('sh').call('git checkout -b currentRelease-openapi-version-changes')
             1 * getPipelineMock('sh').call("sed -E -i 's|  version: (.*)|  version: 2.3.0|g' openapi/v2/*.yaml")
             1 * getPipelineMock('sh').call('git diff')
-            1 * getPipelineMock("edgex.createPR").call(['currentRelease-openapi-version-changes', 'ci: automated version changes for OpenAPI version: [2.3.0]', 'This PR updates the OpenAPI version yaml the next release version 2.3.0', 'mock-reviewers'])
+            1 * getPipelineMock("edgex.createPR").call(['currentRelease-openapi-version-changes', 'ci: automated version changes for OpenAPI version: [2.3.0]', 'This PR updates the OpenAPI version yaml the next release version 2.3.0', 'mock-reviewers', 'ci,documentation'])
     }
 
     def "Test validate [Should] raise error [When] release info yaml does not have a apiInfo attribute" () {

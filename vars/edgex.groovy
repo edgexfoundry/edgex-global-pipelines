@@ -440,7 +440,7 @@ def commitChange(commitMessage) {
     }
 }
 
-def createPR(branch, title, message, reviewers, pushCredentials = 'edgex-jenkins-ssh', ghCliCredentials='edgex-jenkins-github-personal-access-token') {
+def createPR(branch, title, message, reviewers, labels, pushCredentials = 'edgex-jenkins-ssh', ghCliCredentials='edgex-jenkins-github-personal-access-token') {
     commitChange(title)
 
     withCredentials([
@@ -449,7 +449,11 @@ def createPR(branch, title, message, reviewers, pushCredentials = 'edgex-jenkins
             usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN'
         )
     ]) {
-        def prCreate = "gh pr create --base main --head ${branch} --title '${title}' --body '${message}' --reviewer '${reviewers}' --label 'ci,documentation'"
+
+        def prCreate = "gh pr create --base main --head ${branch} --title '${title}' --body '${message}' --reviewer '${reviewers}'"
+        if(labels) {
+            prCreate += " --label '${labels}'"
+        }
 
         if(isDryRun()) {
             echo "git push origin ${branch}"
