@@ -366,3 +366,40 @@ def toImageStr(image, defaultRegistry='docker.io') {
 
     (imgBuffer - null).join('')
 }
+
+// given an input image, find the opposing image and retag to create a multiarch image
+// image     nexus3.edgexfoundry.org:10004/device-onvif-camera:latest
+// alternate nexus3.edgexfoundry.org:10004/device-onvif-camera-arm64:latest
+
+// image     edgexfoundry/device-onvif-camera:latest
+// alternate edgexfoundry/device-onvif-camera-arm64:latest
+
+// Will create a multi-arch docker image given the base x86 image.
+def multiArch(image) {
+    if(image.contains('arm64')) {
+        error('[edgexDocker.multiArch] Cannot create multi-arch image from ARM based image')
+    }
+
+    def parsedImage    = parse(image)
+    parsedImage.image  = "${parsedImage.image}-arm64"
+    def armImage = toImageStr(parsedImage).replaceFirst('docker.io/', '')
+
+    parsedImage        = parse(image)
+    parsedImage.image  = "${parsedImage.image}-amd64"
+    def x86Image     = toImageStr(parsedImage).replaceFirst('docker.io/', '')
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    if(parsedImage.host && parsedImage.host =~ /nexus3.edgexfoundry.org/) {
+        sh "docker pull ${image}"
+        sh "docker pull ${armImage}"
+    }
+
+    sh "docker tag ${image} ${x86Image} && docker rmi -f ${image}"
+
+    // The x86 image will need to be pushed before the manifest can be created.
+    sh "docker push ${x86Image}"
+    sh "docker manifest create ${image} --amend ${x86Image} --amend ${armImage}"
+
+    image
+}
