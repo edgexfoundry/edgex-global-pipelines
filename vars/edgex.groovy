@@ -67,7 +67,7 @@
 
 def isReleaseStream(branchName = env.GIT_BRANCH) {
     // what defines a main release branch
-    def releaseStreams = [/^main$/, /^master$/, /^california$/, /^delhi$/, /^edinburgh$/, /^fuji$/, /^geneva$/, /^hanoi$/, /^ireland$/, /^lts-test$/, /^jakarta$/, /^kamakura$/, /^levski$/]
+    def releaseStreams = [/^main$/, /^master$/, /^california$/, /^delhi$/, /^edinburgh$/, /^fuji$/, /^geneva$/, /^hanoi$/, /^ireland$/, /^lts-test$/, /^jakarta$/, /^kamakura$/, /^levski$/, /^minnesota$/]
     env.SILO == 'production' && (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
 
@@ -275,7 +275,8 @@ def getGoLangBaseImage(version, alpineBased) {
             '1.15': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.15-alpine',
             '1.16': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.16-alpine',
             '1.17': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.17-alpine',
-            '1.18': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.18-alpine'
+            '1.18': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.18-alpine',
+            '1.20': 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.20-alpine'
         ]
 
         def goLTSImages = [
