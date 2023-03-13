@@ -18,7 +18,7 @@ By running the tests with docker, you avoid having to install gradle on your hos
 docker run --rm -t \
   -v $HOME/.gradle:/home/gradle/.gradle \ # bind mount your gradle cache
   -v $PWD:/code -w /code \ # bind mount current working directory to /code
-  gradle:6.2.2 \ # docker image
+  gradle:7.5.1-jdk8 \ # docker image
   gradle clean test # gradle tasks
 ```
 
@@ -46,7 +46,7 @@ docker run --rm -t \
   -e GRADLE_OPTS="-Dhttp.proxyHost=proxy.example.com -Dhttp.proxyPort=1234 -Dhttps.proxyHost=proxy.example.com -Dhttps.proxyPort=1234" \
   -v $HOME/.gradle:/home/gradle/.gradle \ # bind mount your gradle cache
   -v $PWD:/code -w /code \ # bind mount current working directory to /code
-  gradle:6.2.2 \ # docker image
+  gradle:7.5.1-jdk8 \ # docker image
   gradle clean test # gradle tasks
 ```
 
