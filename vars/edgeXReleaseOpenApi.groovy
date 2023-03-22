@@ -111,7 +111,7 @@ def publishOpenApiChanges(releaseInfo) {
     def title = "ci: automated version changes for OpenAPI version: [${nextApiVersion}]"
     def body = "This PR updates the OpenAPI version yaml the next release version ${nextApiVersion}"
 
-    edgex.createPR(branch, title, body, releaseInfo.apiInfo.reviewers)
+    edgex.createPR(branch, title, body, releaseInfo.apiInfo.reviewers, 'ci,documentation')
 }
 
 def validate(releaseYaml) {

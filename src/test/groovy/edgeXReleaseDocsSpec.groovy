@@ -122,7 +122,7 @@ public class EdgeXReleaseDocsSpec extends JenkinsPipelineSpecification {
 
             1 * getPipelineMock('sh').call('git diff')
 
-            1 * getPipelineMock("edgex.createPR").call(['currentRelease-version-changes', 'ci: automated version file changes for [2.3]', 'This PR updates the version files to the next release version 2.3', 'mock-reviewers'])
+            1 * getPipelineMock("edgex.createPR").call(['currentRelease-version-changes', 'ci: automated version file changes for [2.3]', 'This PR updates the version files to the next release version 2.3', 'mock-reviewers', 'ci,documentation'])
     }
 
     def "Test createVersionMacroFile [Should] execute expected [When] called" () {

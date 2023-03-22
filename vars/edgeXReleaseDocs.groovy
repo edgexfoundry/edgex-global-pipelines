@@ -163,7 +163,7 @@ def publishVersionChangesPR(releaseInfo) {
     def title = "ci: automated version file changes for [${nextVersion}]"
     def body = "This PR updates the version files to the next release version ${nextVersion}"
 
-    edgex.createPR(branch, title, body, releaseInfo.docsInfo.reviewers)
+    edgex.createPR(branch, title, body, releaseInfo.docsInfo.reviewers, 'ci,documentation')
 }
 
 def createVersionMacroFile(releaseVersion, releaseName, nextVersion) {

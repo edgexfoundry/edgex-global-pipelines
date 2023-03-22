@@ -964,7 +964,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('docker.image')('ghcr.io/supportpal/github-gh-cli') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
-            edgeX.createPR('mock-branch', 'mock title', 'mock message', 'reviwer1,reviwer2')
+            edgeX.createPR('mock-branch', 'mock title', 'mock message', 'reviwer1,reviwer2', 'label1,label2')
         then:
             // Going to skip testing commit change in this function because it is already covered in another test
             1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
@@ -974,7 +974,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 assert "--entrypoint=" == _arguments[0][0]
             }
             1 * getPipelineMock('sh').call('git push origin mock-branch')
-            1 * getPipelineMock('sh').call("gh pr create --base main --head mock-branch --title 'mock title' --body 'mock message' --reviewer 'reviwer1,reviwer2' --label 'ci,documentation'")
+            1 * getPipelineMock('sh').call("gh pr create --base main --head mock-branch --title 'mock title' --body 'mock message' --reviewer 'reviwer1,reviwer2' --label 'label1,label2'")
     }
 
     def "Test createPR [Should] push branch and create pull request [When] called with custom credentials" () {
@@ -985,7 +985,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.getBinding().setVariable('env', environmentVariables)
             getPipelineMock('docker.image')('ghcr.io/supportpal/github-gh-cli') >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
-            edgeX.createPR('mock-branch', 'mock title', 'mock message', 'reviwer1,reviwer2', 'customPushCredentials')
+            edgeX.createPR('mock-branch', 'mock title', 'mock message', 'reviwer1,reviwer2', 'label1,label2','customPushCredentials')
         then:
             // Going to skip testing commit change in this function because it is already covered in another test
             1 * getPipelineMock('sshagent').call(_) >> { _arguments ->
@@ -995,7 +995,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
                 assert "--entrypoint=" == _arguments[0][0]
             }
             1 * getPipelineMock('sh').call('git push origin mock-branch')
-            1 * getPipelineMock('sh').call("gh pr create --base main --head mock-branch --title 'mock title' --body 'mock message' --reviewer 'reviwer1,reviwer2' --label 'ci,documentation'")
+            1 * getPipelineMock('sh').call("gh pr create --base main --head mock-branch --title 'mock title' --body 'mock message' --reviewer 'reviwer1,reviwer2' --label 'label1,label2'")
     }
 
     def "Test createPR [Should] mock push branch and create pull request [When] called with DRY_RUN" () {
@@ -1005,11 +1005,11 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             ]
             edgeX.getBinding().setVariable('env', environmentVariables)
         when:
-            edgeX.createPR('mock-branch', 'mock title', 'mock message', 'reviwer1,reviwer2')
+            edgeX.createPR('mock-branch', 'mock title', 'mock message', 'reviwer1,reviwer2', 'label1,label2')
         then:
             // Going to skip testing commit change in this function because it is already covered in another test
             1 * getPipelineMock('echo').call('git push origin mock-branch')
-            1 * getPipelineMock('echo').call("gh pr create --base main --head mock-branch --title 'mock title' --body 'mock message' --reviewer 'reviwer1,reviwer2' --label 'ci,documentation'")
+            1 * getPipelineMock('echo').call("gh pr create --base main --head mock-branch --title 'mock title' --body 'mock message' --reviewer 'reviwer1,reviwer2' --label 'label1,label2'")
     }
 
     def "Test commitChange [Should] commit changes [When] called" () {
