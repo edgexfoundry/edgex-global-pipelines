@@ -215,7 +215,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                 'SILO': 'sandbox'
             ]
             edgeXBuildGoParallel.getBinding().setVariable('env', environmentVariables)
-            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.18-alpine'
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-golang-base:1.20-alpine'
         expect:
             edgeXBuildGoParallel.toEnvironment(config) == expectedResult
         where:
@@ -231,7 +231,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     USE_SEMVER: true,
                     TEST_SCRIPT: 'make test',
                     BUILD_SCRIPT: 'make build',
-                    GO_VERSION: '1.18',
+                    GO_VERSION: '1.20',
                     USE_ALPINE: true,
                     DOCKER_FILE_GLOB: 'cmd/**/Dockerfile',
                     DOCKER_IMAGE_NAME_PREFIX: '',
