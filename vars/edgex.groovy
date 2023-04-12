@@ -71,8 +71,8 @@ def isReleaseStream(branchName = env.GIT_BRANCH) {
     env.SILO == 'production' && (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
 
-def isLTS() {
-    def branchName = getTargetBranch()
+def isLTS(branchOverride = null) {
+    def branchName = branchOverride ?: getTargetBranch()
     def ltsStreams = [/^jakarta$/, /^lts-test$/]
     println "[edgeX.isLTS] Checking if [${branchName}] matches against LTS streams [${ltsStreams}]"
     (branchName && (ltsStreams.collect { branchName =~ it ? true : false }).contains(true))
@@ -264,7 +264,7 @@ def getTmpDir(pattern = 'ci-XXXXX') {
     sh(script: "mktemp -d -t ${pattern}", returnStdout: true).trim()
 }
 
-def getGoLangBaseImage(version, alpineBased) {
+def getGoLangBaseImage(version, alpineBased, branchOverride = null) {
     def baseImage
 
     if(alpineBased == true || alpineBased == 'true') {
@@ -285,7 +285,7 @@ def getGoLangBaseImage(version, alpineBased) {
         ]
 
         // isLTS uses env.GIT_BRANCH to determine if the build is a LTS build
-        if(isLTS()) {
+        if(isLTS(branchOverride)) {
             baseImage = goLTSImages[version]
         } else {
             baseImage = goBaseImages[version]
@@ -315,8 +315,8 @@ def isGoProject(folder) {
     }
 }
 
-def getCBaseImage(version = 'latest') {
-    isLTS()
+def getCBaseImage(version = 'latest', branchOverride = null) {
+    isLTS(branchOverride)
     ? 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-gcc-base:gcc-lts'
     : "nexus3.edgexfoundry.org:10003/edgex-devops/edgex-gcc-base:${version}"
 }

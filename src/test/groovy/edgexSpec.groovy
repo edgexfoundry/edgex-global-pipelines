@@ -109,6 +109,32 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             edgeX.isLTS() == true
     }
 
+    def "Test isLTS [Should] return expected [When] called with lts branchOverride" () {
+        setup:
+            def environmentVariables = [
+                'CHANGE_ID': '1124',
+                'CHANGE_TARGET': 'mock',
+                'GIT_BRANCH': 'mock'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+        expect:
+            edgeX.isLTS('jakarta') == true
+    }
+
+    def "Test isLTS [Should] return expected [When] called with non-lts branchOverride" () {
+        setup:
+            def environmentVariables = [
+                'CHANGE_ID': '1124',
+                'CHANGE_TARGET': 'jakarta',
+                'GIT_BRANCH': 'jakarta'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+
+        expect:
+            edgeX.isLTS('mock') == false
+    }
+
     def "Test getTargetBranch [Should] return expected [When] called for branch builds" () {
         setup:
             def environmentVariables = [
@@ -724,6 +750,32 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
             expectedResult << [
                 'golang:1.15-alpine',
                 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.16-alpine-lts',
+                'golang:MyVersion-alpine'
+            ]
+    }
+
+    def "Test getGoLangBaseImage [Should] return expected #expectedResult [When] called with with version #version and true alpine flag and branchOverride and on lts branch" () {
+        setup:
+            def environmentVariables = [
+                'GIT_BRANCH': 'foo'
+            ]
+            edgeX.getBinding().setVariable('env', environmentVariables)
+        expect:
+            edgeX.getGoLangBaseImage(version, true, branchOverride) == expectedResult
+        where:
+            version << [
+                '1.16',
+                '1.17',
+                'MyVersion'
+            ]
+            branchOverride << [
+                'lts-test',
+                'jakarta',
+                null
+            ]
+            expectedResult << [
+                'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.16-alpine-lts',
+                'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.17-alpine-lts',
                 'golang:MyVersion-alpine'
             ]
     }
