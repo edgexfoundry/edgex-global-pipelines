@@ -100,10 +100,10 @@ public class EdgeXLTSSpec extends JenkinsPipelineSpecification {
                 returnStdout: true,
                 script: "grep '^go [0-9].[0-9]*' go.mod | cut -d' ' -f 2"]) >> goModVersion
 
-            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> "edgex-golang-base:${goModVersion}-alpine"
-            getPipelineMock('docker.image')("edgex-golang-base:${goModVersion}-alpine") >> explicitlyMockPipelineVariable('DockerImageMock')
+            getPipelineMock('edgex.getGoLangBaseImage').call(_) >> "nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:${goModVersion}-alpine-lts"
+            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:${goModVersion}-alpine-lts") >> explicitlyMockPipelineVariable('DockerImageMock')
         when:
-            edgeXLTS.prepGoProject("mock-project-jakarta")
+            edgeXLTS.prepGoProject("mock-project-jakarta", 'jakarta')
         then:
             1 * getPipelineMock('DockerImageMock.inside').call(_)
             1 * getPipelineMock("sh").call("make vendor")

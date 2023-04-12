@@ -44,6 +44,9 @@ def prepLTS(releaseInfo, options) {
 
     // Create LTS Branch
     sshagent(credentials: [credentials]) {
+        // TODO: There is a potential bug with this code where we may not be tagging the correct commitId from the original yaml.
+        // IF a new commit came in on the LTS branch before the cd-management release PR was merged, it would tag that
+        // commit instead of the one in the release yaml file.
         if(edgex.isDryRun()) {
             echo("dir ${env.WORKSPACE}/${dirName}")
             echo("git checkout ${ltsBranchName} || git checkout -b ${ltsBranchName}")
@@ -54,7 +57,7 @@ def prepLTS(releaseInfo, options) {
         }
 
         if (edgex.isGoProject(dirName)) {
-            prepGoProject(dirName)
+            prepGoProject(dirName, ltsBranchName)
         }
 
         def commitMessage = generateLTSCommitMessage(releaseInfo.version, releaseInfo.commitId)
@@ -86,10 +89,10 @@ def generateLTSCommitMessage(version, commitId) {
     "ci(lts-release): LTS release v${version} @${commitId.take(7)}"
 }
 
-def prepGoProject(name){
+def prepGoProject(name, branchOverride){
     if(edgex.isDryRun()) {
         println "[edgeXLTS]: Creating Vendored dependencies for Go project"
-        
+
         echo("dir ${name}")
         echo("grep -v vendor .gitignore > .gitignore.tmp")
         echo("mv .gitignore.tmp .gitignore")
@@ -104,7 +107,7 @@ def prepGoProject(name){
             sh "grep -v vendor .gitignore > .gitignore.tmp"
             sh "mv .gitignore.tmp .gitignore"
 
-            def baseImage = edgex.getGoLangBaseImage(goModVersion, true)
+            def baseImage = edgex.getGoLangBaseImage(goModVersion, true, branchOverride)
             docker.image(baseImage).inside('-u 0:0') {
                 sh 'make vendor'
             }
