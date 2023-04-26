@@ -100,12 +100,19 @@ def parallelStepFactoryTransform(step) {
             if(step.gitTag == true) {
                 stage("Git Tag Publish") {
                     edgeXReleaseGitTag(step, [credentials: "edgex-jenkins-ssh", bump: false, tag: true])
+
+                    // this will add a random sleep (1-5 sec) to space out the stage artifact jobs after the git tagging
+                    sh 'sleep $[ ( $RANDOM % 5 )  + 1 ]s'
                 }
-                try{
+                try {
                     stage("Stage Artifact") {
-                        stageArtifact(step)
+                        println "[edgeXRelease]: DEBUG Preparing to stage artifact: ${step.repo}@${step.commitId}"
+
+                        lock("build-${step.commitId}") {
+                            stageArtifact(step)
+                        }
                     }
-                }finally {
+                } finally {
                     stage("Bump Semver"){
                         edgeXReleaseGitTag(step, [credentials: "edgex-jenkins-ssh", bump: true, tag: false])
                     }
@@ -136,23 +143,23 @@ def parallelStepFactoryTransform(step) {
 }
 
 def stageArtifact(step) {
-    rebuildRepo = step.repo.split('/')[-1].split('.git')[0]
+    def rebuildRepo = step.repo.split('/')[-1].split('.git')[0]
 
-    println "[edgeXRelease]: building/staging for ${rebuildRepo} - DRY_RUN: ${env.DRY_RUN}"
+    println "[edgeXRelease]: building/staging for ${rebuildRepo}@${step.commitId} - DRY_RUN: ${env.DRY_RUN}"
 
     def jobToBuild = step.lts ? step.releaseName : step.releaseStream
 
     if(edgex.isDryRun()) {
         println("build job: '../${rebuildRepo}/${jobToBuild}, parameters: [CommitId: ${step.commitId}], propagate: true, wait: true)")
     } else {
-        try{
+        try {
             build(job: "../${rebuildRepo}/${jobToBuild}",
                 parameters: [[$class: 'StringParameterValue', name: 'CommitId', value: step.commitId]],
                 propagate: true,
                 wait: true
             )
         } catch (hudson.AbortException e) {
-            if (e.message.matches("No item named(.*)found")){
+            if (e.message.matches("No item named(.*) found")){
                 catchError(stageResult: 'UNSTABLE', buildResult: 'SUCCESS'){
                     error ('[edgeXRelease]: No build pipeline found - No artifact to stage')
                 }
