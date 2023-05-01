@@ -11,6 +11,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
 
         explicitlyMockPipelineVariable('out')
         explicitlyMockPipelineStep('build')
+        explicitlyMockPipelineStep('lock')
 
         explicitlyMockPipelineVariable('edgex')
         explicitlyMockPipelineVariable('edgeXLTS')
