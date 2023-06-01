@@ -509,13 +509,6 @@ services:
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
 
             getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest')
-
-            getPipelineMock('sh')([
-                returnStatus: true,
-                script: 'docker-compose build --help | grep parallel'
-            ]) >> {
-                0
-            }
         when:
             edgeXDocker.buildInParallel([
                 [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
@@ -526,7 +519,7 @@ services:
                 _arguments[0][0] == 'BUILDER_BASE=ci-base-image'
             }
 
-            1 * getPipelineMock("sh").call('docker-compose -f ./docker-compose-build.yml build --parallel')
+            1 * getPipelineMock("sh").call('docker compose -f ./docker-compose-build.yml build --parallel')
 
             1 * getPipelineMock("writeFile").call(['file': './docker-compose-build.yml', 'text': '''
 version: '3.7'
@@ -568,13 +561,6 @@ services:
             edgeXDocker.getBinding().setVariable('env', environmentVariables)
 
             getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:latest") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:latest')
-
-            getPipelineMock('sh')([
-                returnStatus: true,
-                script: 'docker-compose build --help | grep parallel'
-            ]) >> {
-                0
-            }
         when:
             edgeXDocker.buildInParallel([
                 [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
@@ -585,7 +571,7 @@ services:
                 _arguments[0][0] == 'BUILDER_BASE=ci-base-image-arm64'
             }
 
-            1 * getPipelineMock("sh").call('docker-compose -f ./docker-compose-build.yml build --parallel')
+            1 * getPipelineMock("sh").call('docker compose -f ./docker-compose-build.yml build --parallel')
 
             1 * getPipelineMock("writeFile").call(['file': './docker-compose-build.yml', 'text': '''
 version: '3.7'
@@ -615,25 +601,6 @@ services:
         - BUILDER_BASE
     image: docker-image-2-go-arm64
 '''])
-    }
-
-    def "Test buildInParallel [Should] throw error [When] docker-compose does not support parallel" () {
-        setup:
-            getPipelineMock('docker.image')("nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest") >> explicitlyMockPipelineVariable('nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest')
-
-            getPipelineMock('sh')([
-                returnStatus: true,
-                script: 'docker-compose build --help | grep parallel'
-            ]) >> {
-                1
-            }
-        when:
-            edgeXDocker.buildInParallel([
-                [image: 'image-1-go', dockerfile: 'cmd/image-1/Dockerfile'],
-                [image: 'image-2-go', dockerfile: 'cmd/image-2/Dockerfile']
-            ], 'docker-', 'ci-base-image')
-        then:
-            1 * getPipelineMock('error').call('[edgeXDocker] --parallel build is not supported in this version of docker-compose')
     }
 
     def "Test multiArch [Should] retag and create image manifest [When] called with nexus image" () {

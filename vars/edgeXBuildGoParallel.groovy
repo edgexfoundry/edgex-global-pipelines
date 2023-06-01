@@ -19,7 +19,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 /**
  # edgeXBuildGoParallel
 
- Shared Library to build Go projects and Docker images in parallel. Utilizes docker-compose --parallel to build Docker images found in the workspace. Currently only used for the **edgex-go** mono-repo.
+ Shared Library to build Go projects and Docker images in parallel. Utilizes docker compose --parallel to build Docker images found in the workspace. Currently only used for the **edgex-go** mono-repo.
 
  ## Overview
 

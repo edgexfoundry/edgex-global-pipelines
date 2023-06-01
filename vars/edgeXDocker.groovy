@@ -24,7 +24,7 @@
  
  ## Functions:
  - `edgeXDocker.build`: Build a docker image from optional `baseImage` with a set of default: docker build_args, labels, and tags.
- - `edgeXDocker.buildInParallel`: Build multiple docker images in parallel. This technique utilizes docker-compose to build multiple images using the parallel flag.
+ - `edgeXDocker.buildInParallel`: Build multiple docker images in parallel. This technique utilizes docker compose to build multiple images using the parallel flag.
  - `edgeXDocker.generateDockerComposeForBuild`: Supporting function for `edgeXDocker.buildInParallel` that generates a docker compose file for a given list of docker images.
  - `edgeXDocker.generateServiceYaml`: Supporting function for `edgeXDocker.buildInParallel` that generates service level yaml for a specific docker image.
  - `edgeXDocker.push`: Push a specific docker image and optionally tag it with the `latest` tag. A nexus repository can also optionally be specified as well as specific tags.
@@ -99,45 +99,34 @@ def build(dockerImageName, baseImage = null) {
 }
 
 def buildInParallel(dockerImages, imageNamePrefix, baseImage = null) {
-    //check if docker-compose --parallel is available
     def composeImage = env.ARCH == 'arm64'
         ? 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose-arm64:latest'
         : 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-compose:latest'
 
-    def parallelSupported = -1
+    def labels = [
+        git_sha: env.GIT_COMMIT,
+        arch: env.ARCH
+    ]
 
-    docker.image(composeImage).inside('--entrypoint=') {
-        parallelSupported = sh(script: 'docker-compose build --help | grep parallel', returnStatus: true)
+    if(env.VERSION) {
+        labels << [version: env.VERSION]
     }
 
-    if(parallelSupported == 0) {
-        def labels = [
-            git_sha: env.GIT_COMMIT,
-            arch: env.ARCH
-        ]
+    // generate ephemeral docker-compose based on docker image name and dockerfile
+    def dockerCompose = generateDockerComposeForBuild(dockerImages, labels, imageNamePrefix, env.ARCH)
 
-        if(env.VERSION) {
-            labels << [version: env.VERSION]
+    // write ephemeral docker-compose file
+    writeFile(file: './docker-compose-build.yml', text: dockerCompose)
+
+    // always set builder base in case it is not setup in the user's Jenkinsfile
+    def envVars = baseImage ? ["BUILDER_BASE=${baseImage}"] : []
+
+    withEnv(envVars) {
+        docker.image(composeImage).inside('-u 0:0 --entrypoint= -v /var/run/docker.sock:/var/run/docker.sock --privileged') {
+            sh 'docker compose -f ./docker-compose-build.yml build --parallel'
         }
 
-        // generate ephemeral docker-compose based on docker image name and dockerfile
-        def dockerCompose = generateDockerComposeForBuild(dockerImages, labels, imageNamePrefix, env.ARCH)
-
-        // write ephemeral docker-compose file
-        writeFile(file: './docker-compose-build.yml', text: dockerCompose)
-
-        // always set builder base in case it is not setup in the user's Jenkinsfile
-        def envVars = baseImage ? ["BUILDER_BASE=${baseImage}"] : []
-
-        withEnv(envVars) {
-            docker.image(composeImage).inside('-u 0:0 --entrypoint= -v /var/run/docker.sock:/var/run/docker.sock --privileged') {
-                sh 'docker-compose -f ./docker-compose-build.yml build --parallel'
-            }
-
-            sh 'docker images' //debug
-        }
-    } else {
-        error '[edgeXDocker] --parallel build is not supported in this version of docker-compose'
+        sh 'docker images' //debug
     }
 }
 
