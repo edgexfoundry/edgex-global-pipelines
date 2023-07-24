@@ -23,18 +23,18 @@ response=$(echo "$response" | tr '[:upper:]' '[:lower:]')    # tolower
 
 if [[ "$response" =~ ^(yes|y)$ ]]; then
   echo "Getting latest changes from origin"
-  git fetch origin
+  set -x ; git fetch origin; set +x
 
   echo "Checking to see if tagged version [${taggedVersion}] exists on remote..."
-  if git tag | grep -w "${taggedVersion}" ; then
+  if git tag --list | grep -w "${taggedVersion}" ; then
     echo "Tagged version exists. Continuing..."
   else
     echo "Tagged version does not exist. Exiting..."
     exit 1
   fi
 
-  echo "Deleting local and remote tags..."
-  if git tag | grep "${tagName}" ; then
+  if git tag --list | grep "${tagName}$" ; then
+    echo "Deleting local and remote tags..."
     git tag -d "${tagName}"
     git push --delete origin "${tagName}"
 

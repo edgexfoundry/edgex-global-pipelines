@@ -113,7 +113,23 @@ def parallelStepFactoryTransform(step) {
                         }
                     }
                 } finally {
-                    stage("Bump Semver"){
+                    stage("Bump Semver") {
+                        def createVanityTag = edgex.defaultTrue(step.createVanityTag)
+
+                        if(createVanityTag) {
+                            // update vanity tag if artifact was built successfully
+                            def minorVersion = "v${step.version.split("\\.")[0..1].join('.')}"
+                            if(edgex.isDryRun()) {
+                                echo """dir('${dir.name}') {"
+                                    ./update-named-tag.sh v${step.version} ${minorVersion}"
+                                }"""
+                            } else {
+                                dir(step.name) {
+                                    edgeXUpdateNamedTag(step.version, minorVersion)
+                                }
+                            }
+                        }
+
                         edgeXReleaseGitTag(step, [credentials: "edgex-jenkins-ssh", bump: true, tag: false])
                     }
                 }
