@@ -20,6 +20,7 @@ public class EdgeXReleaseSpec extends JenkinsPipelineSpecification {
         explicitlyMockPipelineVariable('edgeXReleaseDockerImage')
         explicitlyMockPipelineVariable('edgeXReleaseGitHubAssets')
         explicitlyMockPipelineVariable('edgeXReleaseOpenApi')
+        explicitlyMockPipelineVariable('edgeXUpdateNamedTag')
     }
 
     def "Test collectReleaseYamlFiles [Should] return instance of java.util.ArrayList of size 2 [When] called with no parameters and two changed files" () {
