@@ -120,7 +120,7 @@ def parallelStepFactoryTransform(step) {
                             // update vanity tag if artifact was built successfully
                             def minorVersion = "v${step.version.split("\\.")[0..1].join('.')}"
                             if(edgex.isDryRun()) {
-                                echo """dir('${dir.name}') {"
+                                echo """dir('${step.name}') {"
                                     ./update-named-tag.sh v${step.version} ${minorVersion}"
                                 }"""
                             } else {
