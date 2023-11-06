@@ -101,8 +101,7 @@ def parallelStepFactoryTransform(step) {
                 stage("Git Tag Publish") {
                     edgeXReleaseGitTag(step, [credentials: "edgex-jenkins-ssh", bump: false, tag: true])
 
-                    // this will add a random sleep (1-5 sec) to space out the stage artifact jobs after the git tagging
-                    sh 'sleep $[ ( $RANDOM % 5 )  + 1 ]s'
+                    sh 'sleep 3'
                 }
                 try {
                     stage("Stage Artifact") {
