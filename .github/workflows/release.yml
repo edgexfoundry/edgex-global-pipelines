@@ -24,7 +24,7 @@ jobs:
                   next="$version"
                 fi
               fi
-            done < <(grep -n "## \[v" CHANGELOG.md)
+            done < <(grep -n "## \[v\?" CHANGELOG.md)
             l1=$(echo "$release" | cut -d: -f1)
             l2=$(echo "$next" | cut -d: -f1)
             tail -n +$l1 CHANGELOG.md | head -n $((l2-l1)) > release-body.md
