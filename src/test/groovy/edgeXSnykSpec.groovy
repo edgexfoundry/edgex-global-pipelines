@@ -4,7 +4,7 @@ import spock.lang.Ignore
 public class EdgeXSnykSpec extends JenkinsPipelineSpecification {
 
     def edgeXSnyk = null
-    def snykImage = 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.410.4'
+    def snykImage = 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:latest'
 
     def setup() {
         edgeXSnyk = loadPipelineScriptForTest('vars/edgeXSnyk.groovy')
