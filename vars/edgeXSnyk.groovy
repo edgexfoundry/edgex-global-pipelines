@@ -79,7 +79,7 @@ def call(config = [:]) {
     def htmlReport        = edgex.defaultFalse(config.htmlReport)
     def projectName       = config.projectName
 
-    def snykScannerImage  = 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:1.410.4'
+    def snykScannerImage  = 'nexus3.edgexfoundry.org:10003/edgex-devops/edgex-snyk-go:latest'
     def org               = env.SNYK_ORG ?: 'edgex-jenkins'
 
     def globalIgnorePolicy = config.ignorePolicy ?: 'https://raw.githubusercontent.com/edgexfoundry/security-pipeline-policies/main/snyk/.snyk'
