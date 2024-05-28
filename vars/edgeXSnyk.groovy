@@ -131,6 +131,9 @@ def call(config = [:]) {
     def exitCode = -1
     withCredentials([string(credentialsId: 'snyk-cli-token', variable: 'SNYK_TOKEN')]) {
         docker.image(snykScannerImage).inside("-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''") {
+            // fixes permissions issues due new Go 1.18 buildvcs checks
+            sh 'git config --global --add safe.directory $WORKSPACE'
+
             def snykScript = "set -o pipefail ; ${command.join(' ')}"
             if(htmlReport) {
                 sh 'rm -f snykReport.html'
