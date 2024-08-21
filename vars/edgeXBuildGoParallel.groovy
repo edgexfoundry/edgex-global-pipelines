@@ -273,7 +273,10 @@ def call(config) {
                             stage('arm64') {
                                 when {
                                     beforeAgent true
-                                    expression { edgex.nodeExists(config, 'arm64') }
+                                    allOf {
+                                        expression { not { env.BRANCH_NAME ==~ /^PR-*/ } }
+                                        expression { edgex.nodeExists(config, 'arm64') }
+                                    }
                                 }
                                 agent {
                                     node {
