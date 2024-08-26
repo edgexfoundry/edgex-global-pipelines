@@ -274,7 +274,7 @@ def call(config) {
                                 when {
                                     beforeAgent true
                                     allOf {
-                                        expression { not { env.GIT_BRANCH ==~ /^PR-*/ } }
+                                        expression { not { env.GIT_BRANCH =~ /^PR-.*/ } }
                                         expression { edgex.nodeExists(config, 'arm64') }
                                     }
                                 }
