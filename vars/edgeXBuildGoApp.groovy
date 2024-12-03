@@ -301,6 +301,7 @@ def call(config) {
                                 when {
                                     beforeAgent true
                                     expression { !env.GIT_BRANCH.startsWith('PR-') }
+                                    expression { !(env.PROJECT =~ /go-mod|sdk/) }
                                     expression { edgex.nodeExists(config, 'arm64') }
                                 }
                                 agent {
