@@ -178,8 +178,6 @@ def call(config) {
                     stage('arm64') {
                         when {
                             beforeAgent true
-                            expression { !env.GIT_BRANCH.startsWith('PR-') }
-                            expression { !(env.PROJECT =~ /sdk/) }
                             expression { edgex.nodeExists(config, 'arm64') }
                         }
                         agent {
@@ -312,6 +310,8 @@ def call(config) {
                             stage('arm64') {
                                 when {
                                     beforeAgent true
+                                    expression { !env.GIT_BRANCH.startsWith('PR-') }
+                                    expression { !(env.PROJECT =~ /sdk/) }
                                     expression { edgex.nodeExists(config, 'arm64') }
                                 }
                                 agent {
