@@ -121,6 +121,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def taggedAMD64Images
 def taggedARM64Images
+def multiArchImages
 
 def call(config) {
     edgex.bannerMessage "[edgeXBuildGoApp] RAW Config: ${config}"
@@ -218,33 +219,33 @@ def call(config) {
                                         }
                                     }
 
-                                    stage('Test') {
-                                        // need to always run this stage due to codecov always needing the coverage.out file
-                                        // when {
-                                        //     expression { !edgex.isReleaseStream() }
-                                        // }
-                                        steps {
-                                            script {
-                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock') {
-                                                    // fixes permissions issues due new Go 1.18 buildvcs checks
-                                                    sh 'git config --global --add safe.directory $WORKSPACE'
+                                    // stage('Test') {
+                                    //     // need to always run this stage due to codecov always needing the coverage.out file
+                                    //     // when {
+                                    //     //     expression { !edgex.isReleaseStream() }
+                                    //     // }
+                                    //     steps {
+                                    //         script {
+                                    //             docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock') {
+                                    //                 // fixes permissions issues due new Go 1.18 buildvcs checks
+                                    //                 sh 'git config --global --add safe.directory $WORKSPACE'
                                                     
-                                                    // TODO: This should go away after Kamakura, all repos now have a go.sum file.
-                                                    if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
-                                                        sh 'go mod tidy' // for Go 1.16
-                                                    }
-                                                    sh "${env.TEST_SCRIPT}"
+                                    //                 // TODO: This should go away after Kamakura, all repos now have a go.sum file.
+                                    //                 if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
+                                    //                     sh 'go mod tidy' // for Go 1.16
+                                    //                 }
+                                    //                 sh "${env.TEST_SCRIPT}"
 
-                                                    // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
-                                                    if(edgex.isLTS() && fileExists('vendor')) {
-                                                        sh 'go mod tidy'
-                                                    }
-                                                }
-                                                sh 'sudo chown -R jenkins:jenkins .' // fix perms
-                                                stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
-                                            }
-                                        }
-                                    }
+                                    //                 // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
+                                    //                 if(edgex.isLTS() && fileExists('vendor')) {
+                                    //                     sh 'go mod tidy'
+                                    //                 }
+                                    //             }
+                                    //             sh 'sudo chown -R jenkins:jenkins .' // fix perms
+                                    //             stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
+                                    //         }
+                                    //     }
+                                    // }
 
                                     stage('Build') {
                                         when { environment name: 'SHOULD_BUILD', value: 'true' }
@@ -258,7 +259,7 @@ def call(config) {
                                             allOf {
                                                 environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                                 environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                                expression { edgex.isReleaseStream() }
+                                                //expression { edgex.isReleaseStream() }
                                             }
                                         }
 
@@ -270,25 +271,25 @@ def call(config) {
                                         }
                                     }
 
-                                    stage('Snap') {
-                                        agent {
-                                            node {
-                                                label 'ubuntu18.04-docker-8c-8g'
-                                                customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
-                                            }
-                                        }
-                                        when {
-                                            beforeAgent true
-                                            allOf {
-                                                environment name: 'BUILD_SNAP', value: 'true'
-                                                expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
-                                                expression { !edgex.isReleaseStream() }
-                                            }
-                                        }
-                                        steps {
-                                            edgeXSnap()
-                                        }
-                                    }
+                                    // stage('Snap') {
+                                    //     agent {
+                                    //         node {
+                                    //             label 'ubuntu18.04-docker-8c-8g'
+                                    //             customWorkspace "/w/workspace/${env.PROJECT}/${env.BUILD_ID}"
+                                    //         }
+                                    //     }
+                                    //     when {
+                                    //         beforeAgent true
+                                    //         allOf {
+                                    //             environment name: 'BUILD_SNAP', value: 'true'
+                                    //             expression { findFiles(glob: 'snap/snapcraft.yaml').length == 1 }
+                                    //             expression { !edgex.isReleaseStream() }
+                                    //         }
+                                    //     }
+                                    //     steps {
+                                    //         edgeXSnap()
+                                    //     }
+                                    // }
                                 }
                                 post {
                                     always {
@@ -300,7 +301,7 @@ def call(config) {
                             stage('arm64') {
                                 when {
                                     beforeAgent true
-                                    expression { !env.GIT_BRANCH.startsWith('PR-') }
+                                    //expression { !env.GIT_BRANCH.startsWith('PR-') }
                                     expression { !(env.PROJECT =~ /go-mod|sdk/) }
                                     expression { edgex.nodeExists(config, 'arm64') }
                                 }
@@ -334,33 +335,33 @@ def call(config) {
                                         }
                                     }
 
-                                    stage('Test') {
-                                        // need to always run this stage due to codecov always needing the coverage.out file
-                                        // when {
-                                        //     expression { !edgex.isReleaseStream() }
-                                        // }
-                                        steps {
-                                            script {
-                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock') {
-                                                    // fixes permissions issues due new Go 1.18 buildvcs checks
-                                                    sh 'git config --global --add safe.directory $WORKSPACE'
+                                    // stage('Test') {
+                                    //     // need to always run this stage due to codecov always needing the coverage.out file
+                                    //     // when {
+                                    //     //     expression { !edgex.isReleaseStream() }
+                                    //     // }
+                                    //     steps {
+                                    //         script {
+                                    //             docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock') {
+                                    //                 // fixes permissions issues due new Go 1.18 buildvcs checks
+                                    //                 sh 'git config --global --add safe.directory $WORKSPACE'
 
-                                                    // TODO: This should go away after Kamakura, all repos now have a go.sum file.
-                                                    if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
-                                                        sh 'go mod tidy' // for Go 1.16
-                                                    }
-                                                    sh "${env.TEST_SCRIPT}"
+                                    //                 // TODO: This should go away after Kamakura, all repos now have a go.sum file.
+                                    //                 if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
+                                    //                     sh 'go mod tidy' // for Go 1.16
+                                    //                 }
+                                    //                 sh "${env.TEST_SCRIPT}"
 
-                                                    // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
-                                                    if(edgex.isLTS() && fileExists('vendor')) {
-                                                        sh 'go mod tidy'
-                                                    }
-                                                }
-                                                sh 'sudo chown -R jenkins:jenkins .' // fix perms
-                                                stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
-                                            }
-                                        }
-                                    }
+                                    //                 // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
+                                    //                 if(edgex.isLTS() && fileExists('vendor')) {
+                                    //                     sh 'go mod tidy'
+                                    //                 }
+                                    //             }
+                                    //             sh 'sudo chown -R jenkins:jenkins .' // fix perms
+                                    //             stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
+                                    //         }
+                                    //     }
+                                    // }
 
                                     stage('Build') {
                                         when { environment name: 'SHOULD_BUILD', value: 'true' }
@@ -420,6 +421,24 @@ def call(config) {
 
                     //////////////////////////////////////////////////////////////////
                     // We should be back on the mainAgent here.
+
+                    stage('Docker Multi-Arch Push') {
+                        when {
+                                allOf {
+                                    environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
+                                    environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
+                                    //expression { edgex.isReleaseStream() }
+                                }
+                            }
+
+                        steps {
+                            script {
+                                taggedAMD64Images.each{
+                                    multiArchImages = edgeXDocker.multiArch(it)
+                                }
+                            }
+                        }
+                    }
 
                     // CodeCov should only run once, no need to run per arch only
                     stage('CodeCov') {
@@ -543,18 +562,18 @@ def call(config) {
         }
 
         post {
-            failure {
-                script {
-                    currentBuild.result = 'FAILED'
-                    // only send email when on a release stream branch i.e. main, hanoi, ireland, etc.
-                    if(edgex.isReleaseStream()) {
-                        edgeXEmail(emailTo: env.BUILD_FAILURE_NOTIFY_LIST)
-                    }
-                }
-            }
-            always {
-                edgeXInfraPublish()
-            }
+            // failure {
+            //     script {
+            //         currentBuild.result = 'FAILED'
+            //         // only send email when on a release stream branch i.e. main, hanoi, ireland, etc.
+            //         if(edgex.isReleaseStream()) {
+            //             edgeXEmail(emailTo: env.BUILD_FAILURE_NOTIFY_LIST)
+            //         }
+            //     }
+            // }
+            // always {
+            //     edgeXInfraPublish()
+            // }
             cleanup {
                 cleanWs()
             }

@@ -34,6 +34,7 @@
  - `edgeXDocker.cleanImageUrl`: Returns image url without protocol.
  - `edgeXDocker.parse`: Reads a docker image url and returns the parsed [image object](#parsed-image-object) components.
  - `edgeXDocker.toImageStr`: Returns docker image string from an [image object](#parsed-image-object).
+ - `edgeXDocker.multiArch`: retag the base x86 input image and create a multiarch image.
 
  ## Parsed image object
 
@@ -389,6 +390,9 @@ def multiArch(image) {
     // The x86 image will need to be pushed before the manifest can be created.
     sh "docker push ${x86Image}"
     sh "docker manifest create ${image} --amend ${x86Image} --amend ${armImage}"
+
+    println "=====================================================" //debug
+    println "manifestImages:\n${image.collect {"  - ${it}"}.join('\n')}" //debug
 
     image
 }
