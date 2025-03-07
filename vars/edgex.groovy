@@ -284,7 +284,8 @@ def getGoLangBaseImage(version, alpineBased, branchOverride = null) {
         def goLTSImages = [
             '1.16': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.16-alpine-lts',
             '1.17': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.17-alpine-lts',
-            '1.21': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.21-alpine-lts'
+            '1.21': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.21-alpine-lts',
+            '1.23': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.23-alpine-lts'
         ]
 
         // isLTS uses env.GIT_BRANCH to determine if the build is a LTS build
