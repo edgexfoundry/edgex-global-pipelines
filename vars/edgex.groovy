@@ -67,13 +67,13 @@
 
 def isReleaseStream(branchName = env.GIT_BRANCH) {
     // what defines a main release branch
-    def releaseStreams = [/^main$/, /^master$/, /^california$/, /^delhi$/, /^edinburgh$/, /^fuji$/, /^geneva$/, /^hanoi$/, /^ireland$/, /^lts-test$/, /^jakarta$/, /^kamakura$/, /^levski$/, /^minnesota$/, /^napa$/]
+    def releaseStreams = [/^main$/, /^master$/, /^california$/, /^delhi$/, /^edinburgh$/, /^fuji$/, /^geneva$/, /^hanoi$/, /^ireland$/, /^lts-test$/, /^jakarta$/, /^kamakura$/, /^levski$/, /^minnesota$/, /^napa$/, /^odessa$/]
     env.SILO == 'production' && (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
 
 def isLTS(branchOverride = null) {
     def branchName = branchOverride ?: getTargetBranch()
-    def ltsStreams = [/^jakarta$/, /^napa$/, /^lts-test$/]
+    def ltsStreams = [/^jakarta$/, /^napa$/, /^odessa$/, /^lts-test$/]
     println "[edgeX.isLTS] Checking if [${branchName}] matches against LTS streams [${ltsStreams}]"
     (branchName && (ltsStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
