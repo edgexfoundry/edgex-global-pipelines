@@ -152,7 +152,9 @@ def parallelStepFactoryTransform(step) {
                 }
             }
 
-            edgeXReleaseOpenApi(step)
+            if(step.apiInfo) {
+                edgeXReleaseOpenApi(step)
+            }
         }
     }
 }

@@ -66,15 +66,13 @@
 def call (releaseInfo) {
     // Check to see if we have already cloned the repo
     if(!fileExists(releaseInfo.name)) {
-        withEnv(['DRY_RUN=false']) {
-            edgeXReleaseGitTag.cloneRepo(
-                releaseInfo.repo,
-                releaseInfo.releaseStream,
-                releaseInfo.name,
-                releaseInfo.commitId,
-                'edgex-jenkins-ssh'
-            )
-        }
+        edgeXReleaseGitTag.cloneRepo(
+            releaseInfo.repo,
+            releaseInfo.releaseStream,
+            releaseInfo.name,
+            releaseInfo.commitId,
+            'edgex-jenkins-ssh'
+        )
     }
 
     // set user info for commits
@@ -82,10 +80,10 @@ def call (releaseInfo) {
     sh 'git config --global user.name "EdgeX Jenkins"'
 
     dir(releaseInfo.name) {
-        if(fileExists('openapi/v2')) {
+        if(fileExists('openapi')) {
             // Adding stage in here as detection is based on files in the workspace
             stage("OpenApi Version Bump") {
-                echo '[edgeXReleaseOpenApi] Detected openapi/v2 folder. Validating release yaml.'
+                echo '[edgeXReleaseOpenApi] Detected openapi folder. Validating release yaml.'
                 validate(releaseInfo)
                 publishOpenApiChanges(releaseInfo)
             }
@@ -103,7 +101,7 @@ def publishOpenApiChanges(releaseInfo) {
 
     def nextApiVersion = releaseInfo.apiInfo.nextReleaseVersion
 
-    sh "sed -E -i 's|  version: (.*)|  version: ${nextApiVersion}|g' openapi/v2/*.yaml"
+    sh "sed -E -i 's|  version: (.*)|  version: ${nextApiVersion}|g' openapi/*.yaml"
 
     edgex.bannerMessage "[edgeXReleaseOpenApi] Here is the diff related release branch changes"
     sh 'git diff'
@@ -111,7 +109,9 @@ def publishOpenApiChanges(releaseInfo) {
     def title = "ci: automated version changes for OpenAPI version: [${nextApiVersion}]"
     def body = "This PR updates the OpenAPI version yaml the next release version ${nextApiVersion}"
 
-    edgex.createPR(branch, title, body, releaseInfo.apiInfo.reviewers, 'ci,documentation')
+    if(!edgex.isDryRun()) {
+        edgex.createPR(branch, title, body, releaseInfo.apiInfo.reviewers, 'ci,documentation')
+    }
 }
 
 def validate(releaseYaml) {

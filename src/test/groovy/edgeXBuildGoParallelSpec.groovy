@@ -246,7 +246,7 @@ public class EdgeXBuildGoParallelSpec extends JenkinsPipelineSpecification {
                     SEMVER_BUMP_LEVEL: 'pre',
                     //GOPROXY: 'https://nexus3.edgexfoundry.org/repository/go-proxy/',
                     PUBLISH_SWAGGER_DOCS: false,
-                    SWAGGER_API_FOLDERS: 'openapi/v1 openapi/v2',
+                    SWAGGER_API_FOLDERS: 'openapi/v1 openapi/v2 openapi',
                     // SNAP_CHANNEL: 'latest/edge',
                     BUILD_SNAP: false,
                     BUILD_FAILURE_NOTIFY_LIST: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org',

@@ -50,7 +50,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  semverBump | optional | str | The semver axis to bump, see [git-semver](https://github.com/edgexfoundry/git-semver) for valid axis values.<br /><br />**Default**: `pre`
  buildSnap | optional | bool | Specify if Jenkins should build a Snap for your project. **Note** If set, your project must also include a valid snapcraft yaml `snap/snapcraft.yaml` for Jenkins to attempt to build the Snap.<br /><br />**Default**: `false`
  publishSwaggerDocs | optional | bool | Specify if Jenkins should attempt to publish your projects API documentation to SwaggerHub. **Note** in order for Jenkins to publish to SwaggerHub you must ensure a valid value for `swaggerApiFolders` is set.<br /><br />**Default**: `false`
- swaggerApiFolders | optional | list | The list of paths to your projects API Swagger-based documentation.<br /><br />**Default**: `['openapi/v1', 'openapi/v2']`
+ swaggerApiFolders | optional | list | The list of paths to your projects API Swagger-based documentation.<br /><br />**Default**: `['openapi/v1', 'openapi/v2', 'openapi']`
  failureNotify | optional | str | The group emails (comma-delimited) to email when the Jenkins job fails.<br /><br />**Default**: `edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org`
  arch | optional | array | A list of system architectures to target for the build. Possible values are `amd64` or `arm64`.<br /><br />**Default**: ['amd64', 'arm64']
 
@@ -74,7 +74,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
     testScript: 'make test',
     buildScript: 'make build',
     publishSwaggerDocs: true,
-    swaggerApiFolders: ['openapi/v1', 'openapi/v2'],
+    swaggerApiFolders: ['openapi/v1', 'openapi/v2', 'openapi'],
     buildSnap: true
  )
  ```
@@ -104,7 +104,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
      semverBump: 'pre',
      buildSnap: false,
      publishSwaggerDocs: false,
-     swaggerApiFolders: ['openapi/v1', 'openapi/v2'],
+     swaggerApiFolders: ['openapi/v1', 'openapi/v2', 'openapi'],
      failureNotify: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org',
      arch: ['amd64', 'arm64']
  )
@@ -582,7 +582,7 @@ def toEnvironment(config) {
     def _semverBump            = config.semverBump ?: 'pre'
     def _goProxy               = config.goProxy ?: 'https://nexus3.edgexfoundry.org/repository/go-proxy/'
     def _publishSwaggerDocs    = edgex.defaultFalse(config.publishSwaggerDocs)
-    def _swaggerApiFolders     = config.swaggerApiFolders ?: ['openapi/v1', 'openapi/v2']
+    def _swaggerApiFolders     = config.swaggerApiFolders ?: ['openapi/v1', 'openapi/v2', 'openapi']
     def _failureNotify         = config.failureNotify ?: 'edgex-tsc-core@lists.edgexfoundry.org,edgex-tsc-devops@lists.edgexfoundry.org'
     def _snykDebug             = edgex.defaultFalse(config.snykDebug)
 
