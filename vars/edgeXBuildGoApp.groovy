@@ -79,7 +79,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
      testScript: 'make test',
      buildImage: false,
      publishSwaggerDocs: true,
-     swaggerApiFolders: ['openapi/v2']
+     swaggerApiFolders: ['openapi']
  )
  ```
 
