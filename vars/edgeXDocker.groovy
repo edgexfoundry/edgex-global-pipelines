@@ -205,6 +205,10 @@ ${tags.join('\n')}
     println "=====================================================" //debug
     println "taggedImages:\n${taggedImages.collect {"  - ${it}"}.join('\n')}" //debug
 
+    if(finalImage.host =~ /nexus3.edgexfoundry.org/ && !finalImage.image.contains('arm64')) {
+        edgeXBuildMultiArch(images: taggedImages, settingsFile: env.MAVEN_SETTINGS)
+    }
+    
     taggedImages
 }
 

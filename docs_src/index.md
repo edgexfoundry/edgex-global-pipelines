@@ -44,3 +44,4 @@ This repository contains useful Jenkins global library functions used within the
 - [edgeXInfraPublish](libraries/edgeXInfraPublish.md)
 - [edgeXUpdateNamedTag](libraries/edgeXUpdateNamedTag.md)
 - [edgeXInfraShipLogs](libraries/edgeXInfraShipLogs.md)
+- [edgeXBuildMultiArch](libraries/edgeXBuildMultiArch.md)
