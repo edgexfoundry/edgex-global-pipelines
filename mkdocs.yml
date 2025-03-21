@@ -41,6 +41,7 @@ nav:
     - './libraries/edgeXSnyk.md'
     - './libraries/edgeXSwaggerPublish.md'
     - './libraries/edgeXUpdateNamedTag.md'
+    - './libraries/edgeXBuildMultiArch.md'
   - Release Functions:
     - './libraries/edgeXRelease.md'
     - './libraries/edgeXReleaseDockerImage.md'
