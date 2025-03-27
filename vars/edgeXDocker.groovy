@@ -158,7 +158,7 @@ def generateServiceYaml(serviceName, imageNamePrefix, dockerFile, labels, arch =
 
 
 // overload dockerImage to be a String or a Map
-def push(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {
+def pushDockerImage(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {
     def taggedImages = []
 
     def nexusPortMapping = [
@@ -205,11 +205,31 @@ ${tags.join('\n')}
     println "=====================================================" //debug
     println "taggedImages:\n${taggedImages.collect {"  - ${it}"}.join('\n')}" //debug
 
-    if(finalImage.host =~ /nexus3.edgexfoundry.org/ && !finalImage.image.contains('arm64')) {
-        edgeXBuildMultiArch(images: taggedImages, settingsFile: env.MAVEN_SETTINGS)
-    }
-    
     taggedImages
+}
+
+def pushMultiArchImages(dockerImages){
+    def multiArchImages = []
+
+    dockerImages.each { image ->
+      if (image.contains('nexus3.edgexfoundry.org') && !image.contains('arm64')) {
+        multiArchImages << image
+      }
+    }
+    println "=====================================================" //debug
+    println "multiArchImages:\n${multiArchImages.collect {"  - ${it}"}.join('\n')}" //debug
+
+    edgeXBuildMultiArch(images: multiArchImages, settingsFile: env.MAVEN_SETTINGS)
+}
+
+def push(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {
+    def pushedImages = []
+
+    pushedImages = pushDockerImage(dockerImage, latest, nexusRepo, tags)
+
+    pushMultiArchImages(pushedImages)
+    
+    pushedImages
 }
 
 /*
@@ -220,6 +240,7 @@ ${tags.join('\n')}
 */
 def pushAll(dockerImages, latest = true, nexusRepo = 'staging', arch = null) {
     def pushedImages = []
+    def allPushedImages = []
 
     for(int i = 0; i < dockerImages.size(); i++) {
         def imgDetails = dockerImages[i]
@@ -228,13 +249,16 @@ def pushAll(dockerImages, latest = true, nexusRepo = 'staging', arch = null) {
         def imageNameSuffix = arch && arch == 'arm64' ? "-${arch}" : ''
         def imageName = "${imgDetails.image}${imageNameSuffix}"
 
-        def taggedImages = push(imageName, latest, nexusRepo)
+        def taggedImages = pushDockerImage(imageName, latest, nexusRepo)
 
-        // grab the first tag for Clair scan later
         if(taggedImages) {
+            allPushedImages << taggedImages
+            // grab the first tag for Clair scan later
             pushedImages << taggedImages.first()
         }
     }
+
+    pushMultiArchImages(allPushedImages)
 
     pushedImages
 }

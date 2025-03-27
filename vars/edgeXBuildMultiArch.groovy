@@ -22,7 +22,7 @@
 */
 
 def call(config = [:]) {
-    edgex.bannerMessage "[edgeXBuildMultiArch] RAW Config: ${config}"
+    edgex.bannerMessage "[edgeXBuildMultiArch] RAW Config:\n  images:\n${config.images.collect {"    - ${it}"}.join('\n')}\n  settingsFile:\n${config.settingsFile}"
     def images = config.images
     if(!images) {
         error('[edgeXBuildMultiArch] Images list (images) is required.')
@@ -41,7 +41,7 @@ def call(config = [:]) {
                 }
             }
         } catch(err){
-            error('[edgeXBuildMultiArch] Error details: ${err.message}')
+            error("[edgeXBuildMultiArch] Error details: ${err.message}")
         }
         finally{
             edgeXInfraPublish()
