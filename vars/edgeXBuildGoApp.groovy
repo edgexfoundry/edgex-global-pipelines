@@ -258,7 +258,7 @@ def call(config) {
                                             allOf {
                                                 environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                                 environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                                expression { edgex.isReleaseStream() }
+                                                //expression { edgex.isReleaseStream() }
                                             }
                                         }
 
@@ -300,7 +300,7 @@ def call(config) {
                             stage('arm64') {
                                 when {
                                     beforeAgent true
-                                    expression { !env.GIT_BRANCH.startsWith('PR-') }
+                                    //expression { !env.GIT_BRANCH.startsWith('PR-') }
                                     expression { !(env.PROJECT =~ /go-mod|sdk/) }
                                     expression { edgex.nodeExists(config, 'arm64') }
                                 }
@@ -376,7 +376,7 @@ def call(config) {
                                             allOf {
                                                 environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                                 environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                                expression { edgex.isReleaseStream() }
+                                                //expression { edgex.isReleaseStream() }
                                             }
                                         }
 
