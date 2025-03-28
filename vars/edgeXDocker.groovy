@@ -214,12 +214,13 @@ def pushMultiArchImages(dockerImages){
     dockerImages.each { image ->
       if (image.contains('nexus3.edgexfoundry.org') && !image.contains('arm64')) {
         multiArchImages << image
+      } else {
+        println "Skip building multi-arch image for ${image}"
       }
     }
-    println "=====================================================" //debug
-    println "multiArchImages:\n${multiArchImages.collect {"  - ${it}"}.join('\n')}" //debug
-
-    edgeXBuildMultiArch(images: multiArchImages, settingsFile: env.MAVEN_SETTINGS)
+    if (multiArchImages.size() > 0) {
+      edgeXBuildMultiArch(images: multiArchImages, settingsFile: env.MAVEN_SETTINGS)
+    }
 }
 
 def push(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {

@@ -22,7 +22,7 @@
 */
 
 def call(config = [:]) {
-    edgex.bannerMessage "[edgeXBuildMultiArch] RAW Config:\n  images:\n${config.images.collect {"    - ${it}"}.join('\n')}\n  settingsFile:\n${config.settingsFile}"
+    edgex.bannerMessage "[edgeXBuildMultiArch] RAW Config:\nimages:\n${config.images.collect {"  - ${it}"}.join('\n')}\nsettingsFile:\n  ${config.settingsFile}"
     def images = config.images
     if(!images) {
         error('[edgeXBuildMultiArch] Images list (images) is required.')
