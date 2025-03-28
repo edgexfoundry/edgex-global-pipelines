@@ -251,14 +251,15 @@ def pushAll(dockerImages, latest = true, nexusRepo = 'staging', arch = null) {
         def imageName = "${imgDetails.image}${imageNameSuffix}"
 
         def taggedImages = pushDockerImage(imageName, latest, nexusRepo)
-
+        println(taggedImages)
         if(taggedImages) {
-            allPushedImages << taggedImages
+            allPushedImages.addAll(taggedImages)
             // grab the first tag for Clair scan later
             pushedImages << taggedImages.first()
         }
     }
-
+    println "all pushed: ${allPushedImages}"
+    println "returning: ${pushedImages}"
     pushMultiArchImages(allPushedImages)
 
     pushedImages
