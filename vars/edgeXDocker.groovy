@@ -156,9 +156,55 @@ def generateServiceYaml(serviceName, imageNamePrefix, dockerFile, labels, arch =
     image: ${imageNamePrefix}${serviceName}${imageNameSuffix}"""
 }
 
-
-// overload dockerImage to be a String or a Map
+// push single docker image with tags. Also create and push multi-architecture images based on the pushed images.
 def push(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {
+    def pushedImages = []
+
+    pushedImages = pushDockerImage(dockerImage, latest, nexusRepo, tags)
+
+    pushMultiArchImages(pushedImages)
+
+    pushedImages
+}
+
+/*
+ * push all input docker images. Also create and push multi-architecture images based on the pushed images.
+ *
+ * @param dockerImages = [
+       [image: 'docker-example', dockerfile: '/path/to/dockerfile'],
+       ...
+   ]
+*/
+def pushAll(dockerImages, latest = true, nexusRepo = 'staging', arch = null) {
+    def pushedImages = []
+    def allPushedImages = []
+
+    for(int i = 0; i < dockerImages.size(); i++) {
+        def imgDetails = dockerImages[i]
+
+        def imageNameSuffix = arch && arch == 'arm64' ? "-${arch}" : ''
+        def imageName = "${imgDetails.image}${imageNameSuffix}"
+
+        def taggedImages = pushDockerImage(imageName, latest, nexusRepo)
+
+        if(taggedImages) {
+            allPushedImages.addAll(taggedImages)
+            // grab the first tag for Clair scan later
+            pushedImages << taggedImages.first()
+        }
+    }
+
+    pushMultiArchImages(allPushedImages)
+
+    pushedImages
+}
+
+/*
+ * push a docker image to a specified nexus repository with tags.
+ *
+ * @param dockerImage to be a String or a Map
+*/
+def pushDockerImage(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {
     def taggedImages = []
 
     def nexusPortMapping = [
@@ -205,38 +251,24 @@ ${tags.join('\n')}
     println "=====================================================" //debug
     println "taggedImages:\n${taggedImages.collect {"  - ${it}"}.join('\n')}" //debug
 
-    if(finalImage.host =~ /nexus3.edgexfoundry.org/ && !finalImage.image.contains('arm64')) {
-        edgeXBuildMultiArch(images: taggedImages, settingsFile: env.MAVEN_SETTINGS)
-    }
-    
     taggedImages
 }
 
-/*
-   dockerImages = [
-       [image: 'docker-example', dockerfile: '/path/to/dockerfile'],
-       ...
-   ]
-*/
-def pushAll(dockerImages, latest = true, nexusRepo = 'staging', arch = null) {
-    def pushedImages = []
+// create and push multi-architecture docker images based on the input dockerImages
+def pushMultiArchImages(dockerImages){
+    def multiArchImages = []
 
-    for(int i = 0; i < dockerImages.size(); i++) {
-        def imgDetails = dockerImages[i]
-        
-        // TODO: Need to standardize this. Maybe the caller should do this?? Not sure.
-        def imageNameSuffix = arch && arch == 'arm64' ? "-${arch}" : ''
-        def imageName = "${imgDetails.image}${imageNameSuffix}"
-
-        def taggedImages = push(imageName, latest, nexusRepo)
-
-        // grab the first tag for Clair scan later
-        if(taggedImages) {
-            pushedImages << taggedImages.first()
-        }
+    dockerImages.each { image ->
+      // only create multi-architecture images under nexus x86 repos
+      if (image.contains('nexus3.edgexfoundry.org') && !image.contains('arm64')) {
+        multiArchImages << image
+      } else {
+        println "Skip building multi-arch image for ${image}"
+      }
     }
-
-    pushedImages
+    if (multiArchImages.size() > 0) {
+      edgeXBuildMultiArch(images: multiArchImages, settingsFile: env.MAVEN_SETTINGS)
+    }
 }
 
 def getDockerTags(latest = true, customTags = env.DOCKER_CUSTOM_TAGS) {
