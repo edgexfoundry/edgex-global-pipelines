@@ -194,6 +194,7 @@ def getCommitTags(credentials, pointsAt) {
     def commitTags = []
     def tags
     sshagent (credentials: [credentials]) {
+        sh 'git config --global --add safe.directory $WORKSPACE'
         tags = sh(script: "git tag --points-at ${pointsAt}", returnStdout: true).trim()
     }
     if(tags) {
