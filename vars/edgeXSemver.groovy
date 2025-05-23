@@ -161,6 +161,7 @@ def executeGitSemver(credentials, semverCommand) {
                 set -e
             """
         }
+        sh 'git config --global --add safe.directory $WORKSPACE'
         sh semverCommand
     }
 }
