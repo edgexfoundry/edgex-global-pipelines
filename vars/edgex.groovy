@@ -56,7 +56,6 @@
  - `edgex.isGoProject`: Looks at repository directory structure to determine if the repository is Golang based. Uses the existence of the `go.mod` file.
  - `edgex.getCBaseImage`: Return the base image used as the base image for all C based repositories.
  - `edgex.parallelJobCost`: Wraps call to `lfParallelCostCapture` inside docker image to save time downloading pip dependencies.
- - `edgex.patchAlpineSeccompArm64`: A fix for arm64 nodes that enables a security profile for docker. Another workaround is to just use the `--privileged` docker flag.
  - `edgex.isLTSReleaseBuild`: Returns `true` if current commit message begins with `ci(lts-release)`.
  - `edgex.semverPrep`: Poorly named function that sets up the `env.NAMED_TAG` and `env.BUILD_STABLE_DOCKER_IMAGE` for the build commit concept. Will be removed in a future release.
  - `edgex.waitFor`: Useful function to wait for a condition in a shell script to be met.
@@ -331,17 +330,6 @@ def parallelJobCost(tag='latest') {
     {
         lfParallelCostCapture()
     }
-}
-
-// Temporary fix for this issue. Will look to fix this in packer image after Jakarta
-// Issue with alpine:3.14 and older docker versions
-// See: https://wiki.alpinelinux.org/wiki/Release_Notes_for_Alpine_3.14.0#faccessat2
-def patchAlpineSeccompArm64() {
-    sh 'sudo curl -o /etc/docker/seccomp.json "https://raw.githubusercontent.com/moby/moby/master/profiles/seccomp/default.json"'
-    sh 'sudo sed -i \'s/"defaultAction": "SCMP_ACT_ERRNO"/"defaultAction": "SCMP_ACT_TRACE"/g\' /etc/docker/seccomp.json'
-    sh 'sudo jq \'. += {"seccomp-profile": "/etc/docker/seccomp.json"}\' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.new'
-    sh 'sudo mv /etc/docker/daemon.new /etc/docker/daemon.json'
-    sh 'sudo service docker restart'
 }
 
 // TODO: Refactor to edgeXLTS

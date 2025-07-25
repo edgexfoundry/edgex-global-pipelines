@@ -188,8 +188,6 @@ def call(config) {
                         }
                         steps {
                             script {
-                                edgex.patchAlpineSeccompArm64()
-
                                 edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
 
                                 def ltsReleaseImage = prepBaseBuildImage(true) // example return: device-grove-c-builder-arm64
@@ -327,8 +325,6 @@ def call(config) {
                                     stage('Prep') {
                                         steps {
                                             script {
-                                                edgex.patchAlpineSeccompArm64()
-
                                                 if(params.CommitId) {
                                                     sh "git checkout ${params.CommitId}"
                                                 }
