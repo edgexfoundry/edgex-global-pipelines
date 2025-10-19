@@ -784,7 +784,7 @@ public class EdgeXSpec extends JenkinsPipelineSpecification {
         setup:
             getPipelineMock('sh')([
                 returnStdout: true,
-                script: "grep '^go [0-9].[0-9]*' go.mod | cut -d' ' -f 2"]) >> '1.17'
+                script: "grep '^go [0-9].[0-9]*' go.mod | cut -d' ' -f 2 | cut -d '.' -f1-2"]) >> '1.17'
         expect:
             edgeX.getGoModVersion() == '1.17'
     }
