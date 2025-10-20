@@ -306,7 +306,7 @@ def getGoLangBaseImage(version, alpineBased, branchOverride = null) {
 }
 
 def getGoModVersion() {
-    sh(script: "grep '^go [0-9].[0-9]*' go.mod | cut -d' ' -f 2", returnStdout: true).trim()
+    sh(script: "grep '^go [0-9].[0-9]*' go.mod | cut -d' ' -f 2 | cut -d '.' -f1-2", returnStdout: true).trim()
 }
 
 def isGoProject(folder) {
