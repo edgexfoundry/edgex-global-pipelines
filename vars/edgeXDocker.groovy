@@ -156,19 +156,19 @@ def generateServiceYaml(serviceName, imageNamePrefix, dockerFile, labels, arch =
     image: ${imageNamePrefix}${serviceName}${imageNameSuffix}"""
 }
 
-// push single docker image with tags. Also create and push multi-architecture images based on the pushed images.
+// push single docker image with tags.
 def push(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {
     def pushedImages = []
 
     pushedImages = pushDockerImage(dockerImage, latest, nexusRepo, tags)
 
-    pushMultiArchImages(pushedImages)
+    // pushMultiArchImages(pushedImages)
 
     pushedImages
 }
 
 /*
- * push all input docker images. Also create and push multi-architecture images based on the pushed images.
+ * push all input docker images.
  *
  * @param dockerImages = [
        [image: 'docker-example', dockerfile: '/path/to/dockerfile'],
@@ -194,7 +194,7 @@ def pushAll(dockerImages, latest = true, nexusRepo = 'staging', arch = null) {
         }
     }
 
-    pushMultiArchImages(allPushedImages)
+    // pushMultiArchImages(allPushedImages)
 
     pushedImages
 }
@@ -254,6 +254,8 @@ ${tags.join('\n')}
     taggedImages
 }
 
+// DISABLED: current dev build infrastructure doesn't support docker manifest or docker buildx with arm64 build
+// edgeXBuildMultiArch builds multi-arch images, but fails with "exec format error" on startup
 // create and push multi-architecture docker images based on the input dockerImages
 def pushMultiArchImages(dockerImages){
     def multiArchImages = []
