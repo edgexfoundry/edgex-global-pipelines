@@ -66,13 +66,13 @@
 
 def isReleaseStream(branchName = env.GIT_BRANCH) {
     // what defines a main release branch
-    def releaseStreams = [/^main$/, /^master$/, /^california$/, /^delhi$/, /^edinburgh$/, /^fuji$/, /^geneva$/, /^hanoi$/, /^ireland$/, /^lts-test$/, /^jakarta$/, /^kamakura$/, /^levski$/, /^minnesota$/, /^napa$/, /^odessa$/]
+    def releaseStreams = [/^main$/, /^master$/, /^california$/, /^delhi$/, /^edinburgh$/, /^fuji$/, /^geneva$/, /^hanoi$/, /^ireland$/, /^lts-test$/, /^jakarta$/, /^kamakura$/, /^levski$/, /^minnesota$/, /^napa$/, /^odessa$/, /^palau$/]
     env.SILO == 'production' && (branchName && (releaseStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
 
 def isLTS(branchOverride = null) {
     def branchName = branchOverride ?: getTargetBranch()
-    def ltsStreams = [/^jakarta$/, /^napa$/, /^odessa$/, /^lts-test$/]
+    def ltsStreams = [/^jakarta$/, /^napa$/, /^odessa$/, /^palau$/, /^lts-test$/]
     println "[edgeX.isLTS] Checking if [${branchName}] matches against LTS streams [${ltsStreams}]"
     (branchName && (ltsStreams.collect { branchName =~ it ? true : false }).contains(true))
 }
@@ -285,7 +285,8 @@ def getGoLangBaseImage(version, alpineBased, branchOverride = null) {
             '1.16': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.16-alpine-lts',
             '1.17': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.17-alpine-lts',
             '1.21': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.21-alpine-lts',
-            '1.23': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.23-alpine-lts'
+            '1.23': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.23-alpine-lts',
+            '1.25': 'nexus3.edgexfoundry.org:10002/edgex-devops/edgex-golang-base:1.25-alpine-lts'
         ]
 
         // isLTS uses env.GIT_BRANCH to determine if the build is a LTS build
