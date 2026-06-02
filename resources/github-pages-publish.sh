@@ -9,10 +9,15 @@ cp -rlf docs/* .
 rm -rf docs
 ls -al .
 
-changesDetected=$(git diff-index --quiet HEAD --)
+git diff-index --quiet HEAD --
+trackedChanged=$?
 
-if [ $? -ne 0 ]; then
-  echo "[edgeXGHPagesPublish] We have detected there are changes to commit: $changesDetected"
+# git diff-index HEAD only sees tracked files; catch a brand-new untracked
+# version directory (e.g. 4.0.2/) that a version-bump publish adds on its own
+untrackedVersionDirs=$(git ls-files --others --exclude-standard --directory | grep -E '^[0-9]+\.[0-9]+(\.[0-9]+)?/' || true)
+
+if [ "$trackedChanged" -ne 0 ] || [ -n "$untrackedVersionDirs" ]; then
+  echo "[edgeXGHPagesPublish] Detected changes to commit (trackedChanged=$trackedChanged, untrackedVersionDirs=$untrackedVersionDirs)"
   git config --global user.email "jenkins@edgexfoundry.org"
   git config --global user.name "EdgeX Jenkins"
   git add .
