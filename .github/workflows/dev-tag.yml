@@ -1,0 +1,51 @@
+name: Create Dev Tag
+on:
+  workflow_call:
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      # All branches of a repo share the same semver branch, so runs must be serialized.
+      # GitHub keeps at most one pending run per group; an older pending run is cancelled
+      # when a newer one queues. The skipped commit gets no dev tag, but versions stay
+      # monotonic and the newest commit is always tagged.
+      group: semver-${{ github.repository }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Tag and bump
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898729+github-actions[bot]@users.noreply.github.com"
+
+          # Skip if HEAD is already tagged with a version (re-run protection, same as GITSEMVER_HEAD_TAG)
+          if git tag --points-at HEAD | grep -q '^v[0-9]'; then
+            echo "HEAD already tagged, skip"; exit 0
+          fi
+
+          VERSION=$(git show "origin/semver:${BRANCH}")
+          git tag -a "v${VERSION}" -m "v${VERSION}"
+
+          # Same behavior as py-git-semver "bump pre --prefix=dev"
+          if [[ "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)-dev\.([0-9]+)$ ]]; then
+            NEXT="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}-dev.$((BASH_REMATCH[4]+1))"
+          elif [[ "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            NEXT="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.$((BASH_REMATCH[3]+1))-dev.1"
+          else
+            echo "unexpected version: $VERSION"; exit 1
+          fi
+
+          git worktree add -B semver .semver origin/semver
+          echo -n "$NEXT" > ".semver/${BRANCH}"
+          git -C .semver commit -am "semver(${BRANCH}): ${NEXT}"
+
+          # Push the tag and the semver branch together so they never get out of sync
+          git push --atomic origin semver "refs/tags/v${VERSION}"
