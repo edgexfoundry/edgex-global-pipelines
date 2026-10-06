@@ -27,3 +27,40 @@ library(identifier: 'edgex-global-pipelines@main',
     )
 ) _
 ```
+
+## GitHub Actions
+
+### Dev Tag
+
+[.github/workflows/dev-tag.yml](.github/workflows/dev-tag.yml) is a reusable workflow that creates the dev tag for a repository and bumps its semver. It replaces the `Semver` stage (`edgeXSemver tag/bump/push`) of the Jenkins pipelines.
+
+Add a caller workflow to the repository, e.g. `.github/workflows/dev-tag.yml`:
+
+```yaml
+name: Dev Tag
+on:
+  push:
+    branches: [main]
+jobs:
+  dev-tag:
+    if: github.repository_owner == 'edgexfoundry'
+    uses: edgexfoundry/edgex-global-pipelines/.github/workflows/dev-tag.yml@stable
+    permissions:
+      contents: write
+```
+
+On every push to the branch, the workflow:
+
+1. Reads the current version from the `semver` branch, in the file named after the pushed branch (e.g. `semver:main`).
+2. Creates the annotated tag `v<version>` on the pushed commit.
+3. Bumps the version the same way as `git semver bump pre --prefix=dev`:
+    - `X.Y.Z-dev.N` -> `X.Y.Z-dev.N+1`
+    - `X.Y.Z` -> `X.Y.Z+1-dev.1`
+4. Pushes the tag and the `semver` branch in one atomic push, so they never get out of sync.
+
+Notes:
+
+- The `semver` branch must already contain a version file for the branch. The workflow does not initialize it.
+- If the commit is already tagged with a version, the workflow skips, so re-running a job is safe.
+- Runs of the same repository are serialized. If several pushes queue up, only the newest pending run is kept, so a skipped commit gets no dev tag but versions stay in order.
+- Tags created by this workflow are not signed. The Jenkins pipelines sign tags with Sigul (`edgeXInfraLFToolsSign`).
