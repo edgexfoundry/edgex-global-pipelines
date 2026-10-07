@@ -1,0 +1,17 @@
+name: Golang Make Test
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      # Lint version comes from each repo's Makefile so CI matches local `make test`
+      - run: make install-lint
+      - run: make test
